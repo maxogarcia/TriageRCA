@@ -7,7 +7,7 @@
 
 - Maximilian (Max) Garcia
 - Yiang (Aeon) Shen
-- Daniel 
+- Daniel Cai
 
 ## Abstract
 
