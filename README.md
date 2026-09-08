@@ -54,15 +54,3 @@ triage-rca/
 └── requirements.txt
 ```
 
-## Deliverables
-
-| # | Deliverable | Location |
-|---|-------------|----------|
-| A | GitHub repo + README | this repository |
-| B | Literature & SOTA survey (10 papers) | [`docs/LITERATURE_SURVEY.md`](docs/LITERATURE_SURVEY.md) |
-| C | Project proposal document | [`docs/TriageRCA_Proposal.pdf`](docs/TriageRCA_Proposal.pdf) (submitted to Canvas) |
-| D | AI novelty & feasibility audit | [`docs/NOVELTY_AUDIT.md`](docs/NOVELTY_AUDIT.md) |
-
-## Status
-
-Proposal phase. Environment setup, RCAEval loader, and a baseline ReAct agent are the first implementation milestones.
