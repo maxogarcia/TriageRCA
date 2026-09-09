@@ -1,8 +1,7 @@
 # TriageRCA: A Planner-Executor-Critic Agent for Root Cause Analysis
 
 **Course:** CMPE 258 — Deep Learning (Fall 2026)
-**Track:** Applied / Application
-
+**Track:** LLMs + AI Agent System (Evaluation-First)
 ## Team Members
 
 - Maximilian (Max) Garcia
