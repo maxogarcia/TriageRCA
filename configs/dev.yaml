@@ -1,0 +1,10 @@
+# Dev-time run config: small, cheap, for iterating locally.
+
+config_name: triagerca # one of: retrieval_only, react, triagerca, triagerca_no_critic
+model: pipeline_model # key into models.yaml
+data_dir: data/re2ob # directory of RCAEval case dirs (git-ignored, download separately)
+cases_limit: 1 # cap how many cases to run in dev
+max_tool_calls: 6
+max_iterations: 3
+cache_dir: .cache/llm
+runs_dir: runs

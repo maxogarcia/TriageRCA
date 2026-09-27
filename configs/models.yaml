@@ -1,0 +1,22 @@
+# Model names and per-1M-token list prices (for cost-per-incident reporting, even on free tier).
+# Fill in / adjust after checking current Google AI Studio free-tier models and limits.
+
+pipeline_model:
+  provider: gemini
+  name: gemini-3.8-flash # confirmed live against the free-tier key on 2026-09-26
+  price_per_1m_input_tokens: 0.0
+  price_per_1m_output_tokens: 0.0
+  min_interval_s: 4.0 # throttle: spacing between calls to stay under free-tier per-minute cap
+
+open_weight_model:
+  provider: openai_compat
+  name: llama-3.1-8b-instruct # placeholder -- set to whatever vLLM/Ollama actually serves
+  base_url: http://localhost:8000/v1
+  price_per_1m_input_tokens: 0.0
+  price_per_1m_output_tokens: 0.0
+  min_interval_s: 0.0
+
+grounding_judge_model:
+  # Aeon: must be a different model family than pipeline_model (see CLAUDE.md Models section).
+  provider: gemini
+  name: gemini-3.8-flash # placeholder -- documented limitation until a second provider is added
