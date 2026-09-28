@@ -1,9 +1,9 @@
 # Python 3.12. Pins are the versions tested together in the shared venv (pip check clean).
 
 # === Data (RCAEval) ===
-RCAEval[default]==1.7.0
+RCAEval==1.7.0  # no [default] extra: it pins 2023-era click/idna/certifi/urllib3 that conflict below
 pandas==3.0.6
-numpy==1.26.4  # held at 1.x by RCAEval's dependency stack
+numpy==1.26.4  # 1.x: what RCAEval declares for py<3.13
 pyarrow==25.0.1
 huggingface-hub==1.33.0  # capped <2 by transformers/sentence-transformers
 

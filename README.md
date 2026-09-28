@@ -33,6 +33,21 @@ Given telemetry (metrics, logs, traces) for a failing microservice system and a 
 - **RAG corpus:** 30–100 runbooks / SOPs / postmortems (curated + synthesized) for grounded retrieval.
 - **Extension set:** a small authored set of authorization / access-violation incidents layered on real telemetry, to cover incident types beyond trivial crashes.
 
+### Setup
+
+Python 3.12 (team standard).
+
+```bash
+python3.12 -m venv .venv && source .venv/bin/activate
+pip install -r requirements.txt
+python scripts/download_data.py                                   # all 90 RE2-OB cases -> data/re2ob/
+python scripts/download_data.py --pattern "re2ob_checkoutservice_cpu_1*"  # or just one case
+python -m src.run --config configs/dev.yaml                       # needs GEMINI_API_KEY in .env
+```
+
+Use the Hugging Face Parquet layout from `scripts/download_data.py`, not `RCAEval.utility.download_re2ob_dataset()`
+(Zenodo zip: nested `service_fault/N/` dirs with `metrics.csv`, which the adapter rejects).
+
 ## Repository Structure
 
 ```

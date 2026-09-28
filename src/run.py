@@ -67,9 +67,12 @@ def main() -> None:
     llm = build_llm(model_cfg, cache_dir=cfg["cache_dir"])
 
     data_dir = Path(cfg["data_dir"])
-    case_dirs = sorted(p for p in data_dir.iterdir() if p.is_dir() and not p.name.startswith("."))[: cfg["cases_limit"]]
+    case_dirs = sorted(p for p in data_dir.iterdir() if (p / "inject_time.txt").is_file())[: cfg["cases_limit"]]
     if not case_dirs:
-        raise SystemExit(f"No case directories found under {data_dir} -- download RCAEval data first.")
+        raise SystemExit(
+            f"No case directories (containing inject_time.txt) directly under {data_dir}. "
+            "Download them with: python scripts/download_data.py"
+        )
 
     out_dir = Path(cfg["runs_dir"]) / cfg["config_name"]
     out_dir.mkdir(parents=True, exist_ok=True)
