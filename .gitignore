@@ -1,5 +1,13 @@
-.venv/
-.env
-data/
+CLAUDE.md
 __pycache__/
 *.pyc
+.venv/
+venv/
+.env
+/data/
+.cache/
+runs/
+.pytest_cache/
+.ruff_cache/
+*.egg-info/
+.ipynb_checkpoints/
