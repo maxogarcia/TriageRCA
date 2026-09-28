@@ -78,19 +78,19 @@ _INJECTION_TO_FAULT_TYPE = {
 # The values list both the specific synthesized ID and the generic real ID.
 _OB_GROUND_TRUTH: dict[tuple[str, str], list[str]] = {
     # ---------- Resource ----------
-    ("adservice", "cpu"):              ["RES-CPU-001"],
+    ("adservice", "cpu"):              ["OB-RES-CPU-001", "RES-CPU-001"],
     ("adservice", "mem"):              ["RES-MEM-001"],
     ("adservice", "disk"):             ["RES-DISK-001"],
-    ("cartservice", "cpu"):            ["RES-CPU-001"],
+    ("cartservice", "cpu"):            ["OB-RES-CPU-001", "RES-CPU-001"],
     ("cartservice", "mem"):            ["OB-RES-MEM-002", "RES-MEM-001"],
     ("cartservice", "disk"):           ["RES-DISK-001"],
-    ("checkoutservice", "cpu"):        ["RES-CPU-001"],
+    ("checkoutservice", "cpu"):        ["OB-RES-CPU-001", "RES-CPU-001"],
     ("checkoutservice", "mem"):        ["RES-MEM-001"],
     ("checkoutservice", "disk"):       ["RES-DISK-001"],
-    ("currencyservice", "cpu"):        ["RES-CPU-001"],
+    ("currencyservice", "cpu"):        ["OB-RES-CPU-001", "RES-CPU-001"],
     ("currencyservice", "mem"):        ["RES-MEM-001"],
     ("currencyservice", "disk"):       ["RES-DISK-001"],
-    ("productcatalogservice", "cpu"):  ["RES-CPU-001"],
+    ("productcatalogservice", "cpu"):  ["OB-RES-CPU-001", "RES-CPU-001"],
     ("productcatalogservice", "mem"):  ["RES-MEM-001"],
     ("productcatalogservice", "disk"): ["OB-RES-DISK-001", "RES-DISK-001"],
     # ---------- Network ----------
@@ -108,7 +108,7 @@ _OB_GROUND_TRUTH: dict[tuple[str, str], list[str]] = {
 
 _SS_GROUND_TRUTH: dict[tuple[str, str], list[str]] = {
     # ---------- Resource ----------
-    ("carts", "cpu"):      ["RES-CPU-001"],
+    ("carts", "cpu"):      ["SS-RES-CPU-001", "RES-CPU-001"],
     ("carts", "mem"):      ["SS-RES-MEM-002", "RES-MEM-001"],
     ("carts", "disk"):     ["RES-DISK-001"],
     ("catalogue", "cpu"):  ["SS-RES-CPU-002", "RES-CPU-001"],
@@ -117,10 +117,10 @@ _SS_GROUND_TRUTH: dict[tuple[str, str], list[str]] = {
     ("orders", "cpu"):     ["SS-RES-CPU-001", "RES-CPU-001"],
     ("orders", "mem"):     ["SS-RES-MEM-001", "RES-MEM-001"],
     ("orders", "disk"):    ["RES-DISK-001"],
-    ("payment", "cpu"):    ["RES-CPU-001"],
+    ("payment", "cpu"):    ["SS-RES-CPU-001", "RES-CPU-001"],
     ("payment", "mem"):    ["RES-MEM-001"],
     ("payment", "disk"):   ["RES-DISK-001"],
-    ("user", "cpu"):       ["RES-CPU-001"],
+    ("user", "cpu"):       ["SS-RES-CPU-001", "RES-CPU-001"],
     ("user", "mem"):       ["RES-MEM-001"],
     ("user", "disk"):      ["RES-DISK-001"],
     # ---------- Network ----------
@@ -138,25 +138,25 @@ _SS_GROUND_TRUTH: dict[tuple[str, str], list[str]] = {
 
 _TT_GROUND_TRUTH: dict[tuple[str, str], list[str]] = {
     # ---------- Resource ----------
-    ("ts-auth-service", "cpu"):    ["RES-CPU-001"],
+    ("ts-auth-service", "cpu"):    ["TT-RES-F5-01", "TT-RES-F5-02", "RES-CPU-001"],
     ("ts-auth-service", "mem"):    ["RES-MEM-001"],
     ("ts-auth-service", "disk"):   ["RES-DISK-001"],
-    ("ts-order-service", "cpu"):   ["RES-CPU-001"],
+    ("ts-order-service", "cpu"):   ["TT-RES-F5-01", "TT-RES-F5-02", "RES-CPU-001"],
     ("ts-order-service", "mem"):   ["TT-RES-F3-01", "TT-RES-F3-02", "RES-MEM-001"],
     ("ts-order-service", "disk"):  ["RES-DISK-001"],
-    ("ts-route-service", "cpu"):   ["RES-CPU-001"],
+    ("ts-route-service", "cpu"):   ["TT-RES-F5-01", "TT-RES-F5-02", "RES-CPU-001"],
     ("ts-route-service", "mem"):   ["RES-MEM-001"],
     ("ts-route-service", "disk"):  ["RES-DISK-001"],
-    ("ts-train-service", "cpu"):   ["RES-CPU-001"],
+    ("ts-train-service", "cpu"):   ["TT-RES-F5-01", "TT-RES-F5-02", "RES-CPU-001"],
     ("ts-train-service", "mem"):   ["RES-MEM-001"],
     ("ts-train-service", "disk"):  ["RES-DISK-001"],
-    ("ts-travel-service", "cpu"):  ["RES-CPU-001"],
+    ("ts-travel-service", "cpu"):  ["TT-RES-F5-01", "TT-RES-F5-02", "RES-CPU-001"],
     ("ts-travel-service", "mem"):  ["RES-MEM-001"],
     ("ts-travel-service", "disk"): ["RES-DISK-001"],
     # ---------- Network ----------
     ("ts-auth-service", "delay"):    ["NET-DELAY-001"],
     ("ts-auth-service", "loss"):     ["NET-LOSS-001"],
-    ("ts-order-service", "delay"):   ["NET-DELAY-001"],
+    ("ts-order-service", "delay"):   ["TT-NET-F7-01", "NET-DELAY-001"],
     ("ts-order-service", "loss"):    ["NET-LOSS-001"],
     ("ts-route-service", "delay"):   ["NET-DELAY-001"],
     ("ts-route-service", "loss"):    ["NET-LOSS-001"],
