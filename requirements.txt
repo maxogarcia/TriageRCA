@@ -10,6 +10,7 @@ huggingface-hub==1.33.0  # capped <2 by transformers/sentence-transformers
 # === RAG ===
 chromadb==1.5.9
 sentence-transformers==6.1.0
+langchain-text-splitters>=1.0.0
 
 # === LLM API clients ===
 google-genai==2.25.0
