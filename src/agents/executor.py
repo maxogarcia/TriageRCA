@@ -78,9 +78,14 @@ class Executor:
 
     def _invoke_tool(self, call: ToolCall, ledger: EvidenceLedger) -> str:
         try:
-            return self._tools.invoke(call.name, call.args, ledger)
-        except KeyError as exc:
+            result = self._tools.invoke(call.name, call.args, ledger)
+        except (KeyError, TypeError, ValueError) as exc:
+            # Unknown tool or bad/missing args from the model: report back so it can retry,
+            # rather than failing the whole case.
             return f"Error: {exc}"
+        # Tag the result with its ledger ID so the model can cite it -- otherwise it has to guess
+        # IDs from call order, and one wrong guess fails _validate_citations.
+        return f"[{ledger.items[-1].id}] {result}"
 
     def _force_synthesize(self, messages: list[Message], forced: bool) -> Hypothesis:
         prompt = "Produce your final Hypothesis now, citing evidence IDs for every claim."

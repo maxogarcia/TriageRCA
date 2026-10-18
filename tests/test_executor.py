@@ -105,3 +105,54 @@ def test_executor_rejects_hypothesis_citing_unknown_evidence(sample_case):
         raise AssertionError("expected ValueError for unknown citation")
     except ValueError as exc:
         assert "E999" in str(exc)
+
+
+def test_executor_tags_tool_results_with_evidence_id_and_survives_bad_args(sample_case):
+    registry = _make_registry(sample_case)
+    bad_args_call = LLMResponse(
+        text="",
+        tool_calls=[ToolCall(id="1", name="metric_query", args={"svc": "cartservice"})],
+        input_tokens=1,
+        output_tokens=1,
+        latency_s=0.01,
+        model="fake",
+        cached=False,
+    )
+    good_call = LLMResponse(
+        text="",
+        tool_calls=[
+            ToolCall(id="2", name="metric_query", args={"service": "cartservice", "start_time": 100, "end_time": 130})
+        ],
+        input_tokens=1,
+        output_tokens=1,
+        latency_s=0.01,
+        model="fake",
+        cached=False,
+    )
+    final = {
+        "ranked_services": ["cartservice"],
+        "indicator": "cartservice_cpu",
+        "fault_category": "cpu",
+        "explanation": "CPU spiked, see E001.",
+        "citations": ["E001"],
+        "mitigation": "Scale up.",
+        "confidence": 0.8,
+    }
+    synth = LLMResponse(
+        text=json.dumps(final),
+        tool_calls=[],
+        input_tokens=1,
+        output_tokens=1,
+        latency_s=0.01,
+        model="fake",
+        cached=False,
+    )
+    llm = FakeLLMClient([bad_args_call, good_call, synth])
+    ledger = EvidenceLedger()
+
+    Executor(llm=llm, tools=registry, max_tool_calls=5).run(sample_case.incident_query, Plan(steps=[]), ledger)
+
+    tool_messages = [m for m in llm.calls[-1]["messages"] if m.role == "tool"]
+    assert tool_messages[0].content.startswith("Error:")
+    assert tool_messages[1].content.startswith("[E001] ")
+    assert len(ledger.items) == 1  # the failed call logged nothing

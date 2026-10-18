@@ -6,5 +6,7 @@ data_dir: data/re2ob # directory of RCAEval case dirs (git-ignored, download sep
 cases_limit: 1 # cap how many cases to run in dev
 max_tool_calls: 6
 max_iterations: 3
+retriever: stub # stub | chroma (chroma needs the index: python -m src.rag.embed)
+critic: stub # stub (always accepts) until Aeon's Critic lands
 cache_dir: .cache/llm
 runs_dir: runs
