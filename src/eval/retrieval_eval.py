@@ -183,8 +183,12 @@ def _build_rcaeval_query(system_name: str, service: str, injection: str) -> str:
         "cpu": f"{service} is consuming abnormally high CPU, response times degraded, possible runaway computation",
         "mem": f"{service} memory usage steadily increasing, pod at risk of OOMKill, potential memory leak",
         "disk": f"{service} disk I/O extremely high, read/write latency spiking, storage may be full",
-        "delay": f"High latency observed on requests to {service}, upstream services timing out, possible network delay",
-        "loss": f"Intermittent failures communicating with {service}, TCP retransmissions detected, possible packet loss",
+        "delay": (
+            f"High latency observed on requests to {service}, upstream services timing out, possible network delay"
+        ),
+        "loss": (
+            f"Intermittent failures communicating with {service}, TCP retransmissions detected, possible packet loss"
+        ),
     }
     desc = injection_descriptions.get(injection, f"{service} experiencing {injection} issues")
     return f"[{system_name}] {desc}"
