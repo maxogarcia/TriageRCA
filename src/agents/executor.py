@@ -19,6 +19,11 @@ stop calling tools and, instead of a tool call, respond with ONLY a JSON object 
 (no prose, no markdown fences): {"ranked_services": [...], "indicator": ..., "fault_category": ...,
 "explanation": ..., "citations": [...], "mitigation": ..., "confidence": ...}
 
+`ranked_services` lists up to 5 candidate root-cause services, most likely first. `indicator` is the
+single metric that best shows the fault, written as "<service>_<metric>" exactly as metric_query
+names it (e.g. "cartservice_cpu"). A service whose metrics shift sharply at the onset is a stronger
+root-cause candidate than one that is only slow because it calls that service.
+
 Every claim in your final explanation must cite evidence IDs (e.g. "E001", "E002") from the tool
 results you were shown -- never cite evidence you were not actually given, and never invent metric
 values or log lines not present in a tool result.
@@ -78,9 +83,14 @@ class Executor:
 
     def _invoke_tool(self, call: ToolCall, ledger: EvidenceLedger) -> str:
         try:
-            return self._tools.invoke(call.name, call.args, ledger)
-        except KeyError as exc:
+            result = self._tools.invoke(call.name, call.args, ledger)
+        except (KeyError, TypeError, ValueError) as exc:
+            # Unknown tool or bad/missing args from the model: report back so it can retry,
+            # rather than failing the whole case.
             return f"Error: {exc}"
+        # Tag the result with its ledger ID so the model can cite it -- otherwise it has to guess
+        # IDs from call order, and one wrong guess fails _validate_citations.
+        return f"[{ledger.items[-1].id}] {result}"
 
     def _force_synthesize(self, messages: list[Message], forced: bool) -> Hypothesis:
         prompt = "Produce your final Hypothesis now, citing evidence IDs for every claim."

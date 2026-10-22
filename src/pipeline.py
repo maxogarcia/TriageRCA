@@ -1,5 +1,6 @@
 """Orchestration loop for each config: retrieval_only, react, triagerca, triagerca_no_critic.
 
+retrieval_only: one runbook retrieval + one LLM call, no telemetry tools.
 triagerca: Planner -> Executor -> Critic, re-planning on reject/need_more_evidence, capped at
 max_iterations. triagerca_no_critic: same but skips the critic (auto-accepts the first
 hypothesis). react: single agent, same tools, no planner/critic.
@@ -8,12 +9,13 @@ hypothesis). react: single agent, same tools, no planner/critic.
 from __future__ import annotations
 
 import time
-from dataclasses import asdict
+from dataclasses import asdict, dataclass
 
 from src.agents.critic import AlwaysAcceptCritic, Critic
 from src.agents.executor import Executor
 from src.agents.planner import Planner
 from src.agents.react import run_react
+from src.agents.retrieval_only import run_retrieval_only
 from src.data.case import Case
 from src.evidence import EvidenceLedger
 from src.llm.base import LLMResponse
@@ -22,12 +24,24 @@ from src.schemas import CriticVerdict, LLMCallRecord, RCAReport, RunRecord
 MAX_ITERATIONS = 3
 
 
+@dataclass(frozen=True)
+class Pricing:
+    """List price per 1M tokens (configs/models.yaml), for cost-per-incident reporting."""
+
+    input_per_1m: float = 0.0
+    output_per_1m: float = 0.0
+
+    def cost(self, input_tokens: int, output_tokens: int) -> float:
+        return (input_tokens * self.input_per_1m + output_tokens * self.output_per_1m) / 1_000_000
+
+
 class RecordingLLM:
     """Wraps an LLMClient to record every call's usage for the RunRecord, without changing
     the LLMClient interface Planner/Executor depend on."""
 
-    def __init__(self, inner) -> None:
+    def __init__(self, inner, pricing: Pricing | None = None) -> None:
         self._inner = inner
+        self._pricing = pricing or Pricing()
         self.records: list[LLMCallRecord] = []
 
     def generate(self, *args, **kwargs) -> LLMResponse:
@@ -39,14 +53,24 @@ class RecordingLLM:
                 output_tokens=response.output_tokens,
                 latency_s=response.latency_s,
                 cached=response.cached,
+                cost_usd=self._pricing.cost(response.input_tokens, response.output_tokens),
             )
         )
         return response
 
 
-def run_case(case: Case, config: str, llm, tools, critic: Critic | None = None, max_tool_calls: int = 10) -> RunRecord:
+def run_case(
+    case: Case,
+    config: str,
+    llm,
+    tools,
+    critic: Critic | None = None,
+    max_tool_calls: int = 10,
+    max_iterations: int = MAX_ITERATIONS,
+    pricing: Pricing | None = None,
+) -> RunRecord:
     start = time.monotonic()
-    recording_llm = RecordingLLM(llm)
+    recording_llm = RecordingLLM(llm, pricing)
     ledger = EvidenceLedger()
     critic_verdicts: list[CriticVerdict] = []
     errors: list[str] = []
@@ -56,7 +80,12 @@ def run_case(case: Case, config: str, llm, tools, critic: Critic | None = None, 
     executor = Executor(llm=recording_llm, tools=tools, max_tool_calls=max_tool_calls)
 
     try:
-        if config == "react":
+        if config == "retrieval_only":
+            hypothesis = run_retrieval_only(recording_llm, tools, case.incident_query, case.services, ledger)
+            report = RCAReport(**hypothesis.model_dump())
+            iteration_count = 1
+
+        elif config == "react":
             hypothesis = run_react(executor, case.incident_query, ledger)
             report = RCAReport(**hypothesis.model_dump())
             iteration_count = 1
@@ -68,7 +97,7 @@ def run_case(case: Case, config: str, llm, tools, critic: Critic | None = None, 
             )
             feedback: CriticVerdict | None = None
 
-            for iteration_count in range(1, MAX_ITERATIONS + 1):
+            for iteration_count in range(1, max_iterations + 1):
                 plan = planner.plan(case.incident_query, case.services, case.inject_time, critic_feedback=feedback)
                 hypothesis = executor.run(case.incident_query, plan, ledger)
                 verdict = active_critic.review(hypothesis, ledger)
@@ -82,7 +111,7 @@ def run_case(case: Case, config: str, llm, tools, critic: Critic | None = None, 
                 # Loop exhausted without acceptance -- report the last hypothesis anyway,
                 # flagged via errors so eval can tell it never passed the critic.
                 report = RCAReport(**hypothesis.model_dump())
-                errors.append(f"Critic did not accept within {MAX_ITERATIONS} iterations.")
+                errors.append(f"Critic did not accept within {max_iterations} iterations.")
 
         else:
             raise ValueError(f"Unknown config: {config!r}")
@@ -99,5 +128,6 @@ def run_case(case: Case, config: str, llm, tools, critic: Critic | None = None, 
         critic_verdicts=critic_verdicts,
         iteration_count=iteration_count,
         wall_clock_s=time.monotonic() - start,
+        cost_usd=sum(r.cost_usd for r in recording_llm.records),
         errors=errors,
     )

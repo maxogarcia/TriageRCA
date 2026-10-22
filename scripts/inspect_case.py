@@ -1,7 +1,7 @@
 from pathlib import Path
-import pandas as pd
 
-from RCAEval.utility import read_metrics, read_logs, read_traces
+import pandas as pd
+from RCAEval.utility import read_logs, read_metrics, read_traces
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 DATA_ROOT = PROJECT_ROOT / "data" / "raw" / "rcaeval"

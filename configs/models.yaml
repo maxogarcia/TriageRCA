@@ -4,8 +4,10 @@
 pipeline_model:
   provider: gemini
   name: gemini-3.8-flash # confirmed live against the free-tier key on 2026-09-26
-  price_per_1m_input_tokens: 0.0
-  price_per_1m_output_tokens: 0.0
+  # Paid-tier list price as of 2026-10-18, valid through 2026-12-31 (rises to 1.50 / 7.50 on
+  # 2027-01-01). Taken from third-party price trackers -- verify on ai.google.dev/pricing.
+  price_per_1m_input_tokens: 0.75
+  price_per_1m_output_tokens: 3.75
   min_interval_s: 4.0 # throttle: spacing between calls to stay under free-tier per-minute cap
 
 open_weight_model:

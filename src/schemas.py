@@ -49,6 +49,7 @@ class LLMCallRecord(BaseModel):
     output_tokens: int
     latency_s: float
     cached: bool
+    cost_usd: float = 0.0  # at list price, even when cached or on the free tier
 
 
 class RunRecord(BaseModel):
@@ -60,4 +61,5 @@ class RunRecord(BaseModel):
     critic_verdicts: list[CriticVerdict]
     iteration_count: int
     wall_clock_s: float
+    cost_usd: float = 0.0  # sum of llm_calls[].cost_usd
     errors: list[str] = Field(default_factory=list)
