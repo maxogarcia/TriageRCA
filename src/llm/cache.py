@@ -27,10 +27,14 @@ _RETRYABLE_STATUS_CODES = {429, 500, 503}
 
 
 def _is_rate_limit_error(exc: BaseException) -> bool:
+    text = str(exc).lower()
+    # A per-day quota (Gemini free tier: "...PerDayPerProjectPerModel...") won't reset within any
+    # backoff window, so fail fast instead of burning ~4 minutes of retries per call.
+    if "perday" in text:
+        return False
     status = getattr(exc, "status_code", None) or getattr(exc, "code", None)
     if status in _RETRYABLE_STATUS_CODES:
         return True
-    text = str(exc).lower()
     return any(needle in text for needle in ("429", "rate limit", "503", "unavailable", "high demand"))
 
 
