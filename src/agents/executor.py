@@ -22,7 +22,8 @@ stop calling tools and, instead of a tool call, respond with ONLY a JSON object 
 `ranked_services` lists up to 5 candidate root-cause services, most likely first. `indicator` is the
 single metric that best shows the fault, written as "<service>_<metric>" exactly as metric_query
 names it (e.g. "cartservice_cpu"). A service whose metrics shift sharply at the onset is a stronger
-root-cause candidate than one that is only slow because it calls that service.
+root-cause candidate than one that is only slow because it calls that service. `confidence` is a
+number between 0 and 1 (e.g. 0.8), not a percentage.
 
 Every claim in your final explanation must cite evidence IDs (e.g. "E001", "E002") from the tool
 results you were shown -- never cite evidence you were not actually given, and never invent metric
