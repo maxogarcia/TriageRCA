@@ -12,8 +12,11 @@ pipeline_model:
 
 open_weight_model:
   provider: openai_compat
-  name: llama-3.1-8b-instruct # placeholder -- set to whatever vLLM/Ollama actually serves
-  base_url: http://localhost:8000/v1
+  # Proposal allows "Llama 3.1 8B or Qwen2.5"; Qwen2.5 chosen for more reliable tool calling.
+  # Served by Ollama (Q4_K_M weights). Start it with a large context, or Ollama silently
+  # truncates long Executor conversations: see README "Open-weight model".
+  name: qwen2.5:7b-instruct
+  base_url: http://localhost:11434/v1
   price_per_1m_input_tokens: 0.0
   price_per_1m_output_tokens: 0.0
   min_interval_s: 0.0

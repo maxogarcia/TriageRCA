@@ -48,6 +48,22 @@ python -m src.run --config configs/dev.yaml                       # needs GEMINI
 Use the Hugging Face Parquet layout from `scripts/download_data.py`, not `RCAEval.utility.download_re2ob_dataset()`
 (Zenodo zip: nested `service_fault/N/` dirs with `metrics.csv`, which the adapter rejects).
 
+### Open-weight model
+
+The open-weight slot (`open_weight_model` in `configs/models.yaml`) is Qwen2.5-7B-Instruct served by
+[Ollama](https://ollama.com) through its OpenAI-compatible endpoint. Needs an NVIDIA GPU with ~8 GB free.
+
+```bash
+# Start the server with a 32K context. Ollama's default context is much smaller and it truncates longer
+# prompts silently, which cuts off the Executor's tool results mid-investigation.
+OLLAMA_CONTEXT_LENGTH=32768 ollama serve &
+ollama pull qwen2.5:7b-instruct
+python -m src.run --config configs/dev.yaml --model open_weight_model --runs-dir runs/qwen
+```
+
+Use a separate `--runs-dir` per model: records are written to `<runs_dir>/<config_name>/<case_id>.json`, so
+two models sharing one runs dir overwrite each other.
+
 ## Repository Structure
 
 ```

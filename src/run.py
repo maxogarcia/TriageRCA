@@ -4,11 +4,14 @@ written to runs/<config_name>/<case_id>.json (hard rule #5).
 Usage:
     python -m src.run --config configs/dev.yaml
     python -m src.run --config configs/dev.yaml --config-name react --cases-limit 5
+    python -m src.run --config configs/dev.yaml --model open_weight_model --runs-dir runs/qwen   # local Qwen
+    python -m src.run --config configs/dev.yaml --cases "re2ob_*_cpu_1" "re2ob_*_loss_1" --cases-limit 10
 """
 
 from __future__ import annotations
 
 import argparse
+from fnmatch import fnmatch
 from pathlib import Path
 
 import yaml
@@ -81,11 +84,18 @@ def main() -> None:
     parser.add_argument("--config", required=True, type=Path)
     parser.add_argument("--config-name", help="override config_name (retrieval_only, react, triagerca, ...)")
     parser.add_argument("--cases-limit", type=int, help="override cases_limit")
+    parser.add_argument("--model", help="override model, a key in configs/models.yaml (e.g. open_weight_model)")
+    parser.add_argument("--cases", nargs="+", help="case IDs or globs to run, e.g. re2ob_emailservice_*_1")
+    parser.add_argument("--runs-dir", help="override runs_dir, e.g. runs/qwen so runs don't overwrite another model's")
     args = parser.parse_args()
 
     cfg = yaml.safe_load(args.config.read_text())
     if args.config_name:
         cfg["config_name"] = args.config_name
+    if args.model:
+        cfg["model"] = args.model
+    if args.runs_dir:
+        cfg["runs_dir"] = args.runs_dir
     if args.cases_limit is not None:
         cfg["cases_limit"] = args.cases_limit
     models = yaml.safe_load(Path("configs/models.yaml").read_text())
@@ -100,7 +110,10 @@ def main() -> None:
     critic = build_critic(cfg.get("critic", "stub"))
 
     data_dir = Path(cfg["data_dir"])
-    case_dirs = sorted(p for p in data_dir.iterdir() if (p / "inject_time.txt").is_file())[: cfg["cases_limit"]]
+    case_dirs = sorted(p for p in data_dir.iterdir() if (p / "inject_time.txt").is_file())
+    if args.cases:
+        case_dirs = [p for p in case_dirs if any(fnmatch(p.name, pattern) for pattern in args.cases)]
+    case_dirs = case_dirs[: cfg["cases_limit"]]
     if not case_dirs:
         raise SystemExit(
             f"No case directories (containing inject_time.txt) directly under {data_dir}. "
