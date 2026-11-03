@@ -35,6 +35,7 @@ def test_response_schema_is_sent_as_json_schema(monkeypatch):
 
     client._raw_generate([Message(role="user", content="hi")], response_schema=Hypothesis)
 
+    assert captured["max_tokens"] == 2048
     response_format = captured["response_format"]
     assert response_format["type"] == "json_schema"
     assert response_format["json_schema"]["name"] == "Hypothesis"

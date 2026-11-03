@@ -12,6 +12,8 @@ from pydantic import BaseModel
 from src.llm.base import LLMResponse, Message, ToolCall, ToolSpec
 from src.llm.cache import CachedThrottledClient
 
+DEFAULT_MAX_TOKENS = 2048
+
 
 def _to_openai_messages(messages: list[Message]) -> list[dict[str, Any]]:
     out = []
@@ -61,6 +63,9 @@ class OpenAICompatClient:
         **params: Any,
     ) -> LLMResponse:
         kwargs: dict[str, Any] = dict(params)
+        # Small models occasionally loop; without a cap one reply ran to ~18K tokens (~9 min on GPU).
+        # A final Hypothesis is a few hundred tokens.
+        kwargs.setdefault("max_tokens", DEFAULT_MAX_TOKENS)
         openai_tools = _to_openai_tools(tools)
         if openai_tools:
             kwargs["tools"] = openai_tools
