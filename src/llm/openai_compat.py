@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 import time
 from typing import Any
 
@@ -10,6 +11,8 @@ from pydantic import BaseModel
 
 from src.llm.base import LLMResponse, Message, ToolCall, ToolSpec
 from src.llm.cache import CachedThrottledClient
+
+DEFAULT_MAX_TOKENS = 2048
 
 
 def _to_openai_messages(messages: list[Message]) -> list[dict[str, Any]]:
@@ -23,7 +26,9 @@ def _to_openai_messages(messages: list[Message]) -> list[dict[str, Any]]:
                 {
                     "id": tc.id,
                     "type": "function",
-                    "function": {"name": tc.name, "arguments": str(tc.args)},
+                    # JSON, not str(dict): the endpoint parses this back, and Python's repr
+                    # (single quotes, True/None) isn't valid JSON.
+                    "function": {"name": tc.name, "arguments": json.dumps(tc.args)},
                 }
                 for tc in m.tool_calls
             ]
@@ -58,11 +63,20 @@ class OpenAICompatClient:
         **params: Any,
     ) -> LLMResponse:
         kwargs: dict[str, Any] = dict(params)
+        # Small models occasionally loop; without a cap one reply ran to ~18K tokens (~9 min on GPU).
+        # A final Hypothesis is a few hundred tokens.
+        kwargs.setdefault("max_tokens", DEFAULT_MAX_TOKENS)
         openai_tools = _to_openai_tools(tools)
         if openai_tools:
             kwargs["tools"] = openai_tools
         if response_schema is not None:
-            kwargs["response_format"] = {"type": "json_object"}
+            # Full schema, not just {"type": "json_object"}: small open-weight models drift from
+            # the required fields when only told "emit JSON". vLLM and Ollama both constrain
+            # decoding to this schema.
+            kwargs["response_format"] = {
+                "type": "json_schema",
+                "json_schema": {"name": response_schema.__name__, "schema": response_schema.model_json_schema()},
+            }
 
         start = time.monotonic()
         result = self._client.chat.completions.create(
@@ -90,8 +104,6 @@ class OpenAICompatClient:
 
 
 def _safe_json_args(raw: str) -> dict[str, Any]:
-    import json
-
     try:
         return json.loads(raw)
     except (json.JSONDecodeError, TypeError):

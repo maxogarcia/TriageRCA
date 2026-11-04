@@ -17,8 +17,10 @@ excerpts, rank up to 5 likely root-cause services (most likely first), name the 
 indicator (written as "<service>_<metric>", e.g. "cartservice_cpu"), the fault category, an
 explanation, and a mitigation.
 
-Cite evidence IDs (e.g. "E001") for every claim, and only IDs you were shown. If the excerpts do
-not support a conclusion, say so and give a low confidence rather than inventing evidence.
+Cite evidence IDs (e.g. "E001") for every claim, and only IDs you were shown. `citations` holds
+the bare IDs only (e.g. ["E001"]), with no text after them. If the excerpts do not support a
+conclusion, say so and give a low confidence rather than inventing evidence. `confidence` is a
+number between 0 and 1 (e.g. 0.3), not a percentage.
 """
 
 

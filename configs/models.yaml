@@ -8,12 +8,17 @@ pipeline_model:
   # 2027-01-01). Taken from third-party price trackers -- verify on ai.google.dev/pricing.
   price_per_1m_input_tokens: 0.75
   price_per_1m_output_tokens: 3.75
-  min_interval_s: 4.0 # throttle: spacing between calls to stay under free-tier per-minute cap
+  # Throttle: spacing between calls to stay under the free-tier per-minute cap, which is 5 RPM
+  # for this model (from the 429 error body, 2026-11-03) -- 60/5 = 12s, plus margin.
+  min_interval_s: 13.0
 
 open_weight_model:
   provider: openai_compat
-  name: llama-3.1-8b-instruct # placeholder -- set to whatever vLLM/Ollama actually serves
-  base_url: http://localhost:8000/v1
+  # Proposal allows "Llama 3.1 8B or Qwen2.5"; Qwen2.5 chosen for more reliable tool calling.
+  # Served by Ollama (Q4_K_M weights). Start it with a large context, or Ollama silently
+  # truncates long Executor conversations: see README "Open-weight model".
+  name: qwen2.5:7b-instruct
+  base_url: http://localhost:11434/v1
   price_per_1m_input_tokens: 0.0
   price_per_1m_output_tokens: 0.0
   min_interval_s: 0.0

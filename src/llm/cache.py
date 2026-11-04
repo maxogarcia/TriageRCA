@@ -27,10 +27,14 @@ _RETRYABLE_STATUS_CODES = {429, 500, 503}
 
 
 def _is_rate_limit_error(exc: BaseException) -> bool:
+    text = str(exc).lower()
+    # A per-day quota (Gemini free tier: "...PerDayPerProjectPerModel...") won't reset within any
+    # backoff window, so fail fast instead of burning ~4 minutes of retries per call.
+    if "perday" in text:
+        return False
     status = getattr(exc, "status_code", None) or getattr(exc, "code", None)
     if status in _RETRYABLE_STATUS_CODES:
         return True
-    text = str(exc).lower()
     return any(needle in text for needle in ("429", "rate limit", "503", "unavailable", "high demand"))
 
 
@@ -55,7 +59,7 @@ class CachedThrottledClient:
         model: str,
         cache_dir: Path | str = DEFAULT_CACHE_DIR,
         min_interval_s: float = 0.0,
-        max_attempts: int = 5,
+        max_attempts: int = 8,
     ) -> None:
         self._call_fn = call_fn
         self._model = model
@@ -90,9 +94,11 @@ class CachedThrottledClient:
             time.sleep(self._min_interval_s - elapsed)
 
     def _call_with_backoff(self, *args: Any, **kwargs: Any) -> LLMResponse:
+        # Waits 4, 8, 16, 32, 60, 60, 60s (~4 min total). Gemini's 429s ask for up to ~60s and its
+        # 503 "high demand" spikes last minutes; the old 1-8s schedule gave up after ~15s.
         @retry(
             retry=retry_if_exception(_is_rate_limit_error),
-            wait=wait_exponential(multiplier=1, min=1, max=60),
+            wait=wait_exponential(multiplier=4, min=4, max=60),
             stop=stop_after_attempt(self._max_attempts),
             reraise=True,
         )
