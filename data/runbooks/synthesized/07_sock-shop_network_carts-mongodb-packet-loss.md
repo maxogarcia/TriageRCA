@@ -1,0 +1,12 @@
+# Sock Shop Network Faults
+
+## SS-NET-MONGO-002: Packet Loss Between Carts and MongoDB Causes Intermittent Failures
+- **Affected Services**: carts, carts-db
+- **Fault Type**: Network
+- **Symptom**: Cart add, update, and delete requests fail intermittently or become bimodally slow; carts logs show Java MongoDB driver socket, connection-reset, or timeout exceptions; node-level TCP retransmissions rise on nodes hosting carts or carts-db; some front-end requests succeed while others fail after driver timeout intervals
+- **Root Cause**: Packet loss on the TCP path between the Java carts service and MongoDB at `carts-db:27017` drops handshakes or data segments. TCP retransmission and MongoDB topology checks add latency until the driver recovers or the operation exceeds its selection or socket timeout
+- **Diagnostic Steps**:
+  1. Compare `histogram_quantile(0.99, sum by (le) (rate(http_request_duration_seconds_bucket{service="carts"}[5m])))` with the node-level ratio `rate(node_netstat_Tcp_RetransSegs[5m]) / rate(node_netstat_Tcp_OutSegs[5m])`; if custom instrumentation exports `mongodb_driver_pool_wait_seconds`, inspect it; otherwise derive the pool-pressure signal from structured carts timeout and connection logs
+  2. If tracing exports MongoDB client spans, inspect them for network wait; otherwise correlate carts HTTP latency with `MongoTimeoutException`, `MongoSocketReadException`, or connection-reset logs from `kubectl logs deployment/carts -n <namespace> --since=30m`, carts-db logs, and available CNI flow telemetry
+  3. Verify `kubectl get service carts-db -n <namespace>` and `kubectl get endpointslice -n <namespace> -l kubernetes.io/service-name=carts-db`; from an authorized ephemeral debug container attached to a carts pod, run repeated DNS and TCP checks to `carts-db:27017`, then inspect relevant NetworkPolicies and the authorized fault-injection controller rather than assuming networking utilities exist in the application container
+- **Remediation & Mitigation**: Immediate — remove the confirmed packet-loss experiment, repair or drain the faulty node, or correct the narrow NetworkPolicy/CNI path; verify stable cart operations and driver reconnection before restoring full traffic. Long-term — alert on path-correlated retransmissions and MongoDB topology errors, use bounded timeouts and retry budgets, make cart mutations idempotent, spread replicas across failure domains where supported, and run controlled packet-loss tests without masking persistent faults with unlimited retries

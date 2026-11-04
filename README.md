@@ -42,6 +42,7 @@ python3.12 -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
 python scripts/download_data.py                                   # all 90 RE2-OB cases -> data/re2ob/
 python scripts/download_data.py --pattern "re2ob_checkoutservice_cpu_1*"  # or just one case
+python -m src.rag.embed                                           # build the runbook index -> data/chroma_db/
 python -m src.run --config configs/dev.yaml                       # needs GEMINI_API_KEY in .env
 ```
 

@@ -1,0 +1,79 @@
+# Kubernetes Workload and Cluster Troubleshooting
+
+## K8S-CRASH-001: CrashLoopBackOff Container Restart Loop
+- **Affected Services**: All / Ingress
+- **Fault Type**: Code-level
+- **Symptom**: A pod repeatedly enters `Waiting` with reason `CrashLoopBackOff`; restart count and `kube_pod_container_status_restarts_total` increase; `kube_pod_container_status_waiting_reason{reason="CrashLoopBackOff"}` equals 1; the workload has fewer ready replicas and may return HTTP 502, 503, or 504 responses
+- **Root Cause**: The container process repeatedly exits because of an application error, invalid command or arguments, missing configuration or secret, unavailable startup dependency, permission failure, or incorrectly configured liveness/startup probe; kubelet applies an increasing restart backoff according to the pod restart policy
+- **Diagnostic Steps**:
+  1. Confirm the container state, last termination reason, exit code, restart count, probes, and recent events with `kubectl describe pod <pod> -n <namespace>`
+  2. Retrieve the failed container's prior logs before another restart overwrites the context: `kubectl logs <pod> -n <namespace> -c <container> --previous --timestamps`
+  3. Extract termination details with `kubectl get pod <pod> -n <namespace> -o jsonpath='{range .status.containerStatuses[*]}{.name}{" reason="}{.lastState.terminated.reason}{" exit="}{.lastState.terminated.exitCode}{" restarts="}{.restartCount}{"\n"}{end}'`
+  4. Compare the live pod specification with the owning workload and verify referenced objects: `kubectl get pod <pod> -n <namespace> -o yaml`, `kubectl get deployment/<service> -n <namespace> -o yaml`, and `kubectl get configmap,secret -n <namespace>`; do not print secret values into an incident log
+  5. Correlate `rate(kube_pod_container_status_restarts_total{namespace="<namespace>",pod=~"<service>.*"}[5m])` with rollout time, dependency errors, and trace spans; use `kubectl debug <pod> -n <namespace> -it --copy-to=<pod>-debug --container=<container> -- sh` when the production image exits too quickly or lacks troubleshooting tools
+- **Remediation & Mitigation**: Immediate — roll back a correlated bad release, correct the invalid command/configuration/secret reference, restore the required dependency, or repair a demonstrably faulty probe; keep traffic on healthy replicas and verify readiness before restoring capacity. Long-term — add startup validation, tested health probes, dependency timeouts, immutable configuration checks, termination messages, and CI smoke tests that launch the production image with representative configuration
+
+## K8S-OOM-001: Container Terminated with OOMKilled
+- **Affected Services**: All / Ingress
+- **Fault Type**: Resource
+- **Symptom**: Container status shows `Last State: Terminated` with reason `OOMKilled` and commonly exit code 137; `kube_pod_container_status_last_terminated_reason{reason="OOMKilled"}` equals 1; `container_memory_working_set_bytes` approaches the configured limit; latency and garbage-collection pauses rise before the container restarts
+- **Root Cause**: The container exceeds its cgroup memory limit or is selected during node memory pressure because of a memory leak, unbounded cache or queue, oversized workload, memory-backed `emptyDir`, incorrect runtime heap sizing, or requests and limits that do not match observed working-set behavior
+- **Diagnostic Steps**:
+  1. Confirm the termination reason, exit code, resource limits, and events with `kubectl describe pod <pod> -n <namespace>` and `kubectl get pod <pod> -n <namespace> -o jsonpath='{.status.containerStatuses[*].lastState.terminated}'`
+  2. Compare current usage with requests and limits using `kubectl top pod <pod> -n <namespace> --containers` and `kubectl get pod <pod> -n <namespace> -o jsonpath='{range .spec.containers[*]}{.name}{" requests="}{.resources.requests}{" limits="}{.resources.limits}{"\n"}{end}'`
+  3. Inspect the pre-restart logs with `kubectl logs <pod> -n <namespace> -c <container> --previous --timestamps`; search for `OutOfMemoryError`, allocation failures, cache growth, queue growth, or prolonged garbage collection
+  4. Query `container_memory_working_set_bytes{namespace="<namespace>",pod=~"<service>.*"}` and `container_memory_rss{namespace="<namespace>",pod=~"<service>.*"}` across the incident window; compare the growth curve with `kube_pod_container_resource_limits{resource="memory"}` and node memory-pressure signals
+  5. Check node pressure and memory-backed volumes with `kubectl describe node <node>` and `kubectl get pod <pod> -n <namespace> -o jsonpath='{.spec.volumes[?(@.emptyDir.medium=="Memory")]}'`; for JVM workloads, capture `jcmd 1 GC.heap_info` or a heap histogram before restart when the pod remains responsive and sufficient capacity exists
+- **Remediation & Mitigation**: Immediate — remove the leaking pod from traffic, preserve diagnostics when safe, roll back the suspected leak or reduce the triggering workload, and restart the pod to restore capacity; adjust memory only from measured peak usage and confirmed node headroom rather than blindly increasing the limit. Long-term — fix leaks, bound caches and queues, set runtime heap size below the container limit, define evidence-based requests and limits, constrain memory-backed volumes, enable safe heap-dump collection, and alert on sustained working-set growth before OOM termination
+
+## K8S-SCHED-001: Pod Pending Because Scheduling Failed
+- **Affected Services**: All / Ingress
+- **Fault Type**: Config
+- **Symptom**: Pods remain `Pending`; events report `FailedScheduling`; `kube_pod_status_unschedulable` equals 1 or `kube_pod_status_phase{phase="Pending"}` persists; a Deployment or StatefulSet cannot reach its desired ready-replica count
+- **Root Cause**: No node simultaneously satisfies the pod's CPU, memory, extended-resource, affinity, topology, taint/toleration, host-port, or volume-binding requirements; the pod may request more of a resource than any node can provide even when cluster-wide utilization appears low
+- **Diagnostic Steps**:
+  1. Read the scheduler's exact rejection reasons with `kubectl describe pod <pod> -n <namespace>` and `kubectl get events -n <namespace> --field-selector involvedObject.name=<pod> --sort-by=.lastTimestamp`
+  2. Compare pod requests with node allocatable capacity and existing allocations: `kubectl get pod <pod> -n <namespace> -o jsonpath='{.spec.containers[*].resources.requests}'`, `kubectl get nodes -o custom-columns=NAME:.metadata.name,CPU:.status.allocatable.cpu,MEMORY:.status.allocatable.memory`, and `kubectl describe node <node>`
+  3. Inspect placement constraints with `kubectl get pod <pod> -n <namespace> -o jsonpath='{.spec.nodeSelector}{"\n"}{.spec.affinity}{"\n"}{.spec.tolerations}{"\n"}{.spec.topologySpreadConstraints}'`; compare them with `kubectl get nodes --show-labels` and `kubectl get nodes -o custom-columns=NAME:.metadata.name,TAINTS:.spec.taints`
+  4. Check unbound storage and host-port constraints using `kubectl get pvc -n <namespace>`, `kubectl describe pvc <claim> -n <namespace>`, and `kubectl get pod <pod> -n <namespace> -o jsonpath='{.spec.containers[*].ports[*].hostPort}'`
+  5. Query `kube_pod_status_unschedulable{namespace="<namespace>"}` and `kube_deployment_status_replicas_unavailable{namespace="<namespace>"}` to determine duration and blast radius; verify whether the cluster autoscaler reports an unhelpable constraint rather than raw capacity shortage
+- **Remediation & Mitigation**: Immediate — correct erroneous requests, selectors, affinity, tolerations, topology rules, host-port usage, or volume binding; add suitable node capacity only when the workload's validated requirements cannot fit existing nodes, and avoid deleting healthy workloads merely to hide a configuration error. Long-term — enforce request-sizing policies, test scheduling constraints before deployment, maintain representative node pools and autoscaler limits, monitor unschedulable pods, and review affinity and topology rules as the cluster changes
+
+## K8S-DNS-001: Service DNS Resolution Failure
+- **Affected Services**: All / Ingress
+- **Fault Type**: Network
+- **Symptom**: Pods cannot resolve service names and report `NXDOMAIN`, `SERVFAIL`, `no such host`, or DNS timeouts; HTTP/gRPC dependency calls fail before connection establishment; `coredns_dns_responses_total{rcode=~"SERVFAIL|REFUSED"}` or DNS request latency rises while direct ClusterIP access may still work
+- **Root Cause**: The pod has an incorrect `/etc/resolv.conf` or DNS policy, CoreDNS is unavailable or misconfigured, the `kube-dns` Service has no healthy EndpointSlices, upstream DNS forwarding fails, or egress NetworkPolicy blocks UDP/TCP port 53
+- **Diagnostic Steps**:
+  1. Reproduce from the affected namespace with `kubectl run dnsutils -n <namespace> --image=registry.k8s.io/e2e-test-images/agnhost:2.39 --restart=Never --command -- sleep 3600`, then run `kubectl exec -n <namespace> dnsutils -- nslookup kubernetes.default` and `kubectl exec -n <namespace> dnsutils -- nslookup <service>.<namespace>.svc.cluster.local`
+  2. Inspect resolver configuration with `kubectl exec -n <namespace> dnsutils -- cat /etc/resolv.conf`; verify the cluster DNS nameserver, search domains, `ndots`, and the affected pod's `dnsPolicy` and `dnsConfig`
+  3. Verify DNS components and endpoints using `kubectl get pods -n kube-system -l k8s-app=kube-dns`, `kubectl get svc -n kube-system kube-dns`, and `kubectl get endpointslice -n kube-system -l kubernetes.io/service-name=kube-dns`
+  4. Check CoreDNS errors and configuration with `kubectl logs -n kube-system -l k8s-app=kube-dns --tail=300` and `kubectl get configmap coredns -n kube-system -o yaml`; correlate failures with `rate(coredns_dns_responses_total{rcode=~"SERVFAIL|REFUSED"}[5m])`
+  5. List policies that can block DNS using `kubectl get networkpolicy -A -o yaml`; test UDP and TCP port 53 from an authorized debug pod and verify that both source egress and DNS-pod ingress policies allow the traffic
+- **Remediation & Mitigation**: Immediate — restore healthy CoreDNS replicas and EndpointSlices, roll back a faulty Corefile or pod DNS configuration, and add the narrow DNS egress/ingress allowance required by the affected namespace; delete the temporary `dnsutils` pod after verification. Long-term — version and test CoreDNS configuration, autoscale DNS capacity, monitor DNS response codes and latency, consider NodeLocal DNSCache for high-query clusters, and include DNS access explicitly in default-deny policy templates
+
+## K8S-NETPOL-001: NetworkPolicy Blocks Required Service Traffic
+- **Affected Services**: All / Ingress
+- **Fault Type**: Network
+- **Symptom**: A specific pod-to-pod or pod-to-external connection times out after a NetworkPolicy change; application traces show a client span without a corresponding server span; HTTP client timeout metrics increase while destination pods remain healthy and direct traffic from unaffected namespaces succeeds
+- **Root Cause**: A NetworkPolicy selects the source for egress isolation or the destination for ingress isolation without an allow rule matching the peer labels, namespace labels, IP block, protocol, or port; Kubernetes policies are additive, and a connection requires both source egress and destination ingress to allow it when both ends are isolated; the behavior also depends on a CNI plugin that implements NetworkPolicy
+- **Diagnostic Steps**:
+  1. Reproduce the exact path from a pod with the same labels and service account: `kubectl exec -n <source-namespace> <source-pod> -- curl -sv --connect-timeout 5 http://<service>.<destination-namespace>.svc:<port>/health`; use `nc -vz -w 5 <service>.<destination-namespace>.svc <port>` for raw TCP when available
+  2. List and inspect policies in both namespaces with `kubectl get networkpolicy -n <source-namespace> -o yaml` and `kubectl get networkpolicy -n <destination-namespace> -o yaml`; identify every policy whose `podSelector` matches the source or destination
+  3. Verify effective labels rather than assumed names using `kubectl get pod <source-pod> -n <source-namespace> --show-labels`, `kubectl get pod -n <destination-namespace> -l <service-selector> --show-labels`, and `kubectl get namespace --show-labels`
+  4. Compare required protocol and port with each matching `egress` and `ingress` rule; confirm that the source egress and destination ingress are both allowed and that DNS access remains permitted for name-based testing
+  5. Correlate the policy rollout time with client timeouts and missing server spans; inspect the installed CNI's policy logs or flow-observability output because creating a NetworkPolicy has no effect when the cluster network plugin does not implement it
+- **Remediation & Mitigation**: Immediate — revert the confirmed faulty policy revision or apply a narrowly scoped temporary allow rule for the required source, destination, protocol, and port; verify connectivity and remove the temporary exception after the permanent rule is active, without deploying a namespace-wide allow-all policy. Long-term — manage policies as reviewed code, test allowed and denied paths in CI or staging, standardize namespace and workload labels, provide explicit DNS rules, and use CNI flow observability to explain policy decisions
+
+## K8S-QUOTA-001: Namespace ResourceQuota Exhaustion
+- **Affected Services**: All / Ingress
+- **Fault Type**: Resource
+- **Symptom**: The API server rejects resource creation or updates with HTTP `403 Forbidden` and an `exceeded quota` message; rollout events show `FailedCreate`; desired replicas remain unavailable; `kube_resourcequota{type="used"}` reaches `kube_resourcequota{type="hard"}` for CPU, memory, pods, storage, or object counts
+- **Root Cause**: Aggregate namespace requests, limits, storage claims, or object counts have reached a ResourceQuota hard limit, or a quota requires CPU/memory requests or limits that the submitted workload omits; admission rejects the request before the new pod or object is created
+- **Diagnostic Steps**:
+  1. Capture the complete admission error and workload event with `kubectl describe deployment/<service> -n <namespace>` and `kubectl get events -n <namespace> --sort-by=.lastTimestamp | grep -iE 'quota|forbidden|FailedCreate'`
+  2. Inspect hard and used values using `kubectl get resourcequota -n <namespace>` and `kubectl describe resourcequota -n <namespace>`; identify the exact exhausted key rather than assuming CPU or memory
+  3. Check namespace defaults and constraints with `kubectl get limitrange -n <namespace> -o yaml`; inspect the workload's declared requests and limits with `kubectl get deployment/<service> -n <namespace> -o jsonpath='{.spec.template.spec.containers[*].resources}'`
+  4. Find consumers of the exhausted resource using `kubectl get pods -n <namespace> -o custom-columns=NAME:.metadata.name,CPU_REQ:.spec.containers[*].resources.requests.cpu,MEM_REQ:.spec.containers[*].resources.requests.memory` and list PVCs or high-count objects when the constrained quota key is storage or an object count
+  5. Compare `kube_resourcequota{namespace="<namespace>",type="used"}` with `kube_resourcequota{namespace="<namespace>",type="hard"}` and correlate `apiserver_request_total{code="403"}` with the failed rollout window
+- **Remediation & Mitigation**: Immediate — remove confirmed unused resources, correct missing or inflated requests and limits, or obtain an approved quota increase backed by capacity evidence; retry the rejected rollout only after `used` is below `hard`, and do not bypass quota controls during an incident. Long-term — alert before quota reaches capacity, assign ownership and review cycles, right-size workloads from historical usage, clean up completed jobs and stale claims, use LimitRanges for safe defaults, and forecast namespace growth before planned releases

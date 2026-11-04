@@ -1,0 +1,12 @@
+# Sock Shop Code-Level Faults
+
+## SS-CODE-FUNC-002: Completed Order Fails to Clear the Customer Cart
+- **Affected Services**: front-end, orders, carts
+- **Fault Type**: Code-level
+- **Symptom**: The order request returns HTTP 201 and the order is stored, but the same items remain in the customer's cart; a repeated checkout can create another order. The expected follow-up `DELETE /cart` request from the browser to front-end, or the downstream `DELETE /carts/{customerId}` request from front-end to carts, is absent or fails after order creation
+- **Root Cause**: In the documented Sock Shop flow, browser-side front-end code calls `deleteCart()` only after a successful order response; front-end then proxies the delete to carts. A missing callback, premature navigation, JavaScript error, or ignored delete failure leaves the cart intact. The orders service does not own or invoke the carts cleanup operation
+- **Diagnostic Steps**:
+  1. If custom instrumentation exports `sockshop_checkout_success_total` and `sockshop_cart_delete_total`, inspect them; otherwise derive the signal from structured logs by comparing HTTP 201 order responses with subsequent successful cart deletes for the same authenticated customer and release window
+  2. Inspect an affected browser or end-to-end trace for `POST /orders`, followed by `DELETE /cart` and downstream `DELETE /carts/{customerId}`; correlate redacted timestamps and trace IDs in `kubectl logs deployment/front-end -n <namespace> --since=1h` and `kubectl logs deployment/carts -n <namespace> --since=1h` without copying cookies, card data, or authorization headers
+  3. Review `kubectl rollout history deployment/front-end -n <namespace>` and the deployed `order()`/`deleteCart()` code path; in staging, place one uniquely tagged order, wait for the asynchronous delete, and confirm through the carts API that the customer cart no longer exists before attempting a second checkout
+- **Remediation & Mitigation**: Immediate — roll back or patch front-end so a successful order reliably triggers and verifies cart deletion, temporarily block repeated checkout for affected sessions, and clear only carts tied to verified completed orders through an audited procedure. Long-term — move post-order cleanup into a retryable server-side workflow or make the existing front-end request observable and failure-aware, make order creation idempotent, add end-to-end assertions for post-checkout cart state, and alert on successful-order-to-cart-delete discrepancies
