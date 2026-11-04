@@ -4,10 +4,12 @@ __pycache__/
 .venv/
 venv/
 .env
-/data/
+/data/*
+!/data/runbooks/
 .cache/
 runs/
 .pytest_cache/
 .ruff_cache/
 *.egg-info/
 .ipynb_checkpoints/
+.DS_Store

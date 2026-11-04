@@ -1,0 +1,12 @@
+# Sock Shop Code-Level Faults
+
+## SS-CODE-FUNC-001: Order Processing Skips Payment Authorization
+- **Affected Services**: orders, payment, shipping
+- **Fault Type**: Code-level
+- **Symptom**: The orders service creates an order or requests shipping without first calling payment at `POST /paymentAuth`; order-create traffic remains present while payment-request traffic falls. Affected traces contain carts/user lookups and may contain an orders-to-shipping span, but no orders-to-payment span or `authorised=true` response
+- **Root Cause**: A defective orders revision bypasses the payment invocation or the guard that rejects a false `authorised` result. The documented workflow is payment authorization, then the shipping request, then order persistence; skipping either payment step permits an invalid state transition
+- **Diagnostic Steps**:
+  1. Compare `sum(rate(http_request_duration_seconds_count{service="orders",method="POST",path="/orders",status_code="201"}[5m]))` with `sum(rate(http_request_duration_seconds_count{method="POST",path="/paymentAuth"}[5m]))`; if custom instrumentation exports `sockshop_payment_authorization_result_total`, inspect it; otherwise derive the authorization outcome from structured payment logs
+  2. Inspect affected traces for the required orders-to-payment HTTP span before orders-to-shipping and database persistence; correlate trace IDs and timestamps in `kubectl logs deployment/orders -n <namespace> --since=1h` and `kubectl logs deployment/payment -n <namespace> --since=1h` without printing request bodies, card details, cookies, or authorization headers
+  3. Review `kubectl rollout history deployment/orders -n <namespace>` and the running image; in staging, submit an order below the configured payment decline threshold and verify exactly one `/paymentAuth` call and an `authorised=true` response occur before the shipping call and order save
+- **Remediation & Mitigation**: Immediate — stop or roll back the defective orders revision, pause fulfillment for orders created by that revision without corresponding payment-call evidence, restore the payment call and authorization guard, and review each affected demo order before resuming shipping. Long-term — enforce the payment-before-shipping-before-persistence sequence with an explicit state machine and integration tests; if a real payment provider replaces the mock, add durable payment references and idempotency keys rather than assuming the current service supplies transaction IDs
