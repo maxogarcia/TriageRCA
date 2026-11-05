@@ -22,12 +22,14 @@ stop calling tools and, instead of a tool call, respond with ONLY a JSON object 
 `ranked_services` lists up to 5 candidate root-cause services, most likely first. `indicator` is the
 single metric that best shows the fault, written as "<service>_<metric>" exactly as metric_query
 names it (e.g. "cartservice_cpu"). A service whose metrics shift sharply at the onset is a stronger
-root-cause candidate than one that is only slow because it calls that service. `confidence` is a
-number between 0 and 1 (e.g. 0.8), not a percentage. Once again, confidence must be a number between 0.0 and 1.0 inclusive.
-For example, use 0.85 for 85% confidence. Never output 85.
+root-cause candidate than one that is only slow because it calls that service. Once a service
+looks like the culprit, call runbook_retrieval with its symptoms (e.g. "cartservice high cpu") to
+check the diagnosis and ground your mitigation. `confidence` is a number between 0.0 and 1.0
+inclusive, not a percentage. For example, use 0.85 for 85% confidence. Never output 85.
 
 Every claim in your final explanation must cite evidence IDs (e.g. "E001", "E002") from the tool
-results you were shown -- never cite evidence you were not actually given, and never invent metric
+results you were shown. IDs inside runbook text (like "OB-RES-CPU-001") are not evidence IDs. Never
+cite evidence you were not actually given, and never invent metric
 values or log lines not present in a tool result.
 
 The citations array must contain bare evidence IDs only:
@@ -118,14 +120,12 @@ class Executor:
 
     def _invoke_tool(self, call: ToolCall, ledger: EvidenceLedger) -> str:
         try:
-            result = self._tools.invoke(call.name, call.args, ledger)
+            # The registry tags the result with its ledger ID(s) so the model can cite them.
+            return self._tools.invoke(call.name, call.args, ledger)
         except (KeyError, TypeError, ValueError) as exc:
             # Unknown tool or bad/missing args from the model: report back so it can retry,
             # rather than failing the whole case.
             return f"Error: {exc}"
-        # Tag the result with its ledger ID so the model can cite it -- otherwise it has to guess
-        # IDs from call order, and one wrong guess fails _validate_citations.
-        return f"[{ledger.items[-1].id}] {result}"
 
     def _force_synthesize(
         self,
