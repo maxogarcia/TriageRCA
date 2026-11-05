@@ -20,6 +20,7 @@ from src.data.case import Case
 from src.evidence import EvidenceLedger
 from src.llm.base import LLMResponse
 from src.schemas import CriticVerdict, LLMCallRecord, RCAReport, RunRecord
+from src.tools.metric_query import metric_overview
 
 MAX_ITERATIONS = 3
 
@@ -77,9 +78,22 @@ def run_case(
     report: RCAReport | None = None
     iteration_count = 0
 
-    executor = Executor(llm=recording_llm, tools=tools, max_tool_calls=max_tool_calls)
-
     try:
+        if config not in ("retrieval_only", "react", "triagerca", "triagerca_no_critic"):
+            raise ValueError(f"Unknown config: {config!r}")
+        if max_tool_calls < 0 or max_iterations < 1:
+            raise ValueError("max_tool_calls must be nonnegative and max_iterations must be positive")
+        first_budget = max_tool_calls
+        if config != "retrieval_only" and max_tool_calls > 0:
+            # One fixed preprocessing query, identical across telemetry-enabled variants.
+            # No CaseLabel, path, or case ID is passed into the evidence summary.
+            ledger.add(
+                source="metric_overview",
+                args={"start_time": case.inject_time - 300, "end_time": case.inject_time + 300},
+                content=metric_overview(case),
+            )
+            first_budget -= 1
+        executor = Executor(llm=recording_llm, tools=tools, max_tool_calls=first_budget)
         if config == "retrieval_only":
             hypothesis = run_retrieval_only(recording_llm, tools, case.incident_query, case.services, ledger)
             report = RCAReport(**hypothesis.model_dump())
@@ -98,6 +112,9 @@ def run_case(
             feedback: CriticVerdict | None = None
 
             for iteration_count in range(1, max_iterations + 1):
+                if iteration_count > 1:
+                    # Preserve the original per-iteration cap; overview was collected only once.
+                    executor = Executor(llm=recording_llm, tools=tools, max_tool_calls=max_tool_calls)
                 plan = planner.plan(case.incident_query, case.services, case.inject_time, critic_feedback=feedback)
                 hypothesis = executor.run(case.incident_query, plan, ledger)
                 verdict = active_critic.review(hypothesis, ledger)

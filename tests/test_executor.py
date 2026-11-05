@@ -95,7 +95,8 @@ def test_executor_rejects_hypothesis_citing_unknown_evidence(sample_case):
         model="fake",
         cached=False,
     )
-    llm = FakeLLMClient([synth_response])
+    # Direct report, structured fallback, and its single repair all stay invalid.
+    llm = FakeLLMClient([synth_response, synth_response, synth_response])
     executor = Executor(llm=llm, tools=registry, max_tool_calls=5)
     ledger = EvidenceLedger()
     plan = Plan(steps=[])
