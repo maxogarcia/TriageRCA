@@ -19,6 +19,7 @@ from dotenv import load_dotenv
 
 from src.agents.critic import AlwaysAcceptCritic, Critic
 from src.data.rcaeval_adapter import load_case
+from src.data.labels import DEFAULT_MANIFEST, ManifestLabels
 from src.llm import gemini, openai_compat
 from src.pipeline import Pricing, run_case
 from src.rag.retriever import Retriever, StubRetriever
@@ -82,6 +83,7 @@ def main() -> None:
     load_dotenv()
     parser = argparse.ArgumentParser()
     parser.add_argument("--config", required=True, type=Path)
+    parser.add_argument("--manifest", type=Path, default=DEFAULT_MANIFEST, help="ground-truth manifest for selected cases")
     parser.add_argument("--config-name", help="override config_name (retrieval_only, react, triagerca, ...)")
     parser.add_argument("--cases-limit", type=int, help="override cases_limit")
     parser.add_argument("--model", help="override model, a key in configs/models.yaml (e.g. open_weight_model)")
@@ -101,6 +103,7 @@ def main() -> None:
     models = yaml.safe_load(Path("configs/models.yaml").read_text())
     model_cfg = models[cfg["model"]]
 
+    labels = ManifestLabels(args.manifest)
     llm = build_llm(model_cfg, cache_dir=cfg["cache_dir"])
     pricing = Pricing(
         input_per_1m=model_cfg.get("price_per_1m_input_tokens", 0.0),
@@ -124,7 +127,7 @@ def main() -> None:
     out_dir.mkdir(parents=True, exist_ok=True)
 
     for case_dir in case_dirs:
-        case, _label = load_case(case_dir)
+        case, _label = load_case(case_dir, label_provider=labels)
         tools = build_tools(case, retriever)
         record = run_case(
             case,
