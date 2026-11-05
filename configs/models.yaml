@@ -27,3 +27,15 @@ grounding_judge_model:
   # Aeon: must be a different model family than pipeline_model (see CLAUDE.md Models section).
   provider: gemini
   name: gemini-3.8-flash # placeholder -- documented limitation until a second provider is added
+
+critic_14b:
+  # Critic experiment: Qwen2.5 14B (Q4_K_M) with an 8K context, so it fits 16 GB GPUs alongside less
+  # KV cache. This is a local Ollama variant; create it once with:
+  #   ollama pull qwen2.5:14b-instruct
+  #   printf 'FROM qwen2.5:14b-instruct\nPARAMETER num_ctx 8192\n' > Modelfile && ollama create qwen2.5-14b-8k -f Modelfile
+  provider: openai_compat
+  name: qwen2.5-14b-8k
+  base_url: http://localhost:11434/v1
+  price_per_1m_input_tokens: 0.0
+  price_per_1m_output_tokens: 0.0
+  min_interval_s: 0.0

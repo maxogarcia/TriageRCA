@@ -63,3 +63,45 @@ class RunRecord(BaseModel):
     wall_clock_s: float
     cost_usd: float = 0.0  # sum of llm_calls[].cost_usd
     errors: list[str] = Field(default_factory=list)
+
+
+ClaimLabel = Literal["supported", "partial", "unsupported", "contradicted"]
+
+
+class FieldCheck(BaseModel):
+    """The critic's check of one hypothesis field (top-ranked service or indicator).
+
+    These are schema fields rather than list items so the model cannot skip them.
+    """
+
+    evidence_ids: list[str]  # ledger IDs the label is based on, cited or not
+    comparison: str  # the value(s) the field's value is compared against, with IDs; "" if none
+    reason: str  # one sentence quoting the values that decide the label
+    label: ClaimLabel
+
+
+class ClaimCheck(BaseModel):
+    """One atomic claim from a hypothesis explanation, checked against the evidence ledger.
+
+    Field order matters: models fill JSON fields in order, so the comparison and reason (with
+    the actual numbers or log lines) are written before the label is chosen.
+    """
+
+    quote: str  # exact words from the explanation this claim comes from (claims not found are dropped)
+    claim: str  # standalone sentence, spec v1.1 sections 2.1-2.2 (no hedges, no recommendations)
+    is_root_cause: bool  # true if the claim names the root-cause service, indicator, or fault
+    evidence_ids: list[str]  # ledger IDs the label is based on, cited or not
+    comparison: str  # baseline or other services' values the claim is judged against; "" if none
+    reason: str  # one sentence quoting the values or lines that decide the label
+    label: ClaimLabel
+
+
+class ClaimCheckResult(BaseModel):
+    """Structured output of the critic's single LLM call."""
+
+    root_cause_check: FieldCheck  # "The root cause is <ranked_services[0]>."
+    indicator_check: FieldCheck  # "<indicator> is the metric that shows the fault."
+    claims: list[ClaimCheck]
+    # Concrete tool checks that would settle weak claims, e.g. "metric_query checkoutservice
+    # over a window spanning the inject time". Passed to the Planner as missing_evidence.
+    suggested_checks: list[str] = Field(default_factory=list, max_length=3)
