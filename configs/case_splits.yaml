@@ -1,0 +1,24 @@
+# RE2-OB case splits for tuning the critic (90 cases = 5 services x 6 faults x 3 repetitions).
+#
+# dev:        repetition _1 of every service/fault (30 cases). The critic prompt and rules were
+#             tuned on these, so critic results on them are not clean numbers.
+# quick_dev:  6 dev cases, one per fault type across all 5 services, for fast prompt iteration.
+# held_out:   repetitions _2 and _3 (60 cases). Don't inspect critic output on these while tuning;
+#             report critic results on held_out.
+#
+# Use the globs with --cases, e.g. python -m src.run ... --cases "re2ob_*_1"
+
+dev:
+  - "re2ob_*_1"
+
+quick_dev:
+  - re2ob_checkoutservice_cpu_1
+  - re2ob_currencyservice_mem_1
+  - re2ob_emailservice_disk_1
+  - re2ob_productcatalogservice_delay_1
+  - re2ob_recommendationservice_loss_1
+  - re2ob_emailservice_socket_1
+
+held_out:
+  - "re2ob_*_2"
+  - "re2ob_*_3"
