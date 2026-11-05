@@ -17,7 +17,8 @@ excerpts, rank up to 5 likely root-cause services (most likely first), name the 
 indicator (written as "<service>_<metric>", e.g. "cartservice_cpu"), the fault category, an
 explanation, and a mitigation.
 
-Cite evidence IDs (e.g. "E001") for every claim, and only IDs you were shown. `citations` holds
+Cite evidence IDs (e.g. "E001") for every claim, and only IDs you were shown. Each excerpt has its
+own ID; IDs inside the runbook text (like "OB-RES-CPU-001") are not evidence IDs. `citations` holds
 the bare IDs only (e.g. ["E001"]), with no text after them. If the excerpts do not support a
 conclusion, say so and give a low confidence rather than inventing evidence. `confidence` is a
 number between 0 and 1 (e.g. 0.3), not a percentage.
@@ -35,8 +36,7 @@ def run_retrieval_only(
     # Goes through the registry (not the Retriever directly) so the retrieval lands in the
     # evidence ledger exactly as it would when the Executor calls the tool (hard rule #3).
     args = {"query": incident_query, "k": k}
-    result = tools.invoke("runbook_retrieval", args, ledger)
-    evidence_id = ledger.items[-1].id
+    result = tools.invoke("runbook_retrieval", args, ledger)  # each chunk tagged with its own ID
 
     messages = [
         Message(role="system", content=_SYSTEM_PROMPT),
@@ -45,7 +45,7 @@ def run_retrieval_only(
             content=(
                 f"Incident: {incident_query}\n"
                 f"Services: {', '.join(services)}\n\n"
-                f"[{evidence_id}] runbook_retrieval({args}):\n{result}"
+                f"runbook_retrieval({args}):\n{result}"
             ),
         ),
     ]
