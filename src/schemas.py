@@ -53,6 +53,7 @@ class LLMCallRecord(BaseModel):
     latency_s: float
     cached: bool
     cost_usd: float = 0.0  # at list price, even when cached or on the free tier
+    role: Literal["pipeline", "critic"] = "pipeline"  # which part of the system made the call
 
 
 class RunRecord(BaseModel):
@@ -62,6 +63,9 @@ class RunRecord(BaseModel):
     evidence_ledger: list[dict]
     llm_calls: list[LLMCallRecord]
     critic_verdicts: list[CriticVerdict]
+    # Every iteration's hypothesis in order (hypotheses[i] is what critic_verdicts[i] judged), so
+    # eval can see how critic feedback changed the diagnosis. `report` is the final one.
+    hypotheses: list[Hypothesis] = Field(default_factory=list)
     iteration_count: int
     wall_clock_s: float
     cost_usd: float = 0.0  # sum of llm_calls[].cost_usd
