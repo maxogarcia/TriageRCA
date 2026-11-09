@@ -26,13 +26,24 @@ def main() -> None:
     parser.add_argument("--no-comparisons", action="store_true", help="leave out the cross-service metric table")
     parser.add_argument("--no-onset-check", action="store_true", help="turn off the code check on the onset shift ranking")
     parser.add_argument("--critic-model", default="open_weight_model")
+    parser.add_argument("--round", type=int, default=None,
+                        help="replay hypotheses[N-1] (1-based) instead of the final report")
+    parser.add_argument("--max-id", default=None,
+                        help="load ledger items only up to this ID (e.g. E006), to match what an earlier round saw")
     args = parser.parse_args()
 
     record = json.loads(args.run_json.read_text())
     ledger = EvidenceLedger()
     for item in record["evidence_ledger"]:
         ledger.add(item["source"], item["args"], item["content"])  # same order -> same IDs
-    hypothesis = Hypothesis(**record["report"])
+        if args.max_id and item["id"] == args.max_id:
+            break
+    if args.round is None:
+        hypothesis = Hypothesis(**record["report"])
+    else:
+        hypothesis = Hypothesis(**record["hypotheses"][args.round - 1])
+        print(f"replaying round {args.round} of {len(record['hypotheses'])}: "
+              f"{hypothesis.ranked_services[0]} / {hypothesis.indicator}\n")
 
     models = yaml.safe_load(Path("configs/models.yaml").read_text())
     critic = LLMCritic(

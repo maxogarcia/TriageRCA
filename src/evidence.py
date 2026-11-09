@@ -102,6 +102,14 @@ def _best_shift_per_service(
     return best
 
 
+SHIFT_CAP = 1e6  # must match the cap in src/tools/metric_query.py
+
+
+def _fmt_shift(shift: float) -> str:
+    """Shift as shown to the critic; capped values (pre-onset std ~0) are marked so they read as huge."""
+    return ">=1e6 (capped)" if shift >= SHIFT_CAP else f"{shift:g}"
+
+
 def onset_shift_ranking(
     ledger: EvidenceLedger, only_ids: set[str] | None = None
 ) -> list[tuple[str, str, float, str]]:
@@ -135,7 +143,7 @@ def compare_metrics(ledger: EvidenceLedger, only_ids: set[str] | None = None) ->
     if len(best) >= 2:
         ranking = sorted(best.items(), key=lambda kv: kv[1][1], reverse=True)
         lines = ["Largest shift per service: " + ", ".join(
-            f"{svc} {metric} {shift:g} [{eid}]" for svc, (metric, shift, eid) in ranking
+            f"{svc} {metric} {_fmt_shift(shift)} [{eid}]" for svc, (metric, shift, eid) in ranking
         )]
         by_metric: dict[str, list] = {}
         for (svc, metric), vals in shifts.items():
@@ -145,12 +153,13 @@ def compare_metrics(ledger: EvidenceLedger, only_ids: set[str] | None = None) ->
             if len(entries) < 2:
                 continue
             values = ", ".join(
-                f"{svc} {b:g} -> {a:g} ({ch}, shift {sh:g}) [{eid}]" for svc, b, a, ch, sh, eid in entries
+                f"{svc} {b:g} -> {a:g} ({ch}, shift {_fmt_shift(sh)}) [{eid}]" for svc, b, a, ch, sh, eid in entries
             )
             lines.append(f"- {metric} (before -> after mean): {values}")
         sections.append(
             "## Onset comparison across services (copied from before/after lines in the metric_query "
-            "and metric_overview items above; shift = mean change in pre-onset std units, larger = stronger change)\n"
+            "and metric_overview items above; shift = mean change in pre-onset std units, larger = stronger change; a shift shown as >=1e6 (capped) means the metric was flat before onset "
+            "(std ~0), so it is larger than every uncapped shift)\n"
             + "\n".join(lines)
         )
 

@@ -107,14 +107,21 @@ increase" with no earlier window and no other service to compare against.
 - contradicted: some evidence shows the opposite, e.g. other services have the same supposedly \
 abnormal value, or a different metric of the same service is far more anomalous.
 
+Root-cause claims ("the root cause is X") are inferences, so no single item shows them \
+directly. Judge them this way instead: supported if the evidence shows X changing abnormally \
+at onset and no other examined service changed more at onset; partial if X changed at onset \
+but other services were not examined; unsupported if the evidence shows no onset change in X; \
+contradicted if another service changed more at onset than X.
+
 Comparing values: a before/after comparison of the same service is the strongest evidence. \
 A shift ranking across services (the "Onset comparison across services" table) is also a \
 comparison: it shows which service changed most at onset. Whole-window differences between \
 services can be normal, because services do different work (a frontend or checkout service has \
 higher latency than a leaf service, a catalog gets more requests), so a whole-window gap alone \
 is a lead, not proof. In "comparison", write the numbers your reason relies on, with their IDs, \
-in a form like "<service> <metric> before <v1> -> after <v2>, shift <s> [<ID>]; next largest \
-shift <s2> (<other service>) [<ID>]". Every number your reason quotes must also appear in \
+in a form like "<service> <metric> before <v1> -> after <v2>, shift <s> [<ID>]; largest \
+shift among the other services: <other service> <metric> <s2> [<ID>]", where <service> is \
+the service the claim is about. Every number your reason quotes must also appear in \
 "comparison". Leave it empty only if the evidence has no earlier window and no other service \
 to compare against.
 
@@ -134,8 +141,10 @@ item with before and after values already covers the onset window, so do not ask
 again. Leave empty if everything is supported.
 
 In evidence_ids, list the IDs of the items the numbers in comparison and reason come from, \
-whether or not the hypothesis cited them; do not just copy the hypothesis's citations. In \
-reason, quote the specific values or lines that decide the label, in one sentence. Return JSON \
+whether or not the hypothesis cited them; do not just copy the hypothesis's citations. Each \
+check and each claim needs its own comparison and reason, written about that claim only: in \
+reason, quote the values or lines that decide its label, in one sentence. Do not copy one \
+comparison or reason across claims. Return JSON \
 only, matching the schema.\
 """
 
