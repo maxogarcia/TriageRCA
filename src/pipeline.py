@@ -138,7 +138,13 @@ def run_case(
                     # Preserve the original per-iteration cap; overview was collected only once.
                     executor = Executor(llm=recording_llm, tools=tools, max_tool_calls=max_tool_calls)
                 plan = planner.plan(case.incident_query, case.services, case.inject_time, critic_feedback=feedback)
-                hypothesis = executor.run(case.incident_query, plan, ledger)
+                hypothesis = executor.run(
+                    case.incident_query,
+                    plan,
+                    ledger,
+                    critic_feedback=feedback,
+                    rejected=hypotheses[-1] if feedback is not None else None,
+                )
                 hypotheses.append(hypothesis)
                 calls_before = len(getattr(active_critic, "calls", []))
                 try:

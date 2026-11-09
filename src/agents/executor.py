@@ -8,7 +8,7 @@ from pydantic import ValidationError
 
 from src.evidence import EvidenceLedger
 from src.llm.base import LLMClient, Message, ToolCall
-from src.schemas import Hypothesis, Plan
+from src.schemas import Hypothesis, Plan, CriticVerdict
 from src.tools.registry import ToolRegistry
 
 _SYSTEM_PROMPT = """You are the Executor in a root-cause-analysis (RCA) agent for microservice incidents.
@@ -82,13 +82,34 @@ class Executor:
         self._tools = tools
         self._max_tool_calls = max_tool_calls
 
-    def run(self, incident_query: str, plan: Plan, ledger: EvidenceLedger) -> Hypothesis:
+    def run(
+        self,
+        incident_query: str,
+        plan: Plan,
+        ledger: EvidenceLedger,
+        critic_feedback: CriticVerdict | None = None,
+        rejected: Hypothesis | None = None,
+    ) -> Hypothesis:
         plan_summary = "\n".join(f"- {s.tool}({s.args}): {s.rationale}" for s in plan.steps)
+        # Critic loop only (ReAct and no-critic runs pass nothing): tell the Executor what was
+        # rejected and where the critic points, so the next answer does not repeat the same root.
+        feedback_section = ""
+        if critic_feedback is not None:
+            prev = rejected.ranked_services[0] if rejected is not None and rejected.ranked_services else None
+            feedback_section = "\n\nA critic rejected your previous answer" + (f" (root cause: {prev})" if prev else "") + "."
+            if critic_feedback.reasons:
+                feedback_section += "\nReasons: " + "; ".join(critic_feedback.reasons)
+            if critic_feedback.missing_evidence:
+                feedback_section += "\nInvestigate first: " + "; ".join(critic_feedback.missing_evidence)
+            if prev:
+                feedback_section += (
+                    f"\nDo not name {prev} as the root cause again unless new evidence shows it changed most at onset."
+                )
         messages = [
             Message(role="system", content=_SYSTEM_PROMPT),
             Message(
                 role="user",
-                content=f"Incident: {incident_query}\n\nInvestigation plan:\n{plan_summary}",
+                content=f"Incident: {incident_query}\n\nInvestigation plan:\n{plan_summary}{feedback_section}",
             ),
         ]
         if ledger.items:
