@@ -127,9 +127,11 @@ root cause; or references a threshold, baseline, or norm. Skip hedges with no fa
 restatements of the task, general knowledge, and recommendations. Only take claims from the \
 explanation text: put the exact words you took it from in "quote". Mark claims that name the \
 root cause with is_root_cause = true.
-Step 4. suggested_checks: up to 3 concrete tool checks that would settle the weakest claims, \
-naming the tool, service, and metric or keyword, e.g. "metric_query <service> over a window that \
-includes the inject time". Leave empty if everything is supported.
+Step 4. suggested_checks: up to 3 tool checks that would settle the weakest claims. For each, \
+name the tool, the service, the metric, log keyword, or span to look at, and the result that would \
+confirm or refute the claim. Only suggest a check whose result is not already in the evidence: an \
+item with before and after values already covers the onset window, so do not ask for that query \
+again. Leave empty if everything is supported.
 
 In evidence_ids, list the IDs of the items the numbers in comparison and reason come from, \
 whether or not the hypothesis cited them; do not just copy the hypothesis's citations. In \

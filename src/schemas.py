@@ -109,6 +109,6 @@ class ClaimCheckResult(BaseModel):
     root_cause_check: FieldCheck  # "The root cause is <ranked_services[0]>."
     indicator_check: FieldCheck  # "<indicator> is the metric that shows the fault."
     claims: list[ClaimCheck]
-    # Concrete tool checks that would settle weak claims, e.g. "metric_query checkoutservice
-    # over a window spanning the inject time". Passed to the Planner as missing_evidence.
+    # Tool checks that would settle weak claims and are not already answered by an item in
+    # the ledger. Passed to the Planner as missing_evidence.
     suggested_checks: list[str] = Field(default_factory=list, max_length=3)
