@@ -192,7 +192,10 @@ def decide(
 
     if not reasons:
         reasons = ["all claims supported by the evidence"]
-    return CriticVerdict(decision=decision, reasons=reasons, missing_evidence=missing)
+    # assemble_claims puts the two field claims first: root cause, then indicator.
+    fields = [c for c in claims if c.quote == "(hypothesis field)"]
+    failed = [n for n, c in zip(("root_cause", "indicator"), fields) if c.label != "supported"]
+    return CriticVerdict(decision=decision, reasons=reasons, missing_evidence=missing, failed_checks=failed)
 
 
 def _apply_onset_check(

@@ -88,3 +88,29 @@ def test_unknown_citation_still_rejected():
     llm = SequenceLLM([report(citations=["E999"])] * 3)
     with pytest.raises(ValueError, match="E999"):
         Executor(llm, ToolRegistry()).run("Investigate", Plan(steps=[]), seeded())
+
+
+# --- critic feedback wording depends on failed_checks ---
+
+def _prompt_with_feedback(failed_checks):
+    from src.schemas import CriticVerdict, Hypothesis
+    llm = SequenceLLM([report()])
+    rejected = Hypothesis(**json.loads(report(ranked_services=["email"], indicator="frontend_workload").text))
+    feedback = CriticVerdict(decision="reject", reasons=["r"], failed_checks=failed_checks)
+    Executor(llm, ToolRegistry()).run("Investigate", Plan(steps=[]), seeded(),
+                                      critic_feedback=feedback, rejected=rejected)
+    return "\n".join(m.content for m in llm.calls[0][0])
+
+
+def test_feedback_indicator_only_keeps_service():
+    text = _prompt_with_feedback(["indicator"])
+    assert "Keep email" in text
+    assert "frontend_workload" in text
+    assert "Do not name email" not in text
+
+
+@pytest.mark.parametrize("failed", [["root_cause", "indicator"], ["root_cause"], []])
+def test_feedback_root_failed_or_unknown_keeps_old_text(failed):
+    text = _prompt_with_feedback(failed)
+    assert "Do not name email" in text
+    assert "Keep email" not in text

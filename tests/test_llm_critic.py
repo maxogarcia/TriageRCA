@@ -273,3 +273,32 @@ def test_format_evidence_truncates_long_items():
     ledger.add("log_search", {}, "x" * 5000)
     text = format_evidence(ledger, ["E001"], max_chars_per_item=100)
     assert "(truncated)" in text and len(text) < 300
+
+
+# --- failed_checks (field-aware feedback) ---
+
+def _failed_claim(label, quote="(hypothesis field)", is_root=True):
+    from src.schemas import ClaimCheck
+    return ClaimCheck(quote=quote, claim="c", is_root_cause=is_root, evidence_ids=["E001"],
+                      comparison="E001 5 vs E002 1", reason="r", label=label)
+
+
+@pytest.mark.parametrize("root,ind,expected", [
+    ("supported", "supported", []),
+    ("supported", "contradicted", ["indicator"]),
+    ("unsupported", "contradicted", ["root_cause", "indicator"]),
+    ("partial", "supported", ["root_cause"]),
+])
+def test_decide_failed_checks(root, ind, expected):
+    from src.agents.critic.llm_critic import decide
+    verdict = decide([_failed_claim(root), _failed_claim(ind)], [], ["E001"])
+    assert verdict.failed_checks == expected
+
+
+def test_decide_failed_checks_ignores_explanation_claims():
+    from src.agents.critic.llm_critic import decide
+    claims = [_failed_claim("supported"), _failed_claim("supported"),
+              _failed_claim("contradicted", quote="some explanation text", is_root=False)]
+    verdict = decide(claims, [], ["E001"])
+    assert verdict.decision == "reject"
+    assert verdict.failed_checks == []

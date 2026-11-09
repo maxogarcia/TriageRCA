@@ -39,6 +39,9 @@ class CriticVerdict(BaseModel):
     decision: Literal["accept", "reject", "need_more_evidence"]
     reasons: list[str]
     missing_evidence: list[str] = Field(default_factory=list)
+    # Hypothesis fields the critic did not label supported: "root_cause", "indicator".
+    # Lets the Executor tell "wrong service" apart from "right service, wrong indicator".
+    failed_checks: list[str] = Field(default_factory=list)
 
 
 # RCAReport is the accepted Hypothesis -- same shape, kept as a separate name for the eval harness boundary.

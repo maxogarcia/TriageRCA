@@ -101,7 +101,14 @@ class Executor:
                 feedback_section += "\nReasons: " + "; ".join(critic_feedback.reasons)
             if critic_feedback.missing_evidence:
                 feedback_section += "\nInvestigate first: " + "; ".join(critic_feedback.missing_evidence)
-            if prev:
+            if prev and critic_feedback.failed_checks == ["indicator"]:
+                # Only the indicator failed: keep the service, fix the metric.
+                feedback_section += (
+                    f"\nThe critic did not dispute {prev} as the root cause; it disputed the indicator "
+                    f"({rejected.indicator}). Keep {prev} unless new evidence shows another service changed more "
+                    f"at onset, and name the {prev} metric that changed most at onset as the indicator."
+                )
+            elif prev:
                 feedback_section += (
                     f"\nDo not name {prev} as the root cause again unless new evidence shows it changed most at onset."
                 )
