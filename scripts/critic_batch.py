@@ -2,7 +2,7 @@
 
 Usage:
     python -m scripts.critic_batch runs/qwen_stub/triagerca --cases <id or glob> ... \
-        [--critic-model open_weight_model] [--evidence full|cited] [--no-comparisons] [--tag NAME]
+        [--critic-model open_weight_model] [--evidence full|cited] [--no-comparisons] [--no-onset-check] [--tag NAME]
 
 Reviews each saved first hypothesis with one critic setting and prints one line per case. The
 true root cause and fault are read from the case ID (re2ob_<service>_<fault>_<n>) for this
@@ -40,11 +40,13 @@ def main() -> None:
     parser.add_argument("--critic-model", default="open_weight_model")
     parser.add_argument("--evidence", default="full", choices=["full", "cited"])
     parser.add_argument("--no-comparisons", action="store_true")
+    parser.add_argument("--no-onset-check", action="store_true")
     parser.add_argument("--tag", help="name for the saved results (default: built from the settings)")
     args = parser.parse_args()
 
     comparisons = not args.no_comparisons
-    tag = args.tag or f"{args.critic_model}_{args.evidence}_{'table' if comparisons else 'notable'}"
+    onset_check = not args.no_onset_check
+    tag = args.tag or f"{args.critic_model}_{args.evidence}_{'table' if comparisons else 'notable'}{'_onset' if onset_check else ''}"
     models = yaml.safe_load(Path("configs/models.yaml").read_text())
     critic_llm = build_llm(models[args.critic_model], cache_dir=".cache/llm")
 
@@ -66,7 +68,7 @@ def main() -> None:
             ledger.add(item["source"], item["args"], item["content"])
         hypothesis = Hypothesis(**record["report"])
 
-        critic = LLMCritic(llm=critic_llm, evidence_mode=args.evidence, comparisons=comparisons)
+        critic = LLMCritic(llm=critic_llm, evidence_mode=args.evidence, comparisons=comparisons, onset_check=onset_check)
         verdict = critic.review(hypothesis, ledger)
         decisions[verdict.decision] += 1
 

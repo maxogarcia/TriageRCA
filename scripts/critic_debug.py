@@ -1,7 +1,7 @@
 """Run only the critic on a saved run record and print every claim check.
 
 Usage: python -m scripts.critic_debug runs/qwen_llm/triagerca/<case>.json
-       [--evidence full|cited] [--no-comparisons]
+       [--evidence full|cited] [--no-comparisons] [--no-onset-check]
 Fast loop for prompt work: no Planner/Executor calls, just one critic call (cached if unchanged).
 """
 
@@ -24,6 +24,7 @@ def main() -> None:
     parser.add_argument("run_json", type=Path)
     parser.add_argument("--evidence", default="full", choices=["full", "cited"])
     parser.add_argument("--no-comparisons", action="store_true", help="leave out the cross-service metric table")
+    parser.add_argument("--no-onset-check", action="store_true", help="turn off the code check on the onset shift ranking")
     parser.add_argument("--critic-model", default="open_weight_model")
     args = parser.parse_args()
 
@@ -38,6 +39,7 @@ def main() -> None:
         llm=build_llm(models[args.critic_model], cache_dir=".cache/llm"),
         evidence_mode=args.evidence,
         comparisons=not args.no_comparisons,
+        onset_check=not args.no_onset_check,
     )
     verdict = critic.review(hypothesis, ledger)
 

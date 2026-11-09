@@ -66,18 +66,10 @@ _SHIFT = re.compile(rf"shift=(?P<shift>{_NUM})")
 _TABLE_SOURCES = ("metric_query", "metric_overview")
 
 
-def compare_metrics(ledger: EvidenceLedger, only_ids: set[str] | None = None) -> str:
-    """Cross-service comparison table built only from metric items already in the ledger.
-
-    Section 1 (onset comparison, from before/after lines in metric_query and metric_overview):
-    the largest shift per service, then, for each metric seen for at least two services, the
-    before -> after mean, change and shift per service. Section 2 (whole window, from metric_query
-    items without pre-onset samples): mean / max per service, which cannot show an onset change.
-    Every number is copied from a tool result, so the table adds no information the system did
-    not retrieve; a large cross-service gap can be normal, so interpretation is left to the critic.
-    only_ids limits it to items the critic is shown (cited mode). Returns "" when there is nothing
-    to compare.
-    """
+def _parse_metric_items(
+    ledger: EvidenceLedger, only_ids: set[str] | None = None
+) -> tuple[dict[tuple[str, str], tuple[float, float, str, float, str]], dict[str, list[tuple[str, float, float, str]]]]:
+    """Parse before/after (shifts) and whole-window (window) metric lines from table-source items."""
     shifts: dict[tuple[str, str], tuple[float, float, str, float, str]] = {}
     window: dict[str, list[tuple[str, float, float, str]]] = {}
     for item in ledger.items:
@@ -96,13 +88,50 @@ def compare_metrics(ledger: EvidenceLedger, only_ids: set[str] | None = None) ->
             m = _METRIC_LINE.match(line)
             if m:
                 window.setdefault(m["metric"], []).append((m["service"], float(m["mean"]), float(m["max"]), item.id))
+    return shifts, window
 
-    sections = []
 
+def _best_shift_per_service(
+    shifts: dict[tuple[str, str], tuple[float, float, str, float, str]]
+) -> dict[str, tuple[str, float, str]]:
+    """Largest onset shift per service: service -> (metric, shift, evidence id)."""
     best: dict[str, tuple[str, float, str]] = {}
     for (svc, metric), (_, _, _, shift, eid) in shifts.items():
         if svc not in best or shift > best[svc][1]:
             best[svc] = (metric, shift, eid)
+    return best
+
+
+def onset_shift_ranking(
+    ledger: EvidenceLedger, only_ids: set[str] | None = None
+) -> list[tuple[str, str, float, str]]:
+    """Services ranked by largest onset shift, largest first: [(service, metric, shift, evidence id)].
+
+    Same numbers as the "Largest shift per service" line in compare_metrics. Callers should
+    require at least two entries before comparing, as compare_metrics does.
+    """
+    best = _best_shift_per_service(_parse_metric_items(ledger, only_ids)[0])
+    ranking = sorted(best.items(), key=lambda kv: kv[1][1], reverse=True)
+    return [(svc, metric, shift, eid) for svc, (metric, shift, eid) in ranking]
+
+
+def compare_metrics(ledger: EvidenceLedger, only_ids: set[str] | None = None) -> str:
+    """Cross-service comparison table built only from metric items already in the ledger.
+
+    Section 1 (onset comparison, from before/after lines in metric_query and metric_overview):
+    the largest shift per service, then, for each metric seen for at least two services, the
+    before -> after mean, change and shift per service. Section 2 (whole window, from metric_query
+    items without pre-onset samples): mean / max per service, which cannot show an onset change.
+    Every number is copied from a tool result, so the table adds no information the system did
+    not retrieve; a large cross-service gap can be normal, so interpretation is left to the critic.
+    only_ids limits it to items the critic is shown (cited mode). Returns "" when there is nothing
+    to compare.
+    """
+    shifts, window = _parse_metric_items(ledger, only_ids)
+
+    sections = []
+
+    best = _best_shift_per_service(shifts)
     if len(best) >= 2:
         ranking = sorted(best.items(), key=lambda kv: kv[1][1], reverse=True)
         lines = ["Largest shift per service: " + ", ".join(

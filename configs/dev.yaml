@@ -11,5 +11,6 @@ critic: stub # stub (always accepts) | llm (LLMCritic; needs Ollama running), or
 critic_model: open_weight_model # key into models.yaml; fixed for every run, independent of --model
 critic_evidence: full # full (whole ledger, spec v1.1 section 3.1) | cited (cited items only)
 critic_comparisons: true # add a cross-service metric table computed from the ledger (ablation switch)
+critic_onset_check: true # code check: reject if another service shifted more at onset than the claimed root (ablation switch)
 cache_dir: .cache/llm
 runs_dir: runs

@@ -22,7 +22,7 @@ import re
 
 from pydantic import ValidationError
 
-from src.evidence import EvidenceLedger, format_evidence
+from src.evidence import EvidenceLedger, format_evidence, onset_shift_ranking
 from src.llm.base import LLMClient, LLMResponse, Message
 from src.schemas import ClaimCheck, ClaimCheckResult, CriticVerdict, FieldCheck, Hypothesis
 
@@ -195,6 +195,49 @@ def decide(
     return CriticVerdict(decision=decision, reasons=reasons, missing_evidence=missing)
 
 
+def _apply_onset_check(
+    claims: list[ClaimCheck], hypothesis: Hypothesis, ledger: EvidenceLedger, only_ids: set[str] | None
+) -> tuple[list[ClaimCheck], str | None]:
+    """Code check on the onset shift ranking, so the LLM never has to compare numbers.
+
+    If another service has a strictly larger onset shift than the claimed root service, every
+    root-cause claim is relabeled contradicted (decide() then rejects), and a hint naming the
+    larger service is returned for missing_evidence. Skipped when fewer than two
+    services have onset data or the claimed root has none, since there is nothing to compare.
+    """
+    if not hypothesis.ranked_services:
+        return claims, None
+    ranking = onset_shift_ranking(ledger, only_ids)
+    if len(ranking) < 2:
+        return claims, None
+    root = hypothesis.ranked_services[0].strip().lower()
+    by_svc = {svc.lower(): (metric, shift, eid) for svc, metric, shift, eid in ranking}
+    if root not in by_svc:
+        return claims, None
+    top_svc, top_metric, top_shift, top_eid = ranking[0]
+    root_metric, root_shift, root_eid = by_svc[root]
+    if top_svc.lower() == root or top_shift <= root_shift:
+        return claims, None
+    note = (
+        f"code onset check: {top_svc} {top_metric} {top_shift:g} [{top_eid}] shifted more at onset than "
+        f"claimed root {root} {root_metric} {root_shift:g} [{root_eid}]"
+    )
+    checked = []
+    for c in claims:
+        if c.is_root_cause and c.label != "contradicted":
+            c = c.model_copy(update={
+                "label": "contradicted",
+                "reason": f"{note} (critic label was {c.label})",
+                "evidence_ids": sorted(set(c.evidence_ids) | {top_eid, root_eid}),
+            })
+        checked.append(c)
+    hint = (
+        f"investigate {top_svc}: largest onset shift ({top_metric} {top_shift:g} [{top_eid}]), "
+        f"larger than claimed root {root} ({root_shift:g} [{root_eid}])"
+    )
+    return checked, hint
+
+
 class LLMCritic:
     def __init__(
         self,
@@ -203,12 +246,14 @@ class LLMCritic:
         comparisons: bool = True,
         max_weak: int = 1,
         temperature: float = 0.0,
+        onset_check: bool = True,
     ) -> None:
         self._llm = llm
         self._evidence_mode = evidence_mode
         self._comparisons = comparisons
         self._max_weak = max_weak
         self._temperature = temperature
+        self._onset_check = onset_check
         # Every critic LLM call, so the pipeline can record them in RunRecord.llm_calls.
         self.calls: list[LLMResponse] = []
         # Claim checks from the most recent review(), for debugging and the grounding analysis.
@@ -254,7 +299,16 @@ class LLMCritic:
 
         # 3. Code clean-up: field checks first, invented claims and IDs dropped, comparative cap.
         claims = assemble_claims(result, hypothesis, ledger.known_ids())
+        onset_hint = None
+        if self._onset_check:
+            # Same evidence set as the comparison table in format_evidence.
+            only_ids = None if self._evidence_mode == "full" else set(hypothesis.citations)
+            claims, onset_hint = _apply_onset_check(claims, hypothesis, ledger, only_ids)
         self.last_claims = claims
 
         # 4. Verdict from code rules.
-        return decide(claims, result.suggested_checks, hypothesis.citations, max_weak=self._max_weak)
+        verdict = decide(claims, result.suggested_checks, hypothesis.citations, max_weak=self._max_weak)
+        if onset_hint and verdict.decision != "accept":
+            # Code pointer first, so the Executor sees where to look before the critic's own suggestions.
+            verdict = verdict.model_copy(update={"missing_evidence": [onset_hint, *verdict.missing_evidence]})
+        return verdict

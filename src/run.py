@@ -75,6 +75,7 @@ def build_critic(cfg: dict, models: dict) -> Critic:
             llm=critic_llm,
             evidence_mode=cfg.get("critic_evidence", "full"),
             comparisons=cfg.get("critic_comparisons", True),
+            onset_check=cfg.get("critic_onset_check", True),
         )
     raise ValueError(f"Unknown critic: {name!r} (expected 'stub' or 'llm')")
 
