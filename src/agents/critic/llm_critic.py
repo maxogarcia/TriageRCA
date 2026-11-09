@@ -108,11 +108,15 @@ increase" with no earlier window and no other service to compare against.
 abnormal value, or a different metric of the same service is far more anomalous.
 
 Comparing values: a before/after comparison of the same service is the strongest evidence. \
-Differences between services can be normal, because services do different work (a frontend or \
-checkout service has higher latency than a leaf service, a catalog gets more requests), so a \
-large gap across services is a lead, not proof. Write what you compared against in \
-"comparison", with the values and IDs (e.g. "<service> <metric> mean <value> [<ID>]"); leave it empty \
-if there is nothing to compare against.
+A shift ranking across services (the "Onset comparison across services" table) is also a \
+comparison: it shows which service changed most at onset. Whole-window differences between \
+services can be normal, because services do different work (a frontend or checkout service has \
+higher latency than a leaf service, a catalog gets more requests), so a whole-window gap alone \
+is a lead, not proof. In "comparison", write the numbers your reason relies on, with their IDs, \
+in a form like "<service> <metric> before <v1> -> after <v2>, shift <s> [<ID>]; next largest \
+shift <s2> (<other service>) [<ID>]". Every number your reason quotes must also appear in \
+"comparison". Leave it empty only if the evidence has no earlier window and no other service \
+to compare against.
 
 Step 1. root_cause_check: is the top-ranked service the root cause, according to the evidence?
 Step 2. indicator_check: is the named indicator the metric that best shows the fault? Label it \
@@ -127,8 +131,10 @@ Step 4. suggested_checks: up to 3 concrete tool checks that would settle the wea
 naming the tool, service, and metric or keyword, e.g. "metric_query <service> over a window that \
 includes the inject time". Leave empty if everything is supported.
 
-In evidence_ids, list the IDs your label is based on. In reason, quote the specific values or \
-lines that decide the label, in one sentence. Return JSON only, matching the schema.\
+In evidence_ids, list the IDs of the items the numbers in comparison and reason come from, \
+whether or not the hypothesis cited them; do not just copy the hypothesis's citations. In \
+reason, quote the specific values or lines that decide the label, in one sentence. Return JSON \
+only, matching the schema.\
 """
 
 
