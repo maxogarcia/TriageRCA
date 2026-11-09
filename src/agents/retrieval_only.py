@@ -22,6 +22,13 @@ own ID; IDs inside the runbook text (like "OB-RES-CPU-001") are not evidence IDs
 the bare IDs only (e.g. ["E001"]), with no text after them. If the excerpts do not support a
 conclusion, say so and give a low confidence rather than inventing evidence. `confidence` is a
 number between 0 and 1 (e.g. 0.3), not a percentage.
+
+fault_category must be exactly one of:
+cpu, mem, disk, delay, loss, socket, unknown.
+
+Use the category supported by the observed evidence. If the fault type cannot
+be determined, use unknown. Generic descriptions such as "performance issue",
+"overload", or "database performance issue" are not valid category values.
 """
 
 

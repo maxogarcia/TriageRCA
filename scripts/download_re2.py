@@ -1,15 +1,13 @@
-from pathlib import Path
+"""Compatibility entry point for the manifest-based downloader.
 
-from huggingface_hub import snapshot_download
+No arguments now download the committed sample, NOT the entire RE2 dataset.
+For an explicit broad download use --pattern 're2*'.
+"""
+if __package__:
+    from .download_data import main
+else:
+    from download_data import main
 
-data_dir = Path("data/raw/rcaeval")
-data_dir.mkdir(parents=True, exist_ok=True)
 
-snapshot_download(
-    repo_id="phamquiluan/RCAEval",
-    repo_type="dataset",
-    allow_patterns="re2*",
-    local_dir=str(data_dir),
-)
-
-print(f"RE2 data downloaded to: {data_dir}")
+if __name__ == "__main__":
+    main()

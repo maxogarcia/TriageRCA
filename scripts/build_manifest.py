@@ -29,17 +29,18 @@ sample = (
 )
 
 sample["case_dir"] = sample["case"].apply(
-    lambda case: str(DATA_ROOT / case)
+    lambda case: (Path("data/raw/rcaeval") / case).as_posix()
 )
 
 sample["exists"] = sample["case_dir"].apply(
-    lambda path: Path(path).exists()
+    lambda path: (PROJECT_ROOT / path).exists()
 )
 
 print(f"Selected cases: {len(sample)}")
 print(f"Missing case directories: {(~sample['exists']).sum()}")
 print(sample.groupby(["dataset", "fault"]).size())
 
+OUTPUT_PATH.parent.mkdir(parents=True, exist_ok=True)
 sample.to_csv(OUTPUT_PATH, index=False)
 
 print(f"Saved manifest to: {OUTPUT_PATH}")
