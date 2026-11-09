@@ -43,45 +43,103 @@ class EvidenceLedger:
         return {i.id for i in self.items}
 
 
-# One summary line of a metric_query result, e.g.
+# Metric lines the tools print. Service names may contain "-" (frontend-external); metric names
+# contain no "_", so the first "_" splits service from metric.
+_SVC_METRIC = r"(?P<service>[A-Za-z0-9\-]+)_(?P<metric>[A-Za-z0-9.\-]+)"
+_NUM = r"[-+\d.eE]+"
+
+# Whole-window line (metric_query without onset coverage), e.g.
 #   "  - checkoutservice_cpu: min=0.39 max=20.03 mean=18.09 last=19.99"
 _METRIC_LINE = re.compile(
-    r"^\s*-\s*(?P<service>[A-Za-z0-9]+)_(?P<metric>[A-Za-z0-9.\-]+):"
-    r"\s*min=(?P<min>[-\d.eE+]+)\s+max=(?P<max>[-\d.eE+]+)\s+mean=(?P<mean>[-\d.eE+]+)"
+    rf"^\s*-\s*{_SVC_METRIC}:\s*min=(?P<min>{_NUM})\s+max=(?P<max>{_NUM})\s+mean=(?P<mean>{_NUM})"
 )
+
+# Before/after line from metric_query or metric_overview, e.g.
+#   "  - checkoutservice_cpu: before mean=0.46 -> after mean=18.29 (x39.43, ..., change=+3843.0%, ...) shift=453.6"
+#   "  - checkoutservice: checkoutservice_cpu, before mean=0.4527 -> after mean=17.12; ..., change=+3682.9%, x37.83, shift=207.9, n=300/301"
+_SHIFT_LINE = re.compile(
+    rf"^\s*-\s*(?:[A-Za-z0-9\-]+:\s*)?{_SVC_METRIC}[:,]\s*before mean=(?P<before>{_NUM})\s*->\s*after mean=(?P<after>{_NUM})"
+)
+_CHANGE = re.compile(r"change=(?P<change>[-+\d.]+%)")
+_SHIFT = re.compile(rf"shift=(?P<shift>{_NUM})")
+
+_TABLE_SOURCES = ("metric_query", "metric_overview")
 
 
 def compare_metrics(ledger: EvidenceLedger, only_ids: set[str] | None = None) -> str:
-    """Cross-service comparison table built only from metric_query items already in the ledger.
+    """Cross-service comparison table built only from metric items already in the ledger.
 
-    For each metric seen for at least two services, list mean / max per service, highest mean
-    first. Values only, no ratios: a large cross-service gap can be normal (services do different
-    work), so the table states facts and leaves the interpretation to the critic. It adds no
-    information the system did not retrieve. only_ids limits it to items the critic is shown
-    (cited mode). Returns "" when there is nothing to compare.
+    Section 1 (onset comparison, from before/after lines in metric_query and metric_overview):
+    the largest shift per service, then, for each metric seen for at least two services, the
+    before -> after mean, change and shift per service. Section 2 (whole window, from metric_query
+    items without pre-onset samples): mean / max per service, which cannot show an onset change.
+    Every number is copied from a tool result, so the table adds no information the system did
+    not retrieve; a large cross-service gap can be normal, so interpretation is left to the critic.
+    only_ids limits it to items the critic is shown (cited mode). Returns "" when there is nothing
+    to compare.
     """
-    rows: dict[str, list[tuple[str, float, float, str]]] = {}
+    shifts: dict[tuple[str, str], tuple[float, float, str, float, str]] = {}
+    window: dict[str, list[tuple[str, float, float, str]]] = {}
     for item in ledger.items:
-        if item.source != "metric_query" or (only_ids is not None and item.id not in only_ids):
+        if item.source not in _TABLE_SOURCES or (only_ids is not None and item.id not in only_ids):
             continue
         for line in item.content.splitlines():
+            s = _SHIFT_LINE.match(line)
+            if s:
+                ch = _CHANGE.search(line)
+                sh = _SHIFT.search(line)
+                shift = float(sh["shift"]) if sh else 0.0
+                key = (s["service"], s["metric"])
+                if key not in shifts or shift > shifts[key][3]:
+                    shifts[key] = (float(s["before"]), float(s["after"]), ch["change"] if ch else "?", shift, item.id)
+                continue
             m = _METRIC_LINE.match(line)
             if m:
-                rows.setdefault(m["metric"], []).append((m["service"], float(m["mean"]), float(m["max"]), item.id))
+                window.setdefault(m["metric"], []).append((m["service"], float(m["mean"]), float(m["max"]), item.id))
+
+    sections = []
+
+    best: dict[str, tuple[str, float, str]] = {}
+    for (svc, metric), (_, _, _, shift, eid) in shifts.items():
+        if svc not in best or shift > best[svc][1]:
+            best[svc] = (metric, shift, eid)
+    if len(best) >= 2:
+        ranking = sorted(best.items(), key=lambda kv: kv[1][1], reverse=True)
+        lines = ["Largest shift per service: " + ", ".join(
+            f"{svc} {metric} {shift:g} [{eid}]" for svc, (metric, shift, eid) in ranking
+        )]
+        by_metric: dict[str, list] = {}
+        for (svc, metric), vals in shifts.items():
+            by_metric.setdefault(metric, []).append((svc, *vals))
+        for metric in sorted(by_metric):
+            entries = sorted(by_metric[metric], key=lambda r: r[4], reverse=True)
+            if len(entries) < 2:
+                continue
+            values = ", ".join(
+                f"{svc} {b:g} -> {a:g} ({ch}, shift {sh:g}) [{eid}]" for svc, b, a, ch, sh, eid in entries
+            )
+            lines.append(f"- {metric} (before -> after mean): {values}")
+        sections.append(
+            "## Onset comparison across services (copied from before/after lines in the metric_query "
+            "and metric_overview items above; shift = mean change in pre-onset std units, larger = stronger change)\n"
+            + "\n".join(lines)
+        )
 
     lines = []
-    for metric in sorted(rows):
-        entries = sorted(rows[metric], key=lambda r: r[1], reverse=True)
+    for metric in sorted(window):
+        entries = sorted(window[metric], key=lambda r: r[1], reverse=True)
         if len({svc for svc, *_ in entries}) < 2:
             continue
         values = ", ".join(f"{svc} {mean:g} / {mx:g} [{eid}]" for svc, mean, mx, eid in entries)
         lines.append(f"- {metric} (mean / max): {values}")
-    if not lines:
-        return ""
-    return (
-        "## Same metric across services (computed from the metric_query items above; "
-        "query windows may differ, see each item's args)\n" + "\n".join(lines)
-    )
+    if lines:
+        sections.append(
+            "## Same metric across services, whole window only (from metric_query items with too few "
+            "pre-onset samples, so these values cannot show an onset change; query windows may differ, "
+            "see each item's args)\n" + "\n".join(lines)
+        )
+
+    return "\n\n".join(sections)
 
 
 def format_evidence(
