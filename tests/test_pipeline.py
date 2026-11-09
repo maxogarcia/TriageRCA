@@ -19,8 +19,8 @@ _HYPOTHESIS = {
     "ranked_services": ["cartservice"],
     "indicator": "cartservice_cpu",
     "fault_category": "cpu",
-    "explanation": "no evidence cited",
-    "citations": [],
+    "explanation": "Candidate based on the initial metric screen, E001.",
+    "citations": ["E001"],
     "mitigation": "n/a",
     "confidence": 0.5,
 }
@@ -135,3 +135,42 @@ def test_run_case_computes_cost_from_pricing(sample_case):
 
     assert record.llm_calls[0].cost_usd == pytest.approx(0.75 + 0.75)
     assert record.cost_usd == pytest.approx(1.5)
+
+
+@pytest.mark.parametrize("config", ["react", "triagerca", "triagerca_no_critic"])
+def test_telemetry_variants_receive_same_label_free_overview(sample_case, config):
+    responses = [_hypothesis_response()]
+    if config != "react":
+        responses.insert(0, _response({"steps": [], "notes": ""}))
+    llm = FakeLLMClient(responses)
+    record = run_case(sample_case, config=config, llm=llm, tools=_registry(sample_case))
+    assert not record.errors
+    assert [e["source"] for e in record.evidence_ledger] == ["metric_overview"]
+    assert sample_case.case_id not in record.evidence_ledger[0]["content"]
+    assert any("[E001] metric_overview" in m.content for m in llm.calls[-1]["messages"])
+
+
+def test_zero_budget_does_not_collect_overview(sample_case):
+    abstention = {**_HYPOTHESIS, "ranked_services": [], "indicator": "unknown",
+                  "fault_category": "unknown", "confidence": 0.0, "citations": []}
+    llm = FakeLLMClient([_response(abstention)])
+    record = run_case(sample_case, config="react", llm=llm, tools=_registry(sample_case), max_tool_calls=0)
+    assert not record.errors
+    assert record.evidence_ledger == []
+    assert record.report.ranked_services == []
+
+
+def test_overview_consumes_first_iteration_budget(sample_case):
+    llm = FakeLLMClient([_hypothesis_response()])
+    record = run_case(sample_case, config="react", llm=llm, tools=_registry(sample_case), max_tool_calls=1)
+    assert not record.errors
+    assert len(record.evidence_ledger) == 1
+    assert llm.calls[0]["tools"] is None  # no remaining discretionary tool calls
+
+
+def test_replanning_preserves_one_overview_and_evidence_context(sample_case):
+    llm = FakeLLMClient([_response({"steps": [], "notes": ""}), _hypothesis_response()] * 2)
+    record = run_case(sample_case, config="triagerca", llm=llm, tools=_registry(sample_case),
+                      critic=_AlwaysRejectCritic(), max_iterations=2)
+    assert [e["source"] for e in record.evidence_ledger] == ["metric_overview"]
+    assert any("[E001] metric_overview" in m.content for m in llm.calls[-1]["messages"])

@@ -21,11 +21,14 @@ class Plan(BaseModel):
     steps: list[PlanStep]
     notes: str = ""
 
+FaultCategory = Literal[
+    "cpu", "mem", "disk", "delay", "loss", "socket", "unknown"
+]
 
 class Hypothesis(BaseModel):
     ranked_services: list[str] = Field(max_length=5)
     indicator: str
-    fault_category: str
+    fault_category: FaultCategory
     explanation: str
     citations: list[str]  # evidence IDs
     mitigation: str
