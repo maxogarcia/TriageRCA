@@ -13,3 +13,13 @@ runs/
 *.egg-info/
 .ipynb_checkpoints/
 .DS_Store
+# Shared RCAEval index and fixed sample; telemetry remains ignored.
+!/data/manifests/
+/data/manifests/*
+!/data/manifests/rcaeval_re2_cases.csv
+!/data/manifests/sample_manifest.csv
+# Temporary experiment review archives
+/dev9_qwen_v*_review.tar.gz
+
+# Local generated results
+/results/

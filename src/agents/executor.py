@@ -47,6 +47,13 @@ unless explicitly specified; never assume milliseconds. Attribute each citation 
 If the evidence cannot support a diagnosis, abstain: ranked_services=[], indicator="unknown",
 fault_category="unknown", confidence=0.0, explanation describing missing evidence, and no
 speculative mitigation. Do not fill an evidence gap with a plausible story.
+
+fault_category must be exactly one of:
+cpu, mem, disk, delay, loss, socket, unknown.
+
+Use the category supported by the observed evidence. If the fault type cannot
+be determined, use unknown. Generic descriptions such as "performance issue",
+"overload", or "database performance issue" are not valid category values.s
 """
 
 # Most backends (e.g. Gemini) can't combine function-calling `tools` with a structured

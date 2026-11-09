@@ -83,7 +83,7 @@ def main() -> None:
     load_dotenv()
     parser = argparse.ArgumentParser()
     parser.add_argument("--config", required=True, type=Path)
-    parser.add_argument("--manifest", type=Path, default=DEFAULT_MANIFEST, help="ground-truth manifest for selected cases")
+    parser.add_argument("--manifest", type=Path, default=DEFAULT_MANIFEST, help="manifest defining eligible cases and their ground-truth labels")
     parser.add_argument("--config-name", help="override config_name (retrieval_only, react, triagerca, ...)")
     parser.add_argument("--cases-limit", type=int, help="override cases_limit")
     parser.add_argument("--model", help="override model, a key in configs/models.yaml (e.g. open_weight_model)")
@@ -114,13 +114,18 @@ def main() -> None:
 
     data_dir = Path(cfg["data_dir"])
     case_dirs = sorted(p for p in data_dir.iterdir() if (p / "inject_time.txt").is_file())
+    # The manifest defines experiment membership, not just the available labels.
+    # Filter before --cases and cases_limit so unrelated downloads cannot be selected.
+    case_dirs = [p for p in case_dirs if p.name in labels.rows.index]
     if args.cases:
         case_dirs = [p for p in case_dirs if any(fnmatch(p.name, pattern) for pattern in args.cases)]
     case_dirs = case_dirs[: cfg["cases_limit"]]
     if not case_dirs:
         raise SystemExit(
-            f"No case directories (containing inject_time.txt) directly under {data_dir}. "
-            "Download them with: python scripts/download_data.py"
+            f"No cases matched the manifest, --cases filter, and cases_limit under {data_dir}. "
+            "Check data_dir and your selection settings. Download the selected manifest with: "
+            f"python scripts/download_data.py --manifest {str(args.manifest)!r} "
+            f"--out {str(data_dir)!r}"
         )
 
     out_dir = Path(cfg["runs_dir"]) / cfg["config_name"]
