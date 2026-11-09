@@ -32,6 +32,13 @@ results you were shown. IDs inside runbook text (like "OB-RES-CPU-001") are not 
 cite evidence you were not actually given, and never invent metric
 values or log lines not present in a tool result.
 
+Describe what the evidence shows, not a mechanism you expect. State each effect as the observed
+change: the service, the metric or span, the before/after values or ratio, and the ID it comes
+from. Do not name a mechanism (such as throttling, contention, or saturation) unless a tool result
+shows it. Do not say other services are affected unless their own metrics or server-side spans
+show the change. Slower outgoing calls in the root-cause service's own traces are caller-side;
+describe them as that service's outgoing calls slowing down.
+
 The citations array must contain bare evidence IDs only:
 ["E001", "E005"].
 
