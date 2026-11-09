@@ -174,3 +174,48 @@ def test_replanning_preserves_one_overview_and_evidence_context(sample_case):
                       critic=_AlwaysRejectCritic(), max_iterations=2)
     assert [e["source"] for e in record.evidence_ledger] == ["metric_overview"]
     assert any("[E001] metric_overview" in m.content for m in llm.calls[-1]["messages"])
+
+
+class _RecordingCritic:
+    """Rejects first, then accepts, and keeps `calls` like LLMCritic does."""
+
+    def __init__(self, decisions):
+        self._decisions = list(decisions)
+        self.calls: list[LLMResponse] = []
+
+    def review(self, hypothesis, ledger):
+        self.calls.append(_response({}, input_tokens=7, output_tokens=3))
+        return CriticVerdict(decision=self._decisions.pop(0), reasons=[], missing_evidence=["logs"])
+
+
+def test_run_case_records_critic_calls_and_every_hypothesis(sample_case):
+    plan = {"steps": [], "notes": ""}
+    second = {**_HYPOTHESIS, "ranked_services": ["frontend"], "indicator": "frontend_cpu"}
+    llm = FakeLLMClient([_response(plan), _response(_HYPOTHESIS), _response(plan), _response(second)])
+    critic = _RecordingCritic(["reject", "accept"])
+    record = run_case(
+        sample_case, config="triagerca", llm=llm, tools=_registry(sample_case), critic=critic, max_iterations=3
+    )
+
+    assert not record.errors
+    assert [h.ranked_services for h in record.hypotheses] == [["cartservice"], ["frontend"]]
+    assert record.report.ranked_services == ["frontend"]  # report is the last (accepted) hypothesis
+    roles = [c.role for c in record.llm_calls]
+    assert roles.count("pipeline") == 4 and roles.count("critic") == 2
+    assert all(c.cost_usd == 0.0 for c in record.llm_calls if c.role == "critic")
+
+
+def test_run_case_counts_only_this_cases_critic_calls(sample_case):
+    # run.py builds one critic for all cases, so its `calls` list keeps growing.
+    plan = {"steps": [], "notes": ""}
+    critic = _RecordingCritic(["accept", "accept"])
+    for _ in range(2):
+        llm = FakeLLMClient([_response(plan), _response(_HYPOTHESIS)])
+        record = run_case(sample_case, config="triagerca", llm=llm, tools=_registry(sample_case), critic=critic)
+        assert [c.role for c in record.llm_calls].count("critic") == 1
+
+
+def test_run_case_react_records_its_single_hypothesis(sample_case):
+    llm = FakeLLMClient([_hypothesis_response()])
+    record = run_case(sample_case, config="react", llm=llm, tools=_registry(sample_case))
+    assert len(record.hypotheses) == 1

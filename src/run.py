@@ -18,6 +18,7 @@ import yaml
 from dotenv import load_dotenv
 
 from src.agents.critic import AlwaysAcceptCritic, Critic
+from src.agents.critic.llm_critic import LLMCritic
 from src.data.rcaeval_adapter import load_case
 from src.data.labels import DEFAULT_MANIFEST, ManifestLabels
 from src.llm import gemini, openai_compat
@@ -63,11 +64,19 @@ def build_retriever(name: str) -> Retriever:
     raise ValueError(f"Unknown retriever: {name!r} (expected 'stub' or 'chroma')")
 
 
-def build_critic(name: str) -> Critic:
+def build_critic(cfg: dict, models: dict) -> Critic:
+    name = cfg.get("critic", "stub")
     if name == "stub":
         return AlwaysAcceptCritic()
-    # Aeon: add the real Critic here, e.g. `if name == "llm": return LLMCritic(...)`.
-    raise ValueError(f"Unknown critic: {name!r} (expected 'stub')")
+    if name == "llm":
+        # Fixed critic model, independent of --model: the same critic judges every pipeline model.
+        critic_llm = build_llm(models[cfg.get("critic_model", "open_weight_model")], cache_dir=cfg["cache_dir"])
+        return LLMCritic(
+            llm=critic_llm,
+            evidence_mode=cfg.get("critic_evidence", "full"),
+            comparisons=cfg.get("critic_comparisons", True),
+        )
+    raise ValueError(f"Unknown critic: {name!r} (expected 'stub' or 'llm')")
 
 
 def build_tools(case, retriever: Retriever) -> ToolRegistry:
@@ -88,6 +97,7 @@ def main() -> None:
     parser.add_argument("--cases-limit", type=int, help="override cases_limit")
     parser.add_argument("--model", help="override model, a key in configs/models.yaml (e.g. open_weight_model)")
     parser.add_argument("--cases", nargs="+", help="case IDs or globs to run, e.g. re2ob_emailservice_*_1")
+    parser.add_argument("--critic", help="override critic: stub (always accepts) or llm")
     parser.add_argument("--runs-dir", help="override runs_dir, e.g. runs/qwen so runs don't overwrite another model's")
     args = parser.parse_args()
 
@@ -98,6 +108,8 @@ def main() -> None:
         cfg["model"] = args.model
     if args.runs_dir:
         cfg["runs_dir"] = args.runs_dir
+    if args.critic:
+        cfg["critic"] = args.critic
     if args.cases_limit is not None:
         cfg["cases_limit"] = args.cases_limit
     models = yaml.safe_load(Path("configs/models.yaml").read_text())
@@ -110,7 +122,7 @@ def main() -> None:
         output_per_1m=model_cfg.get("price_per_1m_output_tokens", 0.0),
     )
     retriever = build_retriever(cfg.get("retriever", "stub"))
-    critic = build_critic(cfg.get("critic", "stub"))
+    critic = build_critic(cfg, models)
 
     data_dir = Path(cfg["data_dir"])
     case_dirs = sorted(p for p in data_dir.iterdir() if (p / "inject_time.txt").is_file())

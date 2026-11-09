@@ -19,7 +19,7 @@ from src.agents.retrieval_only import run_retrieval_only
 from src.data.case import Case
 from src.evidence import EvidenceLedger
 from src.llm.base import LLMResponse
-from src.schemas import CriticVerdict, LLMCallRecord, RCAReport, RunRecord
+from src.schemas import CriticVerdict, Hypothesis, LLMCallRecord, RCAReport, RunRecord
 from src.tools.metric_query import metric_overview
 
 MAX_ITERATIONS = 3
@@ -60,6 +60,24 @@ class RecordingLLM:
         return response
 
 
+def _critic_call_records(critic, since: int) -> list[LLMCallRecord]:
+    """LLM calls the critic made after index `since`. The critic object is shared across cases,
+    so only the new calls belong to this case. Stub critics have no `calls` and make no calls.
+    Cost is 0: the critic runs on a local open-weight model."""
+    return [
+        LLMCallRecord(
+            model=r.model,
+            input_tokens=r.input_tokens,
+            output_tokens=r.output_tokens,
+            latency_s=r.latency_s,
+            cached=r.cached,
+            cost_usd=0.0,
+            role="critic",
+        )
+        for r in getattr(critic, "calls", [])[since:]
+    ]
+
+
 def run_case(
     case: Case,
     config: str,
@@ -74,6 +92,8 @@ def run_case(
     recording_llm = RecordingLLM(llm, pricing)
     ledger = EvidenceLedger()
     critic_verdicts: list[CriticVerdict] = []
+    critic_calls: list[LLMCallRecord] = []
+    hypotheses: list[Hypothesis] = []
     errors: list[str] = []
     report: RCAReport | None = None
     iteration_count = 0
@@ -96,11 +116,13 @@ def run_case(
         executor = Executor(llm=recording_llm, tools=tools, max_tool_calls=first_budget)
         if config == "retrieval_only":
             hypothesis = run_retrieval_only(recording_llm, tools, case.incident_query, case.services, ledger)
+            hypotheses.append(hypothesis)
             report = RCAReport(**hypothesis.model_dump())
             iteration_count = 1
 
         elif config == "react":
             hypothesis = run_react(executor, case.incident_query, ledger)
+            hypotheses.append(hypothesis)
             report = RCAReport(**hypothesis.model_dump())
             iteration_count = 1
 
@@ -117,7 +139,13 @@ def run_case(
                     executor = Executor(llm=recording_llm, tools=tools, max_tool_calls=max_tool_calls)
                 plan = planner.plan(case.incident_query, case.services, case.inject_time, critic_feedback=feedback)
                 hypothesis = executor.run(case.incident_query, plan, ledger)
-                verdict = active_critic.review(hypothesis, ledger)
+                hypotheses.append(hypothesis)
+                calls_before = len(getattr(active_critic, "calls", []))
+                try:
+                    verdict = active_critic.review(hypothesis, ledger)
+                finally:
+                    # Record critic calls even if review() raised, so failed calls still count.
+                    critic_calls.extend(_critic_call_records(active_critic, calls_before))
                 critic_verdicts.append(verdict)
 
                 if verdict.decision == "accept":
@@ -141,8 +169,9 @@ def run_case(
         config=config,
         report=report,
         evidence_ledger=[asdict(i) for i in ledger.items],
-        llm_calls=recording_llm.records,
+        llm_calls=[*recording_llm.records, *critic_calls],
         critic_verdicts=critic_verdicts,
+        hypotheses=hypotheses,
         iteration_count=iteration_count,
         wall_clock_s=time.monotonic() - start,
         cost_usd=sum(r.cost_usd for r in recording_llm.records),
