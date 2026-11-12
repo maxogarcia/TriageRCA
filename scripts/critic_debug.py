@@ -1,7 +1,7 @@
 """Run only the critic on a saved run record and print every claim check.
 
 Usage: python -m scripts.critic_debug runs/qwen_llm/triagerca/<case>.json
-       [--evidence full|cited] [--no-comparisons]
+       [--evidence full|cited] [--no-comparisons] [--no-onset-check]
 Fast loop for prompt work: no Planner/Executor calls, just one critic call (cached if unchanged).
 """
 
@@ -24,20 +24,33 @@ def main() -> None:
     parser.add_argument("run_json", type=Path)
     parser.add_argument("--evidence", default="full", choices=["full", "cited"])
     parser.add_argument("--no-comparisons", action="store_true", help="leave out the cross-service metric table")
+    parser.add_argument("--no-onset-check", action="store_true", help="turn off the code check on the onset shift ranking")
     parser.add_argument("--critic-model", default="open_weight_model")
+    parser.add_argument("--round", type=int, default=None,
+                        help="replay hypotheses[N-1] (1-based) instead of the final report")
+    parser.add_argument("--max-id", default=None,
+                        help="load ledger items only up to this ID (e.g. E006), to match what an earlier round saw")
     args = parser.parse_args()
 
     record = json.loads(args.run_json.read_text())
     ledger = EvidenceLedger()
     for item in record["evidence_ledger"]:
         ledger.add(item["source"], item["args"], item["content"])  # same order -> same IDs
-    hypothesis = Hypothesis(**record["report"])
+        if args.max_id and item["id"] == args.max_id:
+            break
+    if args.round is None:
+        hypothesis = Hypothesis(**record["report"])
+    else:
+        hypothesis = Hypothesis(**record["hypotheses"][args.round - 1])
+        print(f"replaying round {args.round} of {len(record['hypotheses'])}: "
+              f"{hypothesis.ranked_services[0]} / {hypothesis.indicator}\n")
 
     models = yaml.safe_load(Path("configs/models.yaml").read_text())
     critic = LLMCritic(
         llm=build_llm(models[args.critic_model], cache_dir=".cache/llm"),
         evidence_mode=args.evidence,
         comparisons=not args.no_comparisons,
+        onset_check=not args.no_onset_check,
     )
     verdict = critic.review(hypothesis, ledger)
 

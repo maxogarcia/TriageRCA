@@ -39,6 +39,9 @@ class CriticVerdict(BaseModel):
     decision: Literal["accept", "reject", "need_more_evidence"]
     reasons: list[str]
     missing_evidence: list[str] = Field(default_factory=list)
+    # Hypothesis fields the critic did not label supported: "root_cause", "indicator".
+    # Lets the Executor tell "wrong service" apart from "right service, wrong indicator".
+    failed_checks: list[str] = Field(default_factory=list)
 
 
 # RCAReport is the accepted Hypothesis -- same shape, kept as a separate name for the eval harness boundary.
@@ -109,6 +112,6 @@ class ClaimCheckResult(BaseModel):
     root_cause_check: FieldCheck  # "The root cause is <ranked_services[0]>."
     indicator_check: FieldCheck  # "<indicator> is the metric that shows the fault."
     claims: list[ClaimCheck]
-    # Concrete tool checks that would settle weak claims, e.g. "metric_query checkoutservice
-    # over a window spanning the inject time". Passed to the Planner as missing_evidence.
+    # Tool checks that would settle weak claims and are not already answered by an item in
+    # the ledger. Passed to the Planner as missing_evidence.
     suggested_checks: list[str] = Field(default_factory=list, max_length=3)

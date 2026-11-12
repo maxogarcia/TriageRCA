@@ -154,23 +154,27 @@ def test_one_weak_side_claim_still_accepts():
     assert verdict.decision == "accept"
 
 
-def test_two_weak_side_claims_need_more_evidence():
+def test_weak_side_claims_do_not_block_accept():
+    # Fields decide the verdict; weak explanation claims only add reasons.
     verdict, _, _ = _review([_claim("supported", root=True), _claim("partial"), _claim("unsupported")])
-    assert verdict.decision == "need_more_evidence"
+    assert verdict.decision == "accept"
+    assert any("a partial claim" in r for r in verdict.reasons)
+    assert any("an unsupported claim" in r or "a unsupported claim" in r for r in verdict.reasons)
 
 
-def test_any_contradiction_rejects():
-    verdict, _, _ = _review([_claim("supported", root=True), _claim("contradicted")])
+def test_contradicted_field_rejects():
+    verdict, _, _ = _review([_claim("supported", root=True)], root=_field("contradicted"))
     assert verdict.decision == "reject"
 
 
 def test_unsupported_root_cause_rejects():
-    verdict, _, _ = _review([_claim("unsupported", root=True)])
+    verdict, _, _ = _review([_claim("supported", root=True)], root=_field("unsupported"))
     assert verdict.decision == "reject"
 
 
 def test_partial_root_cause_needs_more_evidence_and_passes_checks():
-    verdict, _, _ = _review([_claim("partial", root=True)], checks=["metric_query cartservice cpu"])
+    verdict, _, _ = _review([_claim("supported", root=True)], root=_field("partial"),
+                            checks=["metric_query cartservice cpu"])
     assert verdict.decision == "need_more_evidence"
     assert "metric_query cartservice cpu" in verdict.missing_evidence
 
@@ -273,3 +277,100 @@ def test_format_evidence_truncates_long_items():
     ledger.add("log_search", {}, "x" * 5000)
     text = format_evidence(ledger, ["E001"], max_chars_per_item=100)
     assert "(truncated)" in text and len(text) < 300
+
+
+# --- failed_checks (field-aware feedback) ---
+
+def _failed_claim(label, quote="(hypothesis field)", is_root=True):
+    from src.schemas import ClaimCheck
+    return ClaimCheck(quote=quote, claim="c", is_root_cause=is_root, evidence_ids=["E001"],
+                      comparison="E001 5 vs E002 1", reason="r", label=label)
+
+
+@pytest.mark.parametrize("root,ind,expected", [
+    ("supported", "supported", []),
+    ("supported", "contradicted", ["indicator"]),
+    ("unsupported", "contradicted", ["root_cause", "indicator"]),
+    ("partial", "supported", ["root_cause"]),
+])
+def test_decide_failed_checks(root, ind, expected):
+    from src.agents.critic.llm_critic import decide
+    verdict = decide([_failed_claim(root), _failed_claim(ind)], [], ["E001"])
+    assert verdict.failed_checks == expected
+
+
+def test_decide_explanation_claims_do_not_set_verdict():
+    from src.agents.critic.llm_critic import decide
+    claims = [_failed_claim("supported"), _failed_claim("supported"),
+              _failed_claim("contradicted", quote="some explanation text", is_root=False)]
+    verdict = decide(claims, [], ["E001"])
+    assert verdict.decision == "accept"  # fields decide; side claims only add reasons
+    assert verdict.failed_checks == []
+
+
+# Regression: metric_overview lines prefix the service ("svc: svc_metric, before ..."). The doubled
+# name the Executor sometimes writes in its indicator (svc_svc_metric) does not come from parsing;
+# the service and metric must still split correctly here.
+def _overview_ledger():
+    ledger = EvidenceLedger()
+    item = ledger.add(
+        "metric_overview",
+        {"start_time": 0.0, "end_time": 600.0},
+        "Onset overview:\n"
+        "  - productcatalogservice: productcatalogservice_latency-90, before mean=0.004369 -> after mean=0.2033; "
+        "direction=increase, change=+4551.8%, x46.52, shift=910.4, n=300/301\n"
+        "  - frontend: frontend_latency-50, before mean=0.0100 -> after mean=0.0520; "
+        "direction=increase, change=+420.0%, x5.20, shift=516.8, n=300/301\n"
+        "  - frontend-external: frontend-external_cpu, before mean=1.00 -> after mean=1.10; "
+        "direction=increase, change=+10.0%, x1.10, shift=3.5, n=300/301",
+    )
+    return ledger, item.id
+
+
+def test_onset_ranking_parses_service_prefixed_overview_lines():
+    from src.evidence import onset_shift_ranking
+
+    ledger, eid = _overview_ledger()
+    assert onset_shift_ranking(ledger) == [
+        ("productcatalogservice", "latency-90", 910.4, eid),
+        ("frontend", "latency-50", 516.8, eid),
+        ("frontend-external", "cpu", 3.5, eid),
+    ]
+
+
+def test_compare_metrics_largest_shift_line_puts_top_service_first():
+    ledger, eid = _overview_ledger()
+    first = compare_metrics(ledger).splitlines()[1]
+    assert first.startswith(f"Largest shift per service: productcatalogservice latency-90 910.4 [{eid}], frontend")
+
+
+def test_fmt_shift_marks_capped_values():
+    from src.evidence import SHIFT_CAP, _fmt_shift
+
+    assert SHIFT_CAP == 1e6
+    assert _fmt_shift(1e6) == ">=1e6 (capped)"
+    assert _fmt_shift(2e6) == ">=1e6 (capped)"
+    assert _fmt_shift(910.4) == "910.4"
+
+
+def test_decide_field_partial_needs_more_evidence():
+    from src.agents.critic.llm_critic import decide
+    verdict = decide([_failed_claim("partial"), _failed_claim("supported")], [], ["E001"])
+    assert verdict.decision == "need_more_evidence"
+    assert verdict.failed_checks == ["root_cause"]
+
+
+def test_decide_field_indicator_unsupported_rejects():
+    from src.agents.critic.llm_critic import decide
+    verdict = decide([_failed_claim("supported"), _failed_claim("unsupported")], [], ["E001"])
+    assert verdict.decision == "reject"
+    assert verdict.failed_checks == ["indicator"]
+
+
+def test_decide_without_field_claims_uses_all_claims_rule():
+    from src.agents.critic.llm_critic import decide
+    side = lambda lab, root: _failed_claim(lab, quote="explanation text", is_root=root)
+    assert decide([side("supported", True), side("contradicted", False)], [], ["E001"]).decision == "reject"
+    assert decide([side("supported", True), side("partial", False)], [], ["E001"]).decision == "accept"
+    assert decide([side("supported", True), side("partial", False), side("partial", False)],
+                  [], ["E001"]).decision == "need_more_evidence"

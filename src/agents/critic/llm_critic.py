@@ -22,7 +22,7 @@ import re
 
 from pydantic import ValidationError
 
-from src.evidence import EvidenceLedger, format_evidence
+from src.evidence import EvidenceLedger, format_evidence, onset_shift_ranking
 from src.llm.base import LLMClient, LLMResponse, Message
 from src.schemas import ClaimCheck, ClaimCheckResult, CriticVerdict, FieldCheck, Hypothesis
 
@@ -107,12 +107,23 @@ increase" with no earlier window and no other service to compare against.
 - contradicted: some evidence shows the opposite, e.g. other services have the same supposedly \
 abnormal value, or a different metric of the same service is far more anomalous.
 
+Root-cause claims ("the root cause is X") are inferences, so no single item shows them \
+directly. Judge them this way instead: supported if the evidence shows X changing abnormally \
+at onset and no other examined service changed more at onset; partial if X changed at onset \
+but other services were not examined; unsupported if the evidence shows no onset change in X; \
+contradicted if another service changed more at onset than X.
+
 Comparing values: a before/after comparison of the same service is the strongest evidence. \
-Differences between services can be normal, because services do different work (a frontend or \
-checkout service has higher latency than a leaf service, a catalog gets more requests), so a \
-large gap across services is a lead, not proof. Write what you compared against in \
-"comparison", with the values and IDs (e.g. "<service> <metric> mean <value> [<ID>]"); leave it empty \
-if there is nothing to compare against.
+A shift ranking across services (the "Onset comparison across services" table) is also a \
+comparison: it shows which service changed most at onset. Whole-window differences between \
+services can be normal, because services do different work (a frontend or checkout service has \
+higher latency than a leaf service, a catalog gets more requests), so a whole-window gap alone \
+is a lead, not proof. In "comparison", write the numbers your reason relies on, with their IDs, \
+in a form like "<service> <metric> before <v1> -> after <v2>, shift <s> [<ID>]; largest \
+shift among the other services: <other service> <metric> <s2> [<ID>]", where <service> is \
+the service the claim is about. Every number your reason quotes must also appear in \
+"comparison". Leave it empty only if the evidence has no earlier window and no other service \
+to compare against.
 
 Step 1. root_cause_check: is the top-ranked service the root cause, according to the evidence?
 Step 2. indicator_check: is the named indicator the metric that best shows the fault? Label it \
@@ -123,12 +134,18 @@ root cause; or references a threshold, baseline, or norm. Skip hedges with no fa
 restatements of the task, general knowledge, and recommendations. Only take claims from the \
 explanation text: put the exact words you took it from in "quote". Mark claims that name the \
 root cause with is_root_cause = true.
-Step 4. suggested_checks: up to 3 concrete tool checks that would settle the weakest claims, \
-naming the tool, service, and metric or keyword, e.g. "metric_query <service> over a window that \
-includes the inject time". Leave empty if everything is supported.
+Step 4. suggested_checks: up to 3 tool checks that would settle the weakest claims. For each, \
+name the tool, the service, the metric, log keyword, or span to look at, and the result that would \
+confirm or refute the claim. Only suggest a check whose result is not already in the evidence: an \
+item with before and after values already covers the onset window, so do not ask for that query \
+again. Leave empty if everything is supported.
 
-In evidence_ids, list the IDs your label is based on. In reason, quote the specific values or \
-lines that decide the label, in one sentence. Return JSON only, matching the schema.\
+In evidence_ids, list the IDs of the items the numbers in comparison and reason come from, \
+whether or not the hypothesis cited them; do not just copy the hypothesis's citations. Each \
+check and each claim needs its own comparison and reason, written about that claim only: in \
+reason, quote the values or lines that decide its label, in one sentence. Do not copy one \
+comparison or reason across claims. Return JSON \
+only, matching the schema.\
 """
 
 
@@ -150,13 +167,24 @@ def decide(
 ) -> CriticVerdict:
     """Turn labeled claims into a verdict with fixed rules.
 
-    reject:             any claim contradicted, or a root-cause claim unsupported.
-    accept:             every root-cause claim supported, and at most `max_weak`
-                        partial/unsupported claims overall.
-    need_more_evidence: everything else (including: no root-cause claim at all).
+    The two hypothesis-field claims from assemble_claims (top-ranked service, then indicator)
+    set the verdict:
+      reject:             a field claim is contradicted or unsupported.
+      accept:             both field claims are supported.
+      need_more_evidence: otherwise (a field claim is partial).
+    Claims extracted from the explanation only add reasons and suggested checks. A true side
+    claim (e.g. another service's metric rose a little) can be labeled contradicted because a
+    different service changed more, and that should not block a correct root. The code onset
+    check relabels every root-cause claim, including the root field claim, so it still rejects.
+
+    Without field claims, the all-claims rule applies: reject if any claim is contradicted or a
+    root-cause claim unsupported; accept if every root-cause claim is supported and at most
+    `max_weak` claims are partial/unsupported; otherwise need_more_evidence.
     """
     root = [c for c in claims if c.is_root_cause]
     weak = [c for c in claims if c.label in ("partial", "unsupported")]
+    # assemble_claims puts the two field claims first: root cause, then indicator.
+    fields = [c for c in claims if c.quote == "(hypothesis field)"]
 
     reasons = [
         f"[{c.label}{', root cause' if c.is_root_cause else ''}] {c.claim} ({c.reason})"
@@ -172,7 +200,15 @@ def decide(
         if c.label == "supported" and uncited:
             missing.append(f"cite {', '.join(uncited)} for: {c.claim}")
 
-    if any(c.label == "contradicted" for c in claims) or any(c.label == "unsupported" for c in root):
+    if fields:
+        labels = [c.label for c in fields]
+        if any(lab in ("contradicted", "unsupported") for lab in labels):
+            decision = "reject"
+        elif all(lab == "supported" for lab in labels):
+            decision = "accept"
+        else:
+            decision = "need_more_evidence"
+    elif any(c.label == "contradicted" for c in claims) or any(c.label == "unsupported" for c in root):
         decision = "reject"
     elif not root:
         decision = "need_more_evidence"
@@ -184,7 +220,52 @@ def decide(
 
     if not reasons:
         reasons = ["all claims supported by the evidence"]
-    return CriticVerdict(decision=decision, reasons=reasons, missing_evidence=missing)
+    failed = [n for n, c in zip(("root_cause", "indicator"), fields) if c.label != "supported"]
+    return CriticVerdict(decision=decision, reasons=reasons, missing_evidence=missing, failed_checks=failed)
+
+
+
+def _apply_onset_check(
+    claims: list[ClaimCheck], hypothesis: Hypothesis, ledger: EvidenceLedger, only_ids: set[str] | None
+) -> tuple[list[ClaimCheck], str | None]:
+    """Code check on the onset shift ranking, so the LLM never has to compare numbers.
+
+    If another service has a strictly larger onset shift than the claimed root service, every
+    root-cause claim is relabeled contradicted (decide() then rejects), and a hint naming the
+    larger service is returned for missing_evidence. Skipped when fewer than two
+    services have onset data or the claimed root has none, since there is nothing to compare.
+    """
+    if not hypothesis.ranked_services:
+        return claims, None
+    ranking = onset_shift_ranking(ledger, only_ids)
+    if len(ranking) < 2:
+        return claims, None
+    root = hypothesis.ranked_services[0].strip().lower()
+    by_svc = {svc.lower(): (metric, shift, eid) for svc, metric, shift, eid in ranking}
+    if root not in by_svc:
+        return claims, None
+    top_svc, top_metric, top_shift, top_eid = ranking[0]
+    root_metric, root_shift, root_eid = by_svc[root]
+    if top_svc.lower() == root or top_shift <= root_shift:
+        return claims, None
+    note = (
+        f"code onset check: {top_svc} {top_metric} {top_shift:g} [{top_eid}] shifted more at onset than "
+        f"claimed root {root} {root_metric} {root_shift:g} [{root_eid}]"
+    )
+    checked = []
+    for c in claims:
+        if c.is_root_cause and c.label != "contradicted":
+            c = c.model_copy(update={
+                "label": "contradicted",
+                "reason": f"{note} (critic label was {c.label})",
+                "evidence_ids": sorted(set(c.evidence_ids) | {top_eid, root_eid}),
+            })
+        checked.append(c)
+    hint = (
+        f"investigate {top_svc}: largest onset shift ({top_metric} {top_shift:g} [{top_eid}]), "
+        f"larger than claimed root {root} ({root_shift:g} [{root_eid}])"
+    )
+    return checked, hint
 
 
 class LLMCritic:
@@ -195,12 +276,14 @@ class LLMCritic:
         comparisons: bool = True,
         max_weak: int = 1,
         temperature: float = 0.0,
+        onset_check: bool = True,
     ) -> None:
         self._llm = llm
         self._evidence_mode = evidence_mode
         self._comparisons = comparisons
         self._max_weak = max_weak
         self._temperature = temperature
+        self._onset_check = onset_check
         # Every critic LLM call, so the pipeline can record them in RunRecord.llm_calls.
         self.calls: list[LLMResponse] = []
         # Claim checks from the most recent review(), for debugging and the grounding analysis.
@@ -246,7 +329,16 @@ class LLMCritic:
 
         # 3. Code clean-up: field checks first, invented claims and IDs dropped, comparative cap.
         claims = assemble_claims(result, hypothesis, ledger.known_ids())
+        onset_hint = None
+        if self._onset_check:
+            # Same evidence set as the comparison table in format_evidence.
+            only_ids = None if self._evidence_mode == "full" else set(hypothesis.citations)
+            claims, onset_hint = _apply_onset_check(claims, hypothesis, ledger, only_ids)
         self.last_claims = claims
 
         # 4. Verdict from code rules.
-        return decide(claims, result.suggested_checks, hypothesis.citations, max_weak=self._max_weak)
+        verdict = decide(claims, result.suggested_checks, hypothesis.citations, max_weak=self._max_weak)
+        if onset_hint and verdict.decision != "accept":
+            # Code pointer first, so the Executor sees where to look before the critic's own suggestions.
+            verdict = verdict.model_copy(update={"missing_evidence": [onset_hint, *verdict.missing_evidence]})
+        return verdict
