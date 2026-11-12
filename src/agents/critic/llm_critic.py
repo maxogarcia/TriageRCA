@@ -167,13 +167,24 @@ def decide(
 ) -> CriticVerdict:
     """Turn labeled claims into a verdict with fixed rules.
 
-    reject:             any claim contradicted, or a root-cause claim unsupported.
-    accept:             every root-cause claim supported, and at most `max_weak`
-                        partial/unsupported claims overall.
-    need_more_evidence: everything else (including: no root-cause claim at all).
+    The two hypothesis-field claims from assemble_claims (top-ranked service, then indicator)
+    set the verdict:
+      reject:             a field claim is contradicted or unsupported.
+      accept:             both field claims are supported.
+      need_more_evidence: otherwise (a field claim is partial).
+    Claims extracted from the explanation only add reasons and suggested checks. A true side
+    claim (e.g. another service's metric rose a little) can be labeled contradicted because a
+    different service changed more, and that should not block a correct root. The code onset
+    check relabels every root-cause claim, including the root field claim, so it still rejects.
+
+    Without field claims, the all-claims rule applies: reject if any claim is contradicted or a
+    root-cause claim unsupported; accept if every root-cause claim is supported and at most
+    `max_weak` claims are partial/unsupported; otherwise need_more_evidence.
     """
     root = [c for c in claims if c.is_root_cause]
     weak = [c for c in claims if c.label in ("partial", "unsupported")]
+    # assemble_claims puts the two field claims first: root cause, then indicator.
+    fields = [c for c in claims if c.quote == "(hypothesis field)"]
 
     reasons = [
         f"[{c.label}{', root cause' if c.is_root_cause else ''}] {c.claim} ({c.reason})"
@@ -189,7 +200,15 @@ def decide(
         if c.label == "supported" and uncited:
             missing.append(f"cite {', '.join(uncited)} for: {c.claim}")
 
-    if any(c.label == "contradicted" for c in claims) or any(c.label == "unsupported" for c in root):
+    if fields:
+        labels = [c.label for c in fields]
+        if any(lab in ("contradicted", "unsupported") for lab in labels):
+            decision = "reject"
+        elif all(lab == "supported" for lab in labels):
+            decision = "accept"
+        else:
+            decision = "need_more_evidence"
+    elif any(c.label == "contradicted" for c in claims) or any(c.label == "unsupported" for c in root):
         decision = "reject"
     elif not root:
         decision = "need_more_evidence"
@@ -201,10 +220,9 @@ def decide(
 
     if not reasons:
         reasons = ["all claims supported by the evidence"]
-    # assemble_claims puts the two field claims first: root cause, then indicator.
-    fields = [c for c in claims if c.quote == "(hypothesis field)"]
     failed = [n for n, c in zip(("root_cause", "indicator"), fields) if c.label != "supported"]
     return CriticVerdict(decision=decision, reasons=reasons, missing_evidence=missing, failed_checks=failed)
+
 
 
 def _apply_onset_check(

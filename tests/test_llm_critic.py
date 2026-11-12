@@ -154,23 +154,27 @@ def test_one_weak_side_claim_still_accepts():
     assert verdict.decision == "accept"
 
 
-def test_two_weak_side_claims_need_more_evidence():
+def test_weak_side_claims_do_not_block_accept():
+    # Fields decide the verdict; weak explanation claims only add reasons.
     verdict, _, _ = _review([_claim("supported", root=True), _claim("partial"), _claim("unsupported")])
-    assert verdict.decision == "need_more_evidence"
+    assert verdict.decision == "accept"
+    assert any("a partial claim" in r for r in verdict.reasons)
+    assert any("an unsupported claim" in r or "a unsupported claim" in r for r in verdict.reasons)
 
 
-def test_any_contradiction_rejects():
-    verdict, _, _ = _review([_claim("supported", root=True), _claim("contradicted")])
+def test_contradicted_field_rejects():
+    verdict, _, _ = _review([_claim("supported", root=True)], root=_field("contradicted"))
     assert verdict.decision == "reject"
 
 
 def test_unsupported_root_cause_rejects():
-    verdict, _, _ = _review([_claim("unsupported", root=True)])
+    verdict, _, _ = _review([_claim("supported", root=True)], root=_field("unsupported"))
     assert verdict.decision == "reject"
 
 
 def test_partial_root_cause_needs_more_evidence_and_passes_checks():
-    verdict, _, _ = _review([_claim("partial", root=True)], checks=["metric_query cartservice cpu"])
+    verdict, _, _ = _review([_claim("supported", root=True)], root=_field("partial"),
+                            checks=["metric_query cartservice cpu"])
     assert verdict.decision == "need_more_evidence"
     assert "metric_query cartservice cpu" in verdict.missing_evidence
 
@@ -295,12 +299,12 @@ def test_decide_failed_checks(root, ind, expected):
     assert verdict.failed_checks == expected
 
 
-def test_decide_failed_checks_ignores_explanation_claims():
+def test_decide_explanation_claims_do_not_set_verdict():
     from src.agents.critic.llm_critic import decide
     claims = [_failed_claim("supported"), _failed_claim("supported"),
               _failed_claim("contradicted", quote="some explanation text", is_root=False)]
     verdict = decide(claims, [], ["E001"])
-    assert verdict.decision == "reject"
+    assert verdict.decision == "accept"  # fields decide; side claims only add reasons
     assert verdict.failed_checks == []
 
 
@@ -347,3 +351,26 @@ def test_fmt_shift_marks_capped_values():
     assert _fmt_shift(1e6) == ">=1e6 (capped)"
     assert _fmt_shift(2e6) == ">=1e6 (capped)"
     assert _fmt_shift(910.4) == "910.4"
+
+
+def test_decide_field_partial_needs_more_evidence():
+    from src.agents.critic.llm_critic import decide
+    verdict = decide([_failed_claim("partial"), _failed_claim("supported")], [], ["E001"])
+    assert verdict.decision == "need_more_evidence"
+    assert verdict.failed_checks == ["root_cause"]
+
+
+def test_decide_field_indicator_unsupported_rejects():
+    from src.agents.critic.llm_critic import decide
+    verdict = decide([_failed_claim("supported"), _failed_claim("unsupported")], [], ["E001"])
+    assert verdict.decision == "reject"
+    assert verdict.failed_checks == ["indicator"]
+
+
+def test_decide_without_field_claims_uses_all_claims_rule():
+    from src.agents.critic.llm_critic import decide
+    side = lambda lab, root: _failed_claim(lab, quote="explanation text", is_root=root)
+    assert decide([side("supported", True), side("contradicted", False)], [], ["E001"]).decision == "reject"
+    assert decide([side("supported", True), side("partial", False)], [], ["E001"]).decision == "accept"
+    assert decide([side("supported", True), side("partial", False), side("partial", False)],
+                  [], ["E001"]).decision == "need_more_evidence"
