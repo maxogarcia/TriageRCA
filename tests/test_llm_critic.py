@@ -302,3 +302,48 @@ def test_decide_failed_checks_ignores_explanation_claims():
     verdict = decide(claims, [], ["E001"])
     assert verdict.decision == "reject"
     assert verdict.failed_checks == []
+
+
+# Regression: metric_overview lines prefix the service ("svc: svc_metric, before ..."). The doubled
+# name the Executor sometimes writes in its indicator (svc_svc_metric) does not come from parsing;
+# the service and metric must still split correctly here.
+def _overview_ledger():
+    ledger = EvidenceLedger()
+    item = ledger.add(
+        "metric_overview",
+        {"start_time": 0.0, "end_time": 600.0},
+        "Onset overview:\n"
+        "  - productcatalogservice: productcatalogservice_latency-90, before mean=0.004369 -> after mean=0.2033; "
+        "direction=increase, change=+4551.8%, x46.52, shift=910.4, n=300/301\n"
+        "  - frontend: frontend_latency-50, before mean=0.0100 -> after mean=0.0520; "
+        "direction=increase, change=+420.0%, x5.20, shift=516.8, n=300/301\n"
+        "  - frontend-external: frontend-external_cpu, before mean=1.00 -> after mean=1.10; "
+        "direction=increase, change=+10.0%, x1.10, shift=3.5, n=300/301",
+    )
+    return ledger, item.id
+
+
+def test_onset_ranking_parses_service_prefixed_overview_lines():
+    from src.evidence import onset_shift_ranking
+
+    ledger, eid = _overview_ledger()
+    assert onset_shift_ranking(ledger) == [
+        ("productcatalogservice", "latency-90", 910.4, eid),
+        ("frontend", "latency-50", 516.8, eid),
+        ("frontend-external", "cpu", 3.5, eid),
+    ]
+
+
+def test_compare_metrics_largest_shift_line_puts_top_service_first():
+    ledger, eid = _overview_ledger()
+    first = compare_metrics(ledger).splitlines()[1]
+    assert first.startswith(f"Largest shift per service: productcatalogservice latency-90 910.4 [{eid}], frontend")
+
+
+def test_fmt_shift_marks_capped_values():
+    from src.evidence import SHIFT_CAP, _fmt_shift
+
+    assert SHIFT_CAP == 1e6
+    assert _fmt_shift(1e6) == ">=1e6 (capped)"
+    assert _fmt_shift(2e6) == ">=1e6 (capped)"
+    assert _fmt_shift(910.4) == "910.4"
