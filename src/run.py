@@ -77,7 +77,12 @@ def build_critic(cfg: dict, models: dict) -> Critic:
             comparisons=cfg.get("critic_comparisons", True),
             onset_check=cfg.get("critic_onset_check", True),
         )
-    raise ValueError(f"Unknown critic: {name!r} (expected 'stub' or 'llm')")
+    if name == "onset_rule":
+        # Ablation row "code rule only": the hybrid critic's code checks with no LLM.
+        from src.agents.critic.onset_critic import OnsetRuleCritic
+
+        return OnsetRuleCritic(evidence_mode=cfg.get("critic_evidence", "full"))
+    raise ValueError(f"Unknown critic: {name!r} (expected 'stub', 'llm' or 'onset_rule')")
 
 
 def build_tools(case, retriever: Retriever) -> ToolRegistry:
@@ -98,7 +103,7 @@ def main() -> None:
     parser.add_argument("--cases-limit", type=int, help="override cases_limit")
     parser.add_argument("--model", help="override model, a key in configs/models.yaml (e.g. open_weight_model)")
     parser.add_argument("--cases", nargs="+", help="case IDs or globs to run, e.g. re2ob_emailservice_*_1")
-    parser.add_argument("--critic", help="override critic: stub (always accepts) or llm")
+    parser.add_argument("--critic", help="override critic: stub (always accepts), llm, or onset_rule (code checks only, no LLM)")
     parser.add_argument("--runs-dir", help="override runs_dir, e.g. runs/qwen so runs don't overwrite another model's")
     args = parser.parse_args()
 
