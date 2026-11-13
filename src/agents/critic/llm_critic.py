@@ -225,6 +225,81 @@ def decide(
 
 
 
+def citation_check(hypothesis: Hypothesis, ledger: EvidenceLedger) -> CriticVerdict | None:
+    """Free code check shared by LLMCritic and OnsetRuleCritic: cited IDs must exist.
+
+    Returns a reject verdict, or None when the citations are fine.
+    """
+    if not hypothesis.citations:
+        return CriticVerdict(
+            decision="reject",
+            reasons=["the hypothesis cites no evidence"],
+            missing_evidence=["cite the evidence IDs that show the root cause"],
+        )
+    unknown = [e for e in hypothesis.citations if e not in ledger.known_ids()]
+    if unknown:
+        return CriticVerdict(
+            decision="reject",
+            reasons=[f"cited evidence IDs not in the ledger: {', '.join(unknown)}"],
+            missing_evidence=["cite only evidence IDs that exist in the ledger"],
+        )
+    return None
+
+
+def onset_conflict(hypothesis: Hypothesis, ledger: EvidenceLedger, only_ids: set[str] | None = None):
+    """Shared code onset rule, used by the LLM critic's onset check and by OnsetRuleCritic.
+
+    Returns ((top_svc, metric, shift, eid), (root, metric, shift, eid)) when another service has a
+    strictly larger onset shift than the claimed root service. Returns None when there is no
+    conflict, or when the rule is skipped: no claimed root, fewer than two services with onset
+    data, or the claimed root has none.
+    """
+    if not hypothesis.ranked_services:
+        return None
+    ranking = onset_shift_ranking(ledger, only_ids)
+    if len(ranking) < 2:
+        return None
+    root = hypothesis.ranked_services[0].strip().lower()
+    by_svc = {svc.lower(): (metric, shift, eid) for svc, metric, shift, eid in ranking}
+    if root not in by_svc:
+        return None
+    top = ranking[0]
+    root_metric, root_shift, root_eid = by_svc[root]
+    if top[0].lower() == root or top[2] <= root_shift:
+        return None
+    return top, (root, root_metric, root_shift, root_eid)
+
+
+def onset_note(conflict) -> str:
+    (top_svc, top_metric, top_shift, top_eid), (root, root_metric, root_shift, root_eid) = conflict
+    return (
+        f"code onset check: {top_svc} {top_metric} {top_shift:g} [{top_eid}] shifted more at onset than "
+        f"claimed root {root} {root_metric} {root_shift:g} [{root_eid}]"
+    )
+
+
+def onset_hint(conflict) -> str:
+    (top_svc, top_metric, top_shift, top_eid), (root, _root_metric, root_shift, root_eid) = conflict
+    return (
+        f"investigate {top_svc}: largest onset shift ({top_metric} {top_shift:g} [{top_eid}]), "
+        f"larger than claimed root {root} ({root_shift:g} [{root_eid}])"
+    )
+
+
+def onset_reject_verdict(conflict) -> CriticVerdict:
+    """Reject verdict for an onset conflict without LLM claims (OnsetRuleCritic, parse-failure path).
+
+    failed_checks matches the hybrid: the onset check relabels both field claims (both carry
+    is_root_cause=True), so decide() reports root_cause and indicator.
+    """
+    return CriticVerdict(
+        decision="reject",
+        reasons=[onset_note(conflict)],
+        missing_evidence=[onset_hint(conflict)],
+        failed_checks=["root_cause", "indicator"],
+    )
+
+
 def _apply_onset_check(
     claims: list[ClaimCheck], hypothesis: Hypothesis, ledger: EvidenceLedger, only_ids: set[str] | None
 ) -> tuple[list[ClaimCheck], str | None]:
@@ -235,23 +310,11 @@ def _apply_onset_check(
     larger service is returned for missing_evidence. Skipped when fewer than two
     services have onset data or the claimed root has none, since there is nothing to compare.
     """
-    if not hypothesis.ranked_services:
+    conflict = onset_conflict(hypothesis, ledger, only_ids)
+    if conflict is None:
         return claims, None
-    ranking = onset_shift_ranking(ledger, only_ids)
-    if len(ranking) < 2:
-        return claims, None
-    root = hypothesis.ranked_services[0].strip().lower()
-    by_svc = {svc.lower(): (metric, shift, eid) for svc, metric, shift, eid in ranking}
-    if root not in by_svc:
-        return claims, None
-    top_svc, top_metric, top_shift, top_eid = ranking[0]
-    root_metric, root_shift, root_eid = by_svc[root]
-    if top_svc.lower() == root or top_shift <= root_shift:
-        return claims, None
-    note = (
-        f"code onset check: {top_svc} {top_metric} {top_shift:g} [{top_eid}] shifted more at onset than "
-        f"claimed root {root} {root_metric} {root_shift:g} [{root_eid}]"
-    )
+    (top_svc, top_metric, top_shift, top_eid), (root, root_metric, root_shift, root_eid) = conflict
+    note = onset_note(conflict)
     checked = []
     for c in claims:
         if c.is_root_cause and c.label != "contradicted":
@@ -261,11 +324,7 @@ def _apply_onset_check(
                 "evidence_ids": sorted(set(c.evidence_ids) | {top_eid, root_eid}),
             })
         checked.append(c)
-    hint = (
-        f"investigate {top_svc}: largest onset shift ({top_metric} {top_shift:g} [{top_eid}]), "
-        f"larger than claimed root {root} ({root_shift:g} [{root_eid}])"
-    )
-    return checked, hint
+    return checked, onset_hint(conflict)
 
 
 class LLMCritic:
@@ -292,20 +351,10 @@ class LLMCritic:
     def review(self, hypothesis: Hypothesis, ledger: EvidenceLedger) -> CriticVerdict:
         self.last_claims = []
 
-        # 1. Free code check: cited IDs must exist.
-        if not hypothesis.citations:
-            return CriticVerdict(
-                decision="reject",
-                reasons=["the hypothesis cites no evidence"],
-                missing_evidence=["cite the evidence IDs that show the root cause"],
-            )
-        unknown = [e for e in hypothesis.citations if e not in ledger.known_ids()]
-        if unknown:
-            return CriticVerdict(
-                decision="reject",
-                reasons=[f"cited evidence IDs not in the ledger: {', '.join(unknown)}"],
-                missing_evidence=["cite only evidence IDs that exist in the ledger"],
-            )
+        # 1. Free code check: cited IDs must exist (shared with OnsetRuleCritic).
+        cite_verdict = citation_check(hypothesis, ledger)
+        if cite_verdict is not None:
+            return cite_verdict
 
         # 2. One LLM call: claims + labels.
         evidence_text = format_evidence(
@@ -322,6 +371,16 @@ class LLMCritic:
         except ValidationError as e:
             # Fail open: a broken critic reply must not count against the hypothesis. The run
             # then behaves like the no-critic config, and the reason makes it visible in eval.
+            if self._onset_check:
+                # The code onset rule does not depend on the LLM reply, so it still applies here.
+                only_ids = None if self._evidence_mode == "full" else set(hypothesis.citations)
+                conflict = onset_conflict(hypothesis, ledger, only_ids)
+                if conflict is not None:
+                    v = onset_reject_verdict(conflict)
+                    return v.model_copy(update={"reasons": [
+                        f"critic output could not be parsed ({e.error_count()} errors); code onset check still applied",
+                        *v.reasons,
+                    ]})
             return CriticVerdict(
                 decision="accept",
                 reasons=[f"critic output could not be parsed, accepted unchecked: {e.error_count()} errors"],

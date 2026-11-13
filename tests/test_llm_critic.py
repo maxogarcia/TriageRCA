@@ -374,3 +374,93 @@ def test_decide_without_field_claims_uses_all_claims_rule():
     assert decide([side("supported", True), side("partial", False)], [], ["E001"]).decision == "accept"
     assert decide([side("supported", True), side("partial", False), side("partial", False)],
                   [], ["E001"]).decision == "need_more_evidence"
+
+
+# OnsetRuleCritic (ablation row "code rule only") shares citation_check and onset_conflict
+# with the hybrid critic.
+def _h(root, citations):
+    return _hypothesis().model_copy(update={"ranked_services": [root], "citations": citations})
+
+
+def test_onset_rule_rejects_when_other_service_shifted_more():
+    from src.agents.critic.onset_critic import OnsetRuleCritic
+
+    ledger, eid = _overview_ledger()
+    v = OnsetRuleCritic().review(_h("frontend", [eid]), ledger)
+    assert v.decision == "reject"
+    assert v.failed_checks == ["root_cause", "indicator"]
+    assert v.reasons[0].startswith("code onset check: productcatalogservice")
+    assert v.missing_evidence[0].startswith("investigate productcatalogservice")
+
+
+def test_onset_rule_accepts_when_root_is_top():
+    from src.agents.critic.onset_critic import OnsetRuleCritic
+
+    ledger, eid = _overview_ledger()
+    v = OnsetRuleCritic().review(_h("productcatalogservice", [eid]), ledger)
+    assert v.decision == "accept" and v.failed_checks == []
+    assert v.reasons[0].startswith("code onset rule passed")
+
+
+def test_onset_rule_skips_when_root_has_no_onset_data():
+    from src.agents.critic.onset_critic import OnsetRuleCritic
+
+    ledger, eid = _overview_ledger()
+    v = OnsetRuleCritic().review(_h("cartservice", [eid]), ledger)
+    assert v.decision == "accept"
+    assert v.reasons[0].startswith("code onset rule skipped")
+
+
+def test_onset_rule_cited_mode_only_uses_cited_items():
+    from src.agents.critic.onset_critic import OnsetRuleCritic
+
+    ledger, _ = _overview_ledger()
+    other = ledger.add("log_search", {"service": "frontend"}, "no matching log lines")
+    h = _h("frontend", [other.id])
+    assert OnsetRuleCritic(evidence_mode="cited").review(h, ledger).decision == "accept"
+    assert OnsetRuleCritic(evidence_mode="full").review(h, ledger).decision == "reject"
+
+
+def test_onset_rule_matches_hybrid_onset_check():
+    from src.agents.critic.llm_critic import _apply_onset_check
+    from src.agents.critic.onset_critic import OnsetRuleCritic
+
+    ledger, eid = _overview_ledger()
+    for root in ["frontend", "productcatalogservice", "frontend-external", "cartservice"]:
+        h = _h(root, [eid])
+        _, hint = _apply_onset_check([], h, ledger, None)
+        v = OnsetRuleCritic().review(h, ledger)
+        assert (v.decision == "reject") == (hint is not None), root
+        if hint is not None:
+            assert v.missing_evidence == [hint], root
+
+
+def test_onset_rule_shares_citation_checks_with_hybrid():
+    from src.agents.critic.llm_critic import citation_check
+    from src.agents.critic.onset_critic import OnsetRuleCritic
+
+    ledger, eid = _overview_ledger()
+    for citations in [[], ["E999"], [eid, "E999"]]:
+        h = _h("productcatalogservice", citations)
+        expected = citation_check(h, ledger)
+        assert expected is not None and expected.decision == "reject", citations
+        assert OnsetRuleCritic().review(h, ledger) == expected, citations
+
+
+def test_parse_failure_still_applies_onset_check():
+    from types import SimpleNamespace
+
+    from src.agents.critic.llm_critic import LLMCritic
+
+    class BrokenLLM:
+        def generate(self, messages, **kwargs):
+            return SimpleNamespace(text="not json")
+
+    ledger, eid = _overview_ledger()
+    hybrid = LLMCritic(llm=BrokenLLM(), evidence_mode="full", comparisons=True, onset_check=True)
+    v = hybrid.review(_h("frontend", [eid]), ledger)
+    assert v.decision == "reject" and v.failed_checks == ["root_cause", "indicator"]
+    assert v.reasons[0].startswith("critic output could not be parsed")
+    assert hybrid.review(_h("productcatalogservice", [eid]), ledger).decision == "accept"
+    llm_only = LLMCritic(llm=BrokenLLM(), evidence_mode="full", comparisons=True, onset_check=False)
+    assert llm_only.review(_h("frontend", [eid]), ledger).decision == "accept"
