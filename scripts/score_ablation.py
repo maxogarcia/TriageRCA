@@ -15,12 +15,20 @@ Scoring rules:
   - wrong accepted  = last verdict is accept AND final answer wrong
   - correct rejected = case where some round's top service was correct and that
     round's verdict was not accept (reject or need_more_evidence)
+  - baseline rows (config_name react / retrieval_only, no critic): critic columns
+    (wrong accepted, correct rejected, critic s, rule skips, parse fails) are n/a,
+    shown as "n/a" in the table and left blank in the CSVs; `errors` there means an
+    exception (e.g. schema or citation failure), not "critic never accepted"
   - LLM time = sum of latency_s over all calls (cached calls keep their original
     latency, so this is fair across rows); critic time = same for role "critic";
     wall clock is secondary (lower for rows with cache hits)
 
+Rows: by default, every row in experiment.json that has a folder under --out (rows
+never run there are skipped and listed); --rows picks a subset explicitly.
+
 Usage:
   python scripts/score_ablation.py --out runs/heldout
+  python scripts/score_ablation.py --out runs/heldout_baselines
 """
 from __future__ import annotations
 
@@ -35,6 +43,11 @@ RULE_SKIP = "code onset rule skipped:"
 PARSE_FAIL = "critic output could not be parsed"
 UNCHECKED = "accepted unchecked"
 DEV_SYSTEMS = {"ob"}
+BASELINE_CONFIGS = {"react", "retrieval_only"}  # no critic loop: critic columns do not apply
+CRITIC_FIELDS = [
+    "last_decision", "wrong_accepted", "correct_rejected", "critic_time_s", "mean_critic_time_s",
+    "rule_skips", "parse_fails", "parse_fails_unchecked",
+]
 
 CASE_FIELDS = [
     "row", "case_id", "system", "truth", "pred", "correct", "missing_json", "missing_report",
@@ -119,7 +132,7 @@ def score_case(row: str, case_id: str, label: dict, path: Path | None) -> dict:
     return out
 
 
-def summarize(row: str, group: str, cases: list[dict]) -> dict:
+def summarize(row: str, group: str, cases: list[dict], baseline: bool = False) -> dict:
     n = len(cases)
 
     def total(k):
@@ -141,6 +154,7 @@ def summarize(row: str, group: str, cases: list[dict]) -> dict:
         "cached_calls": total("n_cached"), "total_calls": total("n_calls"),
         "rule_skips": total("rule_skips"), "parse_fails": total("parse_fails"),
         "parse_fails_unchecked": total("parse_fails_unchecked"),
+        "baseline": baseline,
     }
 
 
@@ -155,12 +169,17 @@ def markdown(summaries: list[dict], group: str) -> str:
     for s in summaries:
         if s["group"] != group:
             continue
+        if s["baseline"]:
+            wa = cr = crit = skips = pf = "n/a"
+        else:
+            wa, cr = s["wrong_accepted"], s["correct_rejected"]
+            crit = f"{s['mean_critic_time_s']:.1f}"
+            skips, pf = s["rule_skips"], f"{s['parse_fails']} ({s['parse_fails_unchecked']})"
         lines.append(
-            f"| {s['row']} | {s['correct']}/{s['n']} ({s['accuracy']:.0%}) | {s['wrong_accepted']} "
-            f"| {s['correct_rejected']} | {s['missing']} | {s['with_errors']} | {s['mean_rounds']:.2f} "
-            f"| {s['mean_llm_time_s']:.1f} | {s['mean_critic_time_s']:.1f} | {s['mean_wall_clock_s']:.1f} "
-            f"| {s['cached_calls']}/{s['total_calls']} | {s['rule_skips']} "
-            f"| {s['parse_fails']} ({s['parse_fails_unchecked']}) |"
+            f"| {s['row']} | {s['correct']}/{s['n']} ({s['accuracy']:.0%}) | {wa} "
+            f"| {cr} | {s['missing']} | {s['with_errors']} | {s['mean_rounds']:.2f} "
+            f"| {s['mean_llm_time_s']:.1f} | {crit} | {s['mean_wall_clock_s']:.1f} "
+            f"| {s['cached_calls']}/{s['total_calls']} | {skips} | {pf} |"
         )
     return "\n".join(lines)
 
@@ -170,7 +189,11 @@ def write_csv(path: Path, rows: list[dict], fields: list[str]) -> None:
         w = csv.DictWriter(f, fieldnames=fields)
         w.writeheader()
         for r in rows:
-            w.writerow({k: (round(v, 3) if isinstance(v, float) else v) for k, v in r.items()})
+            w.writerow({
+                k: "" if (r.get("baseline") and k in CRITIC_FIELDS)
+                else (round(v, 3) if isinstance(v, float) else v)
+                for k, v in r.items() if k in fields
+            })
 
 
 def main() -> None:
@@ -206,11 +229,25 @@ def main() -> None:
         if bad:
             sys.exit(f"ERROR: unknown rows {bad}; experiment has {rows}")
         rows = [r for r in rows if r in args.rows]
+    else:
+        # experiment.json lists every row, also rows never run into this --out (e.g. the critic rows
+        # in a baselines-only folder). Score only rows that have a folder; a row that ran but lacks
+        # some case JSONs still counts those cases as wrong.
+        not_run = [r for r in rows if not (out / r).is_dir()]
+        rows = [r for r in rows if r not in not_run]
+        if not_run:
+            print(f"skipped rows with no folder in {out} (not run): {', '.join(not_run)}\n")
+        if not rows:
+            sys.exit(f"ERROR: no row folders in {out}")
+
+    baseline_rows = {r for r in rows if exp["rows"][r].get("config_name") in BASELINE_CONFIGS}
 
     case_rows = []
     for row in rows:
         for case_id in cases:
-            case_rows.append(score_case(row, case_id, labels[case_id], find_case_json(out / row, case_id)))
+            c = score_case(row, case_id, labels[case_id], find_case_json(out / row, case_id))
+            c["baseline"] = row in baseline_rows
+            case_rows.append(c)
 
     systems = sorted({c["system"] for c in case_rows}, key=lambda s: (s not in DEV_SYSTEMS, s))
     groups = list(systems)
@@ -223,14 +260,14 @@ def main() -> None:
         members = set(g.split("+"))
         for row in rows:
             subset = [c for c in case_rows if c["row"] == row and c["system"] in members]
-            summaries.append(summarize(row, g, subset))
+            summaries.append(summarize(row, g, subset, baseline=row in baseline_rows))
 
     print(f"experiment: {out}  code {exp.get('code_version', '?')[:12]}  cases {len(cases)}  rows {len(rows)}\n")
     for g in groups:
         print(markdown(summaries, g) + "\n")
 
     write_csv(out / "scores_cases.csv", case_rows, CASE_FIELDS)
-    write_csv(out / "scores_summary.csv", summaries, list(summaries[0].keys()))
+    write_csv(out / "scores_summary.csv", summaries, [k for k in summaries[0] if k != "baseline"])
     print(f"wrote {out / 'scores_cases.csv'} and {out / 'scores_summary.csv'}")
 
 

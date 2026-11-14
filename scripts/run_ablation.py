@@ -23,6 +23,10 @@ Usage:
     python scripts/run_ablation.py                           # all rows, held-out cases
     python scripts/run_ablation.py --rows hybrid llm_only    # some rows only
     python scripts/run_ablation.py --cases "re2ob_checkoutservice_*_1" --cases-limit 1 --out runs/ablation_smoke
+    python scripts/run_ablation.py --rows react retrieval_only --out runs/heldout_baselines   # baselines
+
+Baselines (react, retrieval_only) need the Chroma index (python -m src.rag.embed). Their
+experiment.json lists all rows, so it never matches runs/heldout: always give them a new --out.
 """
 
 from __future__ import annotations
@@ -56,6 +60,13 @@ ROWS: dict[str, dict] = {
     "hybrid": {"config_name": "triagerca", "critic": "llm", "critic_model": "critic_14b", "critic_onset_check": True},
     "llm_only": {"config_name": "triagerca", "critic": "llm", "critic_model": "critic_14b", "critic_onset_check": False},
     "hybrid_7b": {"config_name": "triagerca", "critic": "llm", "critic_model": "open_weight_model", "critic_onset_check": True},
+    # Baselines (no critic loop). Same pipeline model, tools and tool budget as the rows above.
+    # src.pipeline never calls the critic for these configs; "stub" keeps run.py from loading a
+    # critic model. retriever is pinned (dev.yaml already says chroma) because retrieval_only is
+    # meaningless with the stub retriever. Run them into their own --out: adding rows changes
+    # experiment.json.
+    "react": {"config_name": "react", "critic": "stub", "retriever": "chroma"},
+    "retrieval_only": {"config_name": "retrieval_only", "critic": "stub", "retriever": "chroma"},
 }
 
 
