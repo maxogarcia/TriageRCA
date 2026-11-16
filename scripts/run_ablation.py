@@ -27,6 +27,14 @@ Usage:
 
 Baselines (react, retrieval_only) need the Chroma index (python -m src.rag.embed). Their
 experiment.json lists all rows, so it never matches runs/heldout: always give them a new --out.
+
+Model sweep: --model picks the pipeline model (a key in configs/models.yaml; default
+open_weight_model). The critic model stays pinned per row (critic_model), so only the pipeline
+model varies. Without --out, a non-default model writes to runs/heldout_<model>, so models never
+share a folder or a cache. Hosted models cost money at list price: --dry-run first.
+    python scripts/run_ablation.py --model pipeline_model --dry-run
+    python scripts/run_ablation.py --model pipeline_model --rows react retrieval_only
+        --out runs/heldout_pipeline_model_baselines   # (one command, wrapped)
 """
 
 from __future__ import annotations
@@ -112,10 +120,20 @@ def code_version(allow_dirty: bool) -> str:
     return f"{head}-dirty-{diff_hash}"
 
 
-def row_config(base_cfg: dict, row: str, out: Path, cache_dir: Path) -> dict:
+def model_keys(models_path: Path = Path("configs/models.yaml")) -> list[str]:
+    """Model keys usable as a pipeline model (entries with a provider)."""
+    models = yaml.safe_load((REPO / models_path).read_text())
+    return [k for k, v in models.items() if isinstance(v, dict) and "provider" in v]
+
+
+def default_out(model: str) -> Path:
+    return Path("runs/heldout") if model == PIPELINE_MODEL else Path(f"runs/heldout_{model}")
+
+
+def row_config(base_cfg: dict, row: str, out: Path, cache_dir: Path, model: str = PIPELINE_MODEL) -> dict:
     cfg = dict(base_cfg)
     cfg.update(ROWS[row])
-    cfg["model"] = PIPELINE_MODEL
+    cfg["model"] = model
     cfg["cases_limit"] = SRC_RUN_CASES_LIMIT
     cfg["runs_dir"] = (out / row).as_posix()
     cfg["cache_dir"] = cache_dir.as_posix()
@@ -154,12 +172,17 @@ def main() -> None:
     parser.add_argument("--rows", nargs="+", choices=list(ROWS), default=list(ROWS), help="rows to run (always in the fixed order)")
     parser.add_argument("--cases", nargs="+", default=HELDOUT_CASES, help="case IDs or globs (default: held-out re2ss_* re2tt_*)")
     parser.add_argument("--cases-limit", type=int, help="keep only the first N selected cases (for smoke tests)")
-    parser.add_argument("--out", type=Path, default=Path("runs/heldout"), help="output root (default: runs/heldout)")
+    parser.add_argument("--model", default=PIPELINE_MODEL, choices=model_keys(),
+                        help=f"pipeline model key in configs/models.yaml (default: {PIPELINE_MODEL})")
+    parser.add_argument("--out", type=Path, default=None,
+                        help="output root (default: runs/heldout, or runs/heldout_<model> for a non-default --model)")
     parser.add_argument("--base-config", type=Path, default=Path("configs/dev.yaml"))
     parser.add_argument("--manifest", type=Path, default=Path(DEFAULT_MANIFEST))
     parser.add_argument("--allow-dirty", action="store_true", help="allow uncommitted changes (smoke tests only)")
     parser.add_argument("--dry-run", action="store_true", help="print the plan and commands, run nothing")
     args = parser.parse_args()
+    if args.out is None:
+        args.out = default_out(args.model)
 
     os.chdir(REPO)  # src.run resolves configs/models.yaml, data_dir, cache_dir relative to the repo root
     version = code_version(args.allow_dirty)
@@ -171,7 +194,7 @@ def main() -> None:
 
     # Every row's config is part of the lock, not only the rows selected now, so a later
     # --rows invocation cannot run under a different setup than the rows already finished.
-    configs = {row: row_config(base_cfg, row, args.out, cache_dir) for row in ROWS}
+    configs = {row: row_config(base_cfg, row, args.out, cache_dir, args.model) for row in ROWS}
     manifest_sha256 = hashlib.sha256(args.manifest.read_bytes()).hexdigest()
     experiment = {
         "code_version": version,
@@ -185,7 +208,7 @@ def main() -> None:
 
     print(f"code version: {version}")
     print(f"cases: {len(cases)} selected by {args.cases}" + (f" (limit {args.cases_limit})" if args.cases_limit else ""))
-    print(f"out: {args.out}  (cache: {cache_dir})")
+    print(f"model: {args.model}  out: {args.out}  (cache: {cache_dir})")
     print(f"experiment.json: {'new' if not exp_path.exists() else ('MISMATCH in ' + ', '.join(diffs) if diffs else 'matches')}")
     rows = [r for r in ROWS if r in args.rows]
     plan = []
