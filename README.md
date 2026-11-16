@@ -159,6 +159,32 @@ so this is not a full-sample accuracy result. For subset experiments, use a subs
 consistently for running and scoring. Valid citation IDs establish reference validity, not
 semantic grounding; grounding requires independent evaluation.
 
+### Held-out sweep and main results table
+
+`scripts/run_ablation.py` runs every row (critic variants plus the `react` and `retrieval_only`
+baselines) on the 60 held-out cases, one experiment folder per pipeline model. It is resumable:
+rerun the same command after a crash. It refuses uncommitted changes, and a resume refuses a
+different commit, so finish a sweep before pulling.
+
+```bash
+python scripts/run_ablation.py                                   # Qwen 7B -> runs/heldout
+python scripts/run_ablation.py --model pipeline_model --dry-run  # Gemini (paid): check the plan first
+python scripts/run_ablation.py --model pipeline_model            # -> runs/heldout_pipeline_model
+```
+
+The critic model stays pinned (`critic_model`), so only the pipeline model varies between folders.
+Score grounding with `scripts/judge_grounding.py --out <folders>`, then build one table:
+
+```bash
+python scripts/results_table.py runs/heldout runs/heldout_pipeline_model --deterministic \
+  --grounding results/grounding/grounding_cases.csv --out results/main_table
+```
+
+The table has AC@1/3/5, MRR, fault and indicator accuracy, grounding, cost/case at list price and
+latency/case per (model, row). The held-out union comes first. `--deterministic` adds the
+code-only reference row (largest metric shift at onset, no LLM), which the agent rows must beat.
+Folders run at different commits are refused unless `--allow-mixed-code`.
+
 ## Repository Structure
 
 ```

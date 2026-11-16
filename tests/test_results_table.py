@@ -108,3 +108,32 @@ def test_ablation_model_axis_keeps_default_lock():
     assert run_ablation.default_out("open_weight_model") == Path("runs/heldout")
     assert run_ablation.default_out("pipeline_model") == Path("runs/heldout_pipeline_model")
     assert {"pipeline_model", "open_weight_model", "critic_14b"} <= set(run_ablation.model_keys())
+
+
+def test_grounding_matched_by_run_path_not_row_name(tmp_path, monkeypatch):
+    manifest = tmp_path / "m.csv"
+    sha = write_manifest(manifest)
+    # Same row name in two experiments (two models): the judge's row column alone would collide.
+    for name, model in (("qwen", "open_weight_model"), ("gem", "pipeline_model")):
+        write_experiment(tmp_path / name, manifest, sha, model, {
+            "hybrid": {"config_name": "triagerca", "records": {c: rec([TRUTH[c][0]]) for c in CASES}},
+        })
+    judged = tmp_path / "grounding_cases.csv"
+    with open(judged, "w", newline="") as f:
+        w = csv.writer(f)
+        w.writerow(["row", "case_id", "run_path", "grounding_expl"])
+        for c in CASES[:2]:  # qwen: 2 of 3 judged, one without a score
+            score = "0.5" if c == CASES[0] else ""
+            w.writerow(["hybrid", c, tmp_path / "qwen" / "hybrid" / "triagerca" / f"{c}.json", score])
+        for c in CASES:
+            w.writerow(["hybrid", c, tmp_path / "gem" / "hybrid" / "triagerca" / f"{c}.json", "0.9"])
+    out = tmp_path / "t"
+    exps = [str(tmp_path / "qwen"), str(tmp_path / "gem")]
+    run_main(monkeypatch, [*exps, "--grounding", str(judged), "--out", str(out)])
+
+    names = results_table.model_names()
+    rows = {(r["model"], r["group"]): r for r in csv.DictReader(open(out.with_suffix(".csv")))}
+    q, g = rows[(names["open_weight_model"], "ss+tt")], rows[(names["pipeline_model"], "ss+tt")]
+    assert float(q["grounding"]) == 0.5 and q["grounding_n"] == "1"
+    assert float(g["grounding"]) == pytest.approx(0.9) and g["grounding_n"] == "3"
+    assert "0.50 (n=1)" in out.with_suffix(".md").read_text()

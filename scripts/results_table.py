@@ -10,7 +10,9 @@ Columns (per group: each system, plus the held-out union, e.g. ss+tt):
                    report counts as wrong (the case stays in the denominator)
   fault acc        report.fault_category == manifest fault
   indicator acc    only over cases with a verified indicator label ("n/a" when there are none)
-  grounding        "pending" until the grounding judge lands
+  grounding        mean grounding_expl (primary score, spec v1.1) from scripts/judge_grounding.py's
+                   grounding_cases.csv (--grounding), matched to each case by run_path; "pending"
+                   when the row was not judged; n = judged cases with a score
   cost/case        mean RunRecord.cost_usd (list price, cached calls included, so rows with cache
                    hits are not cheaper); local models price at $0
   LLM s/case       mean sum of llm_calls[].latency_s (cached calls keep their original latency)
@@ -19,8 +21,8 @@ Columns (per group: each system, plus the held-out union, e.g. ss+tt):
 Outputs: markdown to stdout and <out>.md, per-line summary <out>.csv, per-case <out>_cases.csv.
 
 Usage:
-  python scripts/results_table.py runs/heldout runs/heldout_baselines \\
-      runs/heldout_pipeline_model --deterministic --out results/main_table
+  python scripts/results_table.py runs/heldout runs/heldout_pipeline_model --deterministic \\
+      --grounding results/grounding/grounding_cases.csv --out results/main_table
 """
 from __future__ import annotations
 
@@ -56,6 +58,18 @@ def model_names(models_path: Path = REPO / "configs/models.yaml") -> dict[str, s
     return {k: v.get("name", k) for k, v in models.items() if isinstance(v, dict)}
 
 
+def load_grounding(paths: list[Path]) -> dict[Path, float | None]:
+    """run_path -> grounding_expl from judge_grounding.py's grounding_cases.csv (None = judged, no score)."""
+    out: dict[Path, float | None] = {}
+    for path in paths:
+        with open(path, newline="") as f:
+            for r in csv.DictReader(f):
+                run = Path(r["run_path"])
+                run = (run if run.is_absolute() else REPO / run).resolve()
+                out[run] = float(r["grounding_expl"]) if r.get("grounding_expl", "") != "" else None
+    return out
+
+
 def score_prediction(case_id: str, labels: ManifestLabels, record: dict | None) -> dict:
     truth = labels.label(case_id)
     report = (record or {}).get("report") or {}
@@ -83,19 +97,23 @@ def score_prediction(case_id: str, labels: ManifestLabels, record: dict | None) 
     }
 
 
-def load_record(row_dir: Path, case_id: str) -> dict | None:
+def find_record(row_dir: Path, case_id: str) -> Path | None:
     hits = [p for p in row_dir.glob(f"*/{case_id}.json") if p.parent.name != "llm_cache"]
     if len(hits) > 1:
         sys.exit(f"ERROR: more than one JSON for {case_id} in {row_dir}: {hits}")
-    if not hits:
+    return hits[0] if hits else None
+
+
+def load_record(path: Path | None, case_id: str) -> dict | None:
+    if path is None:
         return None
     try:
-        record = json.loads(hits[0].read_text())
+        record = json.loads(path.read_text())
     except (OSError, ValueError) as e:
-        print(f"WARNING: unreadable {hits[0]}: {e}; counted as missing", file=sys.stderr)
+        print(f"WARNING: unreadable {path}: {e}; counted as missing", file=sys.stderr)
         return None
     if record.get("case_id") != case_id:
-        sys.exit(f"ERROR: {hits[0]} has case_id {record.get('case_id')!r}, expected {case_id!r}")
+        sys.exit(f"ERROR: {path} has case_id {record.get('case_id')!r}, expected {case_id!r}")
     return record
 
 
@@ -122,6 +140,7 @@ def summarize(lines: list[dict], group: str) -> dict:
     n = len(lines)
     ran = [c for c in lines if not c["missing"]]
     ind = [c for c in lines if c["indicator_ok"] != ""]
+    grounded = [c for c in lines if c.get("grounding") not in (None, "")]
 
     def mean(rows, k):
         return sum(c[k] for c in rows) / len(rows) if rows else 0.0
@@ -133,7 +152,8 @@ def summarize(lines: list[dict], group: str) -> dict:
         "fault_acc": mean(lines, "fault_ok"),
         "indicator_acc": mean(ind, "indicator_ok") if ind else None,
         "indicator_n": len(ind),
-        "grounding": None,
+        "grounding": mean(grounded, "grounding") if grounded else None,
+        "grounding_n": len(grounded),
         "missing": sum(c["missing"] for c in lines),
         "with_errors": sum(c["has_errors"] for c in lines),
         # cost and time over cases that produced a record (a missing case would read as free and instant)
@@ -148,6 +168,12 @@ def pct(x) -> str:
     return "n/a" if x is None else f"{x:.0%}"
 
 
+def grounding_cell(s: dict) -> str:
+    if s["grounding"] is None:
+        return "pending"
+    return f"{s['grounding']:.2f} (n={s['grounding_n']})"
+
+
 def markdown(summaries: list[dict], group: str, code_only: bool) -> str:
     head = ("| model | row | AC@1 | AC@3 | AC@5 | MRR | fault acc | indicator acc | grounding "
             "| cost/case | LLM s/case | wall s/case | missing | errors |")
@@ -159,7 +185,7 @@ def markdown(summaries: list[dict], group: str, code_only: bool) -> str:
         lines.append(
             f"| {s['model']} | {s['row']} | {pct(s['AC@1'])} | {pct(s['AC@3'])} | {pct(s['AC@5'])} "
             f"| {s['MRR']:.3f} | {'n/a' if is_code else pct(s['fault_acc'])} | {pct(s['indicator_acc'])} "
-            f"| {'n/a' if is_code else 'pending'} "
+            f"| {'n/a' if is_code else grounding_cell(s)} "
             f"| {'n/a' if is_code else '$' + format(s['cost_per_case_usd'], '.4f')} "
             f"| {'n/a' if is_code else format(s['llm_s_per_case'], '.1f')} "
             f"| {'n/a' if is_code else format(s['wall_s_per_case'], '.1f')} | {s['missing']} | {s['with_errors']} |"
@@ -174,6 +200,8 @@ def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("experiments", nargs="+", type=Path, help="experiment folders from run_ablation.py")
     ap.add_argument("--deterministic", action="store_true", help="add the code-only largest-onset-shift row")
+    ap.add_argument("--grounding", nargs="*", type=Path, default=[],
+                    help="grounding_cases.csv file(s) from scripts/judge_grounding.py")
     ap.add_argument("--out", type=Path, default=Path("results/main_table"), help="output path prefix")
     ap.add_argument("--allow-mixed-code", action="store_true",
                     help="allow experiments run at different commits (default: refuse, the sweep must be frozen)")
@@ -206,6 +234,7 @@ def main() -> None:
     labels = ManifestLabels(manifest)
     cases = list(first["cases"])
     names = model_names()
+    grounding = load_grounding(args.grounding)
 
     per_case: list[dict] = []
     seen: set[tuple[str, str]] = set()
@@ -218,11 +247,15 @@ def main() -> None:
                 sys.exit(f"ERROR: ({model}, {row}) appears in more than one experiment folder")
             seen.add((model, row))
             for c in cases:
-                per_case.append({"model": model, "row": row} | score_prediction(c, labels, load_record(d / row, c)))
+                path = find_record(d / row, c)
+                line = score_prediction(c, labels, load_record(path, c))
+                line["grounding"] = grounding.get(path.resolve(), "") if path else ""
+                per_case.append({"model": model, "row": row} | line)
 
     if args.deterministic:
         for c, rec in deterministic_records(cases, labels).items():
-            per_case.append({"model": DETERMINISTIC[0], "row": DETERMINISTIC[1]} | score_prediction(c, labels, rec))
+            line = score_prediction(c, labels, rec) | {"grounding": ""}
+            per_case.append({"model": DETERMINISTIC[0], "row": DETERMINISTIC[1]} | line)
 
     if not per_case:
         sys.exit("ERROR: no row folders found in the given experiments")
