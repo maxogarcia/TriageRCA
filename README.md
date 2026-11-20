@@ -185,6 +185,39 @@ latency/case per (model, row). The held-out union comes first. `--deterministic`
 code-only reference row (largest metric shift at onset, no LLM), which the agent rows must beat.
 Folders run at different commits are refused unless `--allow-mixed-code`.
 
+### Held-out results: Qwen2.5-7B pipeline (Nov 2026)
+
+All 7 rows on the 60 held-out cases (30 Sock Shop `re2ss`, 30 Train Ticket `re2tt`), pipeline model
+`qwen2.5:7b-instruct` via local Ollama, critic `qwen2.5:14b-instruct` (7B in `hybrid_7b`), code
+`527d8ff`. Full table with per-system splits: [`docs/results/heldout_qwen.md`](docs/results/heldout_qwen.md);
+per-case rows in `docs/results/heldout_qwen_cases.csv`; paired tests in
+[`docs/results/heldout_qwen_tests.md`](docs/results/heldout_qwen_tests.md). Grounding is still pending
+(the judge has not been run on these folders yet).
+
+| Row | AC@1 | AC@3 | AC@5 | MRR | Fault acc | Wall s/case |
+|---|---:|---:|---:|---:|---:|---:|
+| no_critic | 30% | 45% | 45% | 0.375 | 23% | 38 |
+| code_rule | 60% | 63% | 63% | 0.617 | 37% | 13 |
+| llm_only | 58% | 73% | 75% | 0.653 | 33% | 110 |
+| **hybrid** | **75%** | 85% | 85% | 0.792 | 37% | 273 |
+| hybrid_7b | 67% | 78% | 78% | 0.725 | 35% | 135 |
+| react | 72% | 85% | 85% | 0.775 | 30% | 20 |
+| retrieval_only | 7% | 27% | 27% | 0.153 | 13% | 6 |
+| code-only (no LLM) | 70% | 88% | 95% | 0.800 | n/a | n/a |
+
+- **The critic is what makes the pipeline work.** Without it, AC@1 is 30%; with the hybrid critic it is
+  75% (28 cases fixed, 1 broken, McNemar p = 1e-7). Hybrid also beats each critic half on its own:
+  code-rule (p = 0.02) and LLM-only (p = 0.006).
+- **But on 60 cases, hybrid is not significantly better than ReAct or the code-only baseline.**
+  Hybrid 45/60 vs ReAct 43/60 (p = 0.82) and code-only 42/60 (p = 0.58), and code-only is still
+  better at AC@3/5 (88% / 95% vs 85% / 85%). ReAct is about 13x faster (20 vs 273 s/case).
+- **The two systems behave differently.** On Sock Shop the code-rule critic reaches 87% AC@1, but on
+  Train Ticket only 33%; there ReAct is best (80%) and hybrid reaches 67%.
+- **A 14B critic beats a 7B critic by 5 cases** (75% vs 67%), not significant (p = 0.36).
+- 2 cases have no report (one each in hybrid and llm_only, a Planner schema validation error) and count
+  as wrong. The "errors" column in the full table mostly counts the normal "critic did not accept
+  within 3 iterations" outcome (21 hybrid, 22 llm_only, 6 hybrid_7b cases), which still produces a report.
+
 ## Repository Structure
 
 ```
