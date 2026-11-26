@@ -1,0 +1,241 @@
+reference,scope,judge,human,judge_label,count
+aeon,all,verified,Supported,Supported,6
+aeon,all,verified,Supported,Partially Supported,7
+aeon,all,verified,Supported,Unsupported,2
+aeon,all,verified,Partially Supported,Supported,0
+aeon,all,verified,Partially Supported,Partially Supported,0
+aeon,all,verified,Partially Supported,Unsupported,2
+aeon,all,verified,Unsupported,Supported,1
+aeon,all,verified,Unsupported,Partially Supported,0
+aeon,all,verified,Unsupported,Unsupported,0
+aeon,all,raw,Supported,Supported,7
+aeon,all,raw,Supported,Partially Supported,7
+aeon,all,raw,Supported,Unsupported,1
+aeon,all,raw,Partially Supported,Supported,0
+aeon,all,raw,Partially Supported,Partially Supported,0
+aeon,all,raw,Partially Supported,Unsupported,2
+aeon,all,raw,Unsupported,Supported,1
+aeon,all,raw,Unsupported,Partially Supported,0
+aeon,all,raw,Unsupported,Unsupported,0
+aeon,all,raw_match,Supported,yes,7
+aeon,all,raw_match,Supported,partly,7
+aeon,all,raw_match,Supported,no,0
+aeon,all,raw_match,Supported,absent,1
+aeon,all,raw_match,Partially Supported,yes,0
+aeon,all,raw_match,Partially Supported,partly,0
+aeon,all,raw_match,Partially Supported,no,2
+aeon,all,raw_match,Partially Supported,absent,0
+aeon,all,raw_match,Unsupported,yes,1
+aeon,all,raw_match,Unsupported,partly,0
+aeon,all,raw_match,Unsupported,no,0
+aeon,all,raw_match,Unsupported,absent,0
+aeon,explanation,verified,Supported,Supported,4
+aeon,explanation,verified,Supported,Partially Supported,2
+aeon,explanation,verified,Supported,Unsupported,2
+aeon,explanation,verified,Partially Supported,Supported,0
+aeon,explanation,verified,Partially Supported,Partially Supported,0
+aeon,explanation,verified,Partially Supported,Unsupported,2
+aeon,explanation,verified,Unsupported,Supported,1
+aeon,explanation,verified,Unsupported,Partially Supported,0
+aeon,explanation,verified,Unsupported,Unsupported,0
+aeon,explanation,raw,Supported,Supported,5
+aeon,explanation,raw,Supported,Partially Supported,2
+aeon,explanation,raw,Supported,Unsupported,1
+aeon,explanation,raw,Partially Supported,Supported,0
+aeon,explanation,raw,Partially Supported,Partially Supported,0
+aeon,explanation,raw,Partially Supported,Unsupported,2
+aeon,explanation,raw,Unsupported,Supported,1
+aeon,explanation,raw,Unsupported,Partially Supported,0
+aeon,explanation,raw,Unsupported,Unsupported,0
+aeon,explanation,raw_match,Supported,yes,5
+aeon,explanation,raw_match,Supported,partly,2
+aeon,explanation,raw_match,Supported,no,0
+aeon,explanation,raw_match,Supported,absent,1
+aeon,explanation,raw_match,Partially Supported,yes,0
+aeon,explanation,raw_match,Partially Supported,partly,0
+aeon,explanation,raw_match,Partially Supported,no,2
+aeon,explanation,raw_match,Partially Supported,absent,0
+aeon,explanation,raw_match,Unsupported,yes,1
+aeon,explanation,raw_match,Unsupported,partly,0
+aeon,explanation,raw_match,Unsupported,no,0
+aeon,explanation,raw_match,Unsupported,absent,0
+daniel,all,verified,Supported,Supported,6
+daniel,all,verified,Supported,Partially Supported,6
+daniel,all,verified,Supported,Unsupported,0
+daniel,all,verified,Partially Supported,Supported,0
+daniel,all,verified,Partially Supported,Partially Supported,1
+daniel,all,verified,Partially Supported,Unsupported,3
+daniel,all,verified,Unsupported,Supported,1
+daniel,all,verified,Unsupported,Partially Supported,0
+daniel,all,verified,Unsupported,Unsupported,1
+daniel,all,raw,Supported,Supported,6
+daniel,all,raw,Supported,Partially Supported,6
+daniel,all,raw,Supported,Unsupported,0
+daniel,all,raw,Partially Supported,Supported,1
+daniel,all,raw,Partially Supported,Partially Supported,1
+daniel,all,raw,Partially Supported,Unsupported,2
+daniel,all,raw,Unsupported,Supported,1
+daniel,all,raw,Unsupported,Partially Supported,0
+daniel,all,raw,Unsupported,Unsupported,1
+daniel,all,raw_match,Supported,yes,6
+daniel,all,raw_match,Supported,partly,6
+daniel,all,raw_match,Supported,no,0
+daniel,all,raw_match,Supported,absent,0
+daniel,all,raw_match,Partially Supported,yes,1
+daniel,all,raw_match,Partially Supported,partly,1
+daniel,all,raw_match,Partially Supported,no,2
+daniel,all,raw_match,Partially Supported,absent,0
+daniel,all,raw_match,Unsupported,yes,1
+daniel,all,raw_match,Unsupported,partly,0
+daniel,all,raw_match,Unsupported,no,0
+daniel,all,raw_match,Unsupported,absent,1
+daniel,explanation,verified,Supported,Supported,4
+daniel,explanation,verified,Supported,Partially Supported,1
+daniel,explanation,verified,Supported,Unsupported,0
+daniel,explanation,verified,Partially Supported,Supported,0
+daniel,explanation,verified,Partially Supported,Partially Supported,1
+daniel,explanation,verified,Partially Supported,Unsupported,3
+daniel,explanation,verified,Unsupported,Supported,1
+daniel,explanation,verified,Unsupported,Partially Supported,0
+daniel,explanation,verified,Unsupported,Unsupported,1
+daniel,explanation,raw,Supported,Supported,4
+daniel,explanation,raw,Supported,Partially Supported,1
+daniel,explanation,raw,Supported,Unsupported,0
+daniel,explanation,raw,Partially Supported,Supported,1
+daniel,explanation,raw,Partially Supported,Partially Supported,1
+daniel,explanation,raw,Partially Supported,Unsupported,2
+daniel,explanation,raw,Unsupported,Supported,1
+daniel,explanation,raw,Unsupported,Partially Supported,0
+daniel,explanation,raw,Unsupported,Unsupported,1
+daniel,explanation,raw_match,Supported,yes,4
+daniel,explanation,raw_match,Supported,partly,1
+daniel,explanation,raw_match,Supported,no,0
+daniel,explanation,raw_match,Supported,absent,0
+daniel,explanation,raw_match,Partially Supported,yes,1
+daniel,explanation,raw_match,Partially Supported,partly,1
+daniel,explanation,raw_match,Partially Supported,no,2
+daniel,explanation,raw_match,Partially Supported,absent,0
+daniel,explanation,raw_match,Unsupported,yes,1
+daniel,explanation,raw_match,Unsupported,partly,0
+daniel,explanation,raw_match,Unsupported,no,0
+daniel,explanation,raw_match,Unsupported,absent,1
+max,all,verified,Supported,Supported,6
+max,all,verified,Supported,Partially Supported,5
+max,all,verified,Supported,Unsupported,0
+max,all,verified,Partially Supported,Supported,0
+max,all,verified,Partially Supported,Partially Supported,1
+max,all,verified,Partially Supported,Unsupported,3
+max,all,verified,Unsupported,Supported,1
+max,all,verified,Unsupported,Partially Supported,1
+max,all,verified,Unsupported,Unsupported,1
+max,all,raw,Supported,Supported,6
+max,all,raw,Supported,Partially Supported,5
+max,all,raw,Supported,Unsupported,0
+max,all,raw,Partially Supported,Supported,1
+max,all,raw,Partially Supported,Partially Supported,1
+max,all,raw,Partially Supported,Unsupported,2
+max,all,raw,Unsupported,Supported,1
+max,all,raw,Unsupported,Partially Supported,1
+max,all,raw,Unsupported,Unsupported,1
+max,all,raw_match,Supported,yes,6
+max,all,raw_match,Supported,partly,5
+max,all,raw_match,Supported,no,0
+max,all,raw_match,Supported,absent,0
+max,all,raw_match,Partially Supported,yes,1
+max,all,raw_match,Partially Supported,partly,1
+max,all,raw_match,Partially Supported,no,2
+max,all,raw_match,Partially Supported,absent,0
+max,all,raw_match,Unsupported,yes,1
+max,all,raw_match,Unsupported,partly,1
+max,all,raw_match,Unsupported,no,0
+max,all,raw_match,Unsupported,absent,1
+max,explanation,verified,Supported,Supported,4
+max,explanation,verified,Supported,Partially Supported,0
+max,explanation,verified,Supported,Unsupported,0
+max,explanation,verified,Partially Supported,Supported,0
+max,explanation,verified,Partially Supported,Partially Supported,1
+max,explanation,verified,Partially Supported,Unsupported,3
+max,explanation,verified,Unsupported,Supported,1
+max,explanation,verified,Unsupported,Partially Supported,1
+max,explanation,verified,Unsupported,Unsupported,1
+max,explanation,raw,Supported,Supported,4
+max,explanation,raw,Supported,Partially Supported,0
+max,explanation,raw,Supported,Unsupported,0
+max,explanation,raw,Partially Supported,Supported,1
+max,explanation,raw,Partially Supported,Partially Supported,1
+max,explanation,raw,Partially Supported,Unsupported,2
+max,explanation,raw,Unsupported,Supported,1
+max,explanation,raw,Unsupported,Partially Supported,1
+max,explanation,raw,Unsupported,Unsupported,1
+max,explanation,raw_match,Supported,yes,4
+max,explanation,raw_match,Supported,partly,0
+max,explanation,raw_match,Supported,no,0
+max,explanation,raw_match,Supported,absent,0
+max,explanation,raw_match,Partially Supported,yes,1
+max,explanation,raw_match,Partially Supported,partly,1
+max,explanation,raw_match,Partially Supported,no,2
+max,explanation,raw_match,Partially Supported,absent,0
+max,explanation,raw_match,Unsupported,yes,1
+max,explanation,raw_match,Unsupported,partly,1
+max,explanation,raw_match,Unsupported,no,0
+max,explanation,raw_match,Unsupported,absent,1
+majority,all,verified,Supported,Supported,6
+majority,all,verified,Supported,Partially Supported,6
+majority,all,verified,Supported,Unsupported,0
+majority,all,verified,Partially Supported,Supported,0
+majority,all,verified,Partially Supported,Partially Supported,0
+majority,all,verified,Partially Supported,Unsupported,3
+majority,all,verified,Unsupported,Supported,1
+majority,all,verified,Unsupported,Partially Supported,0
+majority,all,verified,Unsupported,Unsupported,1
+majority,all,raw,Supported,Supported,6
+majority,all,raw,Supported,Partially Supported,6
+majority,all,raw,Supported,Unsupported,0
+majority,all,raw,Partially Supported,Supported,1
+majority,all,raw,Partially Supported,Partially Supported,0
+majority,all,raw,Partially Supported,Unsupported,2
+majority,all,raw,Unsupported,Supported,1
+majority,all,raw,Unsupported,Partially Supported,0
+majority,all,raw,Unsupported,Unsupported,1
+majority,all,raw_match,Supported,yes,6
+majority,all,raw_match,Supported,partly,6
+majority,all,raw_match,Supported,no,0
+majority,all,raw_match,Supported,absent,0
+majority,all,raw_match,Partially Supported,yes,1
+majority,all,raw_match,Partially Supported,partly,0
+majority,all,raw_match,Partially Supported,no,2
+majority,all,raw_match,Partially Supported,absent,0
+majority,all,raw_match,Unsupported,yes,1
+majority,all,raw_match,Unsupported,partly,0
+majority,all,raw_match,Unsupported,no,0
+majority,all,raw_match,Unsupported,absent,1
+majority,explanation,verified,Supported,Supported,4
+majority,explanation,verified,Supported,Partially Supported,1
+majority,explanation,verified,Supported,Unsupported,0
+majority,explanation,verified,Partially Supported,Supported,0
+majority,explanation,verified,Partially Supported,Partially Supported,0
+majority,explanation,verified,Partially Supported,Unsupported,3
+majority,explanation,verified,Unsupported,Supported,1
+majority,explanation,verified,Unsupported,Partially Supported,0
+majority,explanation,verified,Unsupported,Unsupported,1
+majority,explanation,raw,Supported,Supported,4
+majority,explanation,raw,Supported,Partially Supported,1
+majority,explanation,raw,Supported,Unsupported,0
+majority,explanation,raw,Partially Supported,Supported,1
+majority,explanation,raw,Partially Supported,Partially Supported,0
+majority,explanation,raw,Partially Supported,Unsupported,2
+majority,explanation,raw,Unsupported,Supported,1
+majority,explanation,raw,Unsupported,Partially Supported,0
+majority,explanation,raw,Unsupported,Unsupported,1
+majority,explanation,raw_match,Supported,yes,4
+majority,explanation,raw_match,Supported,partly,1
+majority,explanation,raw_match,Supported,no,0
+majority,explanation,raw_match,Supported,absent,0
+majority,explanation,raw_match,Partially Supported,yes,1
+majority,explanation,raw_match,Partially Supported,partly,0
+majority,explanation,raw_match,Partially Supported,no,2
+majority,explanation,raw_match,Partially Supported,absent,0
+majority,explanation,raw_match,Unsupported,yes,1
+majority,explanation,raw_match,Unsupported,partly,0
+majority,explanation,raw_match,Unsupported,no,0
+majority,explanation,raw_match,Unsupported,absent,1

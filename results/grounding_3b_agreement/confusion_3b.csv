@@ -1,0 +1,37 @@
+human,human_label,judge,judge=Partially Supported,judge=Supported,judge=Unsupported,judge=absent,judge=no,judge=partly,judge=yes
+aeon,Supported,verified,4,15,2,,,,
+aeon,Partially Supported,verified,2,3,0,,,,
+aeon,Unsupported,verified,8,1,5,,,,
+aeon,Supported,raw,4,17,0,,,,
+aeon,Partially Supported,raw,2,3,0,,,,
+aeon,Unsupported,raw,9,1,4,,,,
+aeon,Supported,raw_match,,,,0,0,4,17
+aeon,Partially Supported,raw_match,,,,0,0,2,3
+aeon,Unsupported,raw_match,,,,2,2,9,1
+daniel,Supported,verified,1,14,2,,,,
+daniel,Partially Supported,verified,4,3,1,,,,
+daniel,Unsupported,verified,9,2,4,,,,
+daniel,Supported,raw,1,16,0,,,,
+daniel,Partially Supported,raw,5,3,0,,,,
+daniel,Unsupported,raw,9,2,4,,,,
+daniel,Supported,raw_match,,,,0,0,1,16
+daniel,Partially Supported,raw_match,,,,0,0,5,3
+daniel,Unsupported,raw_match,,,,2,2,9,2
+max,Supported,verified,2,13,2,,,,
+max,Partially Supported,verified,2,4,2,,,,
+max,Unsupported,verified,10,2,3,,,,
+max,Supported,raw,2,15,0,,,,
+max,Partially Supported,raw,3,4,1,,,,
+max,Unsupported,raw,10,2,3,,,,
+max,Supported,raw_match,,,,0,0,2,15
+max,Partially Supported,raw_match,,,,1,0,3,4
+max,Unsupported,raw_match,,,,1,2,10,2
+majority,Supported,verified,1,14,2,,,,
+majority,Partially Supported,verified,2,3,1,,,,
+majority,Unsupported,verified,10,1,4,,,,
+majority,Supported,raw,1,16,0,,,,
+majority,Partially Supported,raw,3,3,0,,,,
+majority,Unsupported,raw,10,1,4,,,,
+majority,Supported,raw_match,,,,0,0,1,16
+majority,Partially Supported,raw_match,,,,0,0,3,3
+majority,Unsupported,raw_match,,,,2,2,10,1

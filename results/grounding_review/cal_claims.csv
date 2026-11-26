@@ -1,0 +1,19 @@
+case_id,claim_id,claim_type,explanation_claim,claim,aeon,daniel,max,majority,judge_verified,judge_raw,judge_match,judge_quote_ok
+re2ob_checkoutservice_cpu_1,1,root-cause,False,checkoutservice is the root-cause service of this incident.,S,S,S,S,P,P,partly,1
+re2ob_checkoutservice_cpu_1,2,root-cause,False,The fault category is cpu.,S,S,S,S,P,P,partly,1
+re2ob_checkoutservice_cpu_1,5,observational,True,checkoutservice_cpu values have a mean of 18.09.,S,S,S,S,S,S,yes,1
+re2ob_currencyservice_mem_1,1,root-cause,False,currencyservice is the root-cause service of this incident.,S,S,S,S,P,P,partly,1
+re2ob_currencyservice_mem_1,6,observational,True,checkoutservice also showed a large increase in latency.,S,S,S,S,S,S,yes,1
+re2ob_currencyservice_mem_1,7,observational,True,The logs for currencyservice did not show any errors or warnings.,P,P,P,P,U,U,no,1
+re2ob_emailservice_disk_3,1,root-cause,False,emailservice is the root-cause service of this incident.,S,S,S,S,P,P,partly,1
+re2ob_emailservice_disk_3,2,root-cause,False,The fault category is disk.,S,S,S,S,S,S,yes,1
+re2ob_emailservice_disk_3,6,observational,True,The logs for emailservice show no clear symptoms of the fault.,P,P,P,P,U,U,no,1
+re2ob_emailservice_socket_1,2,root-cause,False,The fault category is cpu.,S,S,S,S,S,S,yes,1
+re2ob_emailservice_socket_1,5,observational,True,paymentservice_latency-90 increased by 20.0%,U,U,U,U,S,S,yes,1
+re2ob_emailservice_socket_1,6,observational,True,"frontend traces show prolonged spans, indicating CPU contention",S,P,U,none,P,P,partly,1
+re2ob_productcatalogservice_delay_3,1,root-cause,False,productcatalogservice is the root-cause service of this incident.,S,S,S,S,P,P,partly,1
+re2ob_productcatalogservice_delay_3,7,observational,True,The Export operation of the TraceService/Export trace showed a 82.38x increase in duration.,S,S,S,S,S,S,yes,1
+re2ob_productcatalogservice_delay_3,8,causal,True,A network delay or an issue with the productcatalogservice itself affects the response times significantly.,S,P,P,P,U,S,yes,0
+re2ob_recommendationservice_loss_3,4,observational,True,The frontend service experienced a significant increase in frontend_latency-90 (1803.2%) at the onset of the incident.,S,S,S,S,S,S,yes,1
+re2ob_recommendationservice_loss_3,7,observational,True,Trace queries did not show significant delays in cartservice.,S,U,U,U,U,U,absent,1
+re2ob_recommendationservice_loss_3,8,causal,True,The frontend's dependency issues likely stem from the recommendationservice or other upstream services.,S,S,P,S,P,P,partly,1

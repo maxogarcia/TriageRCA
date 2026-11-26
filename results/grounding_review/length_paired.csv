@@ -1,0 +1,11 @@
+row,reference,n_pairs,n_zero,n_row_longer,n_ref_longer,mean_diff,ci_lo,ci_hi
+hybrid,no_critic,60,20,24,16,0.433,-0.2,1.067
+hybrid_7b,no_critic,60,25,25,10,0.417,-0.067,0.883
+llm_only,no_critic,60,20,24,16,0.45,-0.117,1.0
+code_rule,no_critic,60,31,17,12,0.067,-0.4,0.517
+hybrid,react,60,6,14,40,-1.05,-1.717,-0.367
+hybrid_7b,react,60,12,17,31,-1.067,-1.667,-0.483
+llm_only,react,60,11,13,36,-1.033,-1.65,-0.4
+code_rule,react,60,14,11,35,-1.417,-2.0,-0.833
+no_critic,react,60,9,12,39,-1.483,-2.15,-0.833
+retrieval_only,react,59,8,17,34,-1.356,-2.085,-0.678

@@ -1,0 +1,18 @@
+hybrid: 60 cases, final top-1 correct 48
+llm_only: 60 cases, final top-1 correct 42
+hybrid_7b: 60 cases, final top-1 correct 42
+code_rule: 60 cases, final top-1 correct 37
+
+scope  row          n_dec  acc   bal   catch accept  FA  FR
+round1 hybrid          60  0.90  0.80  1.00  0.60    0   6
+all    hybrid         140  0.79  0.77  0.97  0.57    2  28
+round1 llm_only        60  0.88  0.79  0.98  0.60    1   6
+all    llm_only       137  0.77  0.75  0.91  0.59    7  24
+round1 hybrid_7b       60  0.87  0.82  0.91  0.73    4   4
+all    hybrid_7b      122  0.80  0.80  0.84  0.75   11  13
+round1 code_rule       60  0.73  0.80  0.67  0.93   15   1
+all    code_rule       92  0.74  0.77  0.57  0.97   23   1
+
+outcomes: hybrid: kept_correct=9, recovered=5, broke_correct=1, caught_fixed=34, caught_not_fixed=11; llm_only: kept_correct=9, recovered=6, caught_fixed=27, caught_not_fixed=17, missed=1; hybrid_7b: kept_correct=11, recovered=3, broke_correct=1, caught_fixed=28, caught_not_fixed=13, missed=4; code_rule: kept_correct=14, broke_correct=1, caught_fixed=23, caught_not_fixed=7, missed=15
+
+wrote results/critic_eval/ (4 CSVs, 4 PNGs)

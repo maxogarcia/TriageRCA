@@ -1,0 +1,63 @@
+gate ok: 8 file hashes match; 3 label files x 40 claims match blind_3b.csv
+# Phase 3b agreement (A13.3), 3 labelers: aeon, daniel, max
+
+Inputs (sha256):
+- sha256 ffcf22e711b42d9914ef28d3a978dcbd94b15d19560d174215e5912a0da5fdde  DO_NOT_OPEN_map_3b.csv
+- sha256 a5ab2bb3efaa4b557c70ca122a998fc810668f53a02702b0a5ed3d20ef01e4c5  DO_NOT_OPEN_key_3b.csv
+- sha256 1d5465d4641d171030d4b0b14acb94b0f1f325f8d3b5a9f7a2113a2465fae199  blind_3b.csv
+- sha256 4b232f215cd1433090755c278c58f30576847740d45fc9e1352d51259fcb2f96  labeling_page_3b.html
+- sha256 8880e2df83c4c02536618044433cea6b21f868d1528175537eb51b2878f884d4  strata_counts_3b.csv
+- sha256 7412c9b299d8f45a7bce011ff8e6fa21e9415be9b51503e28d61bc88f09b582f  labels_3b_aeon.csv
+- sha256 18861783fb65320bba8fe9024952f33064cb994515753479455be736f4f996be  labels_3b_daniel.csv
+- sha256 e03c8f46684f0c8851e4e2a8aabb4b46e18fd330dbaa6d673218a48f8b7ef8e3  labels_3b_max.csv
+- script f2d0cc9fb4a3d241ed8fc29aa59bb65247a82ff6dc8313da3602d87120b4743f
+
+Claims 40, cases 20; bootstrap B = 10000, seed 0, resampling cases; unweighted over the sample as drawn (AC@1-wrong cases oversampled).
+
+Majority: 38 claims with a majority, 2 three-way splits (left out of majority comparisons). Majority labels: S 17, P 6, U 15
+
+| judge vs | n | kappa 3 labels | kappa S vs not | agree S vs not |
+|---|---:|---|---|---|
+| verified vs aeon | 40 | 0.303 [0.083, 0.500] | 0.501 [0.186, 0.792] | 0.750 [0.600, 0.900] |
+| verified vs daniel | 40 | 0.321 [0.108, 0.519] | 0.597 [0.316, 0.846] | 0.800 [0.675, 0.925] |
+| verified vs max | 40 | 0.170 [-0.045, 0.373] | 0.496 [0.253, 0.700] | 0.750 [0.650, 0.850] |
+| verified vs majority | 38 | 0.284 [0.072, 0.488] | 0.630 [0.338, 0.885] | 0.816 [0.675, 0.944] |
+| raw vs aeon | 40 | 0.339 [0.118, 0.526] | 0.599 [0.273, 0.850] | 0.800 [0.650, 0.925] |
+| raw vs daniel | 40 | 0.436 [0.231, 0.633] | 0.702 [0.450, 0.900] | 0.850 [0.725, 0.950] |
+| raw vs max | 40 | 0.285 [0.096, 0.477] | 0.603 [0.381, 0.800] | 0.800 [0.700, 0.900] |
+| raw vs majority | 38 | 0.406 [0.199, 0.611] | 0.738 [0.478, 0.947] | 0.868 [0.737, 0.974] |
+
+| humans | kappa 3 labels | kappa S vs not | agree 3 labels |
+|---|---|---|---|
+| aeon vs daniel | 0.517 [0.317, 0.706] | 0.702 [0.500, 0.898] | 0.700 [0.575, 0.825] |
+| aeon vs max | 0.355 [0.153, 0.557] | 0.504 [0.278, 0.701] | 0.600 [0.450, 0.750] |
+| daniel vs max | 0.687 [0.488, 0.870] | 0.795 [0.592, 0.950] | 0.800 [0.675, 0.925] |
+| Fleiss (3) | 0.520 [0.378, 0.647] | 0.664 [0.498, 0.800] | |
+
+| rate (judge verified) | reference | count / denom | point [95% CI] |
+|---|---|---|---|
+| false_support (human U -> judge S) | aeon | 1/14 | 0.071 [0.000, 0.250] |
+| over_credit (human P -> judge S) | aeon | 3/5 | 0.600 [0.000, 1.000] |
+| under_credit (human S -> judge not S) | aeon | 6/21 | 0.286 [0.105, 0.500] |
+| false_support (human U -> judge S) | daniel | 2/15 | 0.133 [0.000, 0.312] |
+| over_credit (human P -> judge S) | daniel | 3/8 | 0.375 [0.000, 0.750] |
+| under_credit (human S -> judge not S) | daniel | 3/17 | 0.176 [0.000, 0.385] |
+| false_support (human U -> judge S) | max | 2/15 | 0.133 [0.000, 0.312] |
+| over_credit (human P -> judge S) | max | 4/8 | 0.500 [0.167, 0.833] |
+| under_credit (human S -> judge not S) | max | 4/17 | 0.235 [0.059, 0.444] |
+| false_support (human U -> judge S) | majority | 1/15 | 0.067 [0.000, 0.200] |
+| over_credit (human P -> judge S) | majority | 3/6 | 0.500 [0.000, 1.000] |
+| under_credit (human S -> judge not S) | majority | 3/17 | 0.176 [0.000, 0.385] |
+
+Quote-check breakdown vs majority (judge verified; descriptive):
+- quote_ok=0: 3 claims, human S/P/U 2/1/0, judge S/P/U 0/0/3, agree S-vs-not 1, false support 0/0
+- quote_ok=1: 33 claims, human S/P/U 15/5/13, judge S/P/U 18/13/2, agree S-vs-not 28, false support 1/13
+- quote_ok=missing: 2 claims, human S/P/U 0/0/2, judge S/P/U 0/0/2, agree S-vs-not 2, false support 0/2
+
+## Pass rule (A13.3)
+- (1) kappa S-vs-not, judge verified vs majority: 0.630 [0.338, 0.885], n = 38; CI lower bound > 0.4: NOT MET
+- (2) false support: 1/15 = 0.067; majority-Unsupported claims 15 (need >= 8): MET (<= 20%)
+- **Decision: SUPPLEMENTARY AUTOMATED MEASURE**
+
+Note: some statistics were undefined in some resamples (total 346; per row in the n_undefined columns); CIs use the defined resamples.
+wrote results/grounding_3b_agreement/

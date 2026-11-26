@@ -1,0 +1,17 @@
+reference,scope,judge,n,kappa_3,agree_3,kappa_S_vs_not,agree_S_vs_not,human_U,false_support,false_support_rate,over_credit_P_to_S,under_credit_S_to_notS,false_support_claims
+aeon,all,verified,18,-0.075,6/18,0.032,8/18,1,1,1/1,0,9,re2ob_emailservice_socket_1#5
+aeon,all,raw,18,-0.059,7/18,0.069,9/18,1,1,1/1,0,8,re2ob_emailservice_socket_1#5
+aeon,explanation,verified,11,-0.055,4/11,0.127,6/11,1,1,1/1,0,4,re2ob_emailservice_socket_1#5
+aeon,explanation,raw,11,0.0,5/11,0.241,7/11,1,1,1/1,0,3,re2ob_emailservice_socket_1#5
+daniel,all,verified,18,0.118,8/18,0.276,11/18,2,1,1/2,0,6,re2ob_emailservice_socket_1#5
+daniel,all,raw,18,0.072,8/18,0.143,10/18,2,1,1/2,1,6,re2ob_emailservice_socket_1#5
+daniel,explanation,verified,11,0.312,6/11,0.633,9/11,2,1,1/2,0,1,re2ob_emailservice_socket_1#5
+daniel,explanation,raw,11,0.286,6/11,0.459,8/11,2,1,1/2,1,1,re2ob_emailservice_socket_1#5
+max,all,verified,18,0.13,8/18,0.365,12/18,3,1,1/3,0,5,re2ob_emailservice_socket_1#5
+max,all,raw,18,0.095,8/18,0.241,11/18,3,1,1/3,1,5,re2ob_emailservice_socket_1#5
+max,explanation,verified,11,0.321,6/11,0.814,10/11,3,1,1/3,0,0,re2ob_emailservice_socket_1#5
+max,explanation,raw,11,0.312,6/11,0.645,9/11,3,1,1/3,1,0,re2ob_emailservice_socket_1#5
+majority,all,verified,17,0.05,7/17,0.232,10/17,2,1,1/2,0,6,re2ob_emailservice_socket_1#5
+majority,all,raw,17,-0.006,7/17,0.081,9/17,2,1,1/2,1,6,re2ob_emailservice_socket_1#5
+majority,explanation,verified,10,0.219,5/10,0.6,8/10,2,1,1/2,0,1,re2ob_emailservice_socket_1#5
+majority,explanation,raw,10,0.18,5/10,0.4,7/10,2,1,1/2,1,1,re2ob_emailservice_socket_1#5

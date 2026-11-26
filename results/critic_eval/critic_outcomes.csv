@@ -1,0 +1,5 @@
+row,kept_correct,recovered,broke_correct,caught_fixed,caught_not_fixed,missed,no_run,n_cases
+hybrid,9,5,1,34,11,0,0,60
+llm_only,9,6,0,27,17,1,0,60
+hybrid_7b,11,3,1,28,13,4,0,60
+code_rule,14,0,1,23,7,15,0,60

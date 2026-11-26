@@ -1,0 +1,5 @@
+row,cases,multi_round_cases,rounds_ge2,root_changed,correct->correct,correct->wrong,wrong->correct,wrong->wrong_same,wrong->wrong_diff,rounds_with_split,reword_only_rounds,zero_new_tool_call_rounds,same_root_rounds,explanation_unchanged_rounds,new_items_r2plus_mean,new_items_r2plus_median,new_unique_r2plus_mean,multi_cases_zero_new_items,rounds_citing_items_after_r1,rounds_root_eq_h_e001a,multi_cases_final_eq_h_e001a,multi_cases_correct,r1_identity_fail
+hybrid,60,51,80,60,12,5,38,8,17,24,0,8,20,0,7.608,6,7.451,7,57,53,39,39,0
+llm_only,60,50,77,53,11,5,32,13,16,29,2,17,24,0,6.02,6.0,5.82,14,49,40,31,33,0
+hybrid_7b,60,45,62,48,7,4,31,7,13,30,2,12,14,0,5.889,6,5.533,11,39,44,37,31,0
+code_rule,60,31,32,31,0,1,23,1,7,30,0,9,1,0,5.129,6,5.032,9,17,29,29,23,0

@@ -1,0 +1,10 @@
+# Structure report (assumptions to audit)
+
+llm_calls roles per row: hybrid: critic=140, pipeline=715; llm_only: critic=137, pipeline=676; hybrid_7b: critic=122, pipeline=629; code_rule: pipeline=479; no_critic: pipeline=315; react: pipeline=304; retrieval_only: pipeline=60
+verdict keys (critic rows): decision=491, failed_checks=491, missing_evidence=491, reasons=491
+onset hint found in field: missing_evidence[]=128
+verdicts with a hint, by (row, decision): code_rule/reject=32, hybrid/reject=50, hybrid_7b/reject=46
+round-1 identity: 240/240 ok
+critic-call segments == iteration_count: 180/180 (LLM-critic rows; code_rule has no critic calls, so its 3-round cases get rounds-2+ totals only)
+pipeline calls after the last critic call (not counted as a round), cases by count: {0: 180}
+calibration d (pipeline calls - items, round 2 of 2-round cases): {-6: 10, 0: 27, -8: 3, -4: 2, -3: 6, -5: 5, -12: 2, -10: 7, -1: 5, -7: 2, -2: 2, -14: 2} -> not constant, per-round split NOT used for 3-round cases

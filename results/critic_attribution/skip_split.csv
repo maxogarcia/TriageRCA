@@ -1,0 +1,7 @@
+group,code_rule_rule_skip,n,hybrid_only_correct,code_rule_only_correct,both_right,both_wrong,cases_hybrid_only,cases_code_rule_only
+all,True,14,8,0,0,6,re2ss_catalogue_disk_1 re2tt_ts-auth-service_socket_1 re2tt_ts-route-service_delay_2 re2tt_ts-route-service_socket_3 re2tt_ts-train-service_mem_1 re2tt_ts-train-service_socket_2 re2tt_ts-travel-service_cpu_1 re2tt_ts-travel-service_socket_2,
+all,False,46,4,1,36,5,re2ss_catalogue_loss_1 re2ss_orders_disk_1 re2ss_orders_loss_1 re2tt_ts-train-service_loss_2,re2ss_user_mem_1
+SS,True,2,1,0,0,1,re2ss_catalogue_disk_1,
+SS,False,28,3,1,21,3,re2ss_catalogue_loss_1 re2ss_orders_disk_1 re2ss_orders_loss_1,re2ss_user_mem_1
+TT,True,12,7,0,0,5,re2tt_ts-auth-service_socket_1 re2tt_ts-route-service_delay_2 re2tt_ts-route-service_socket_3 re2tt_ts-train-service_mem_1 re2tt_ts-train-service_socket_2 re2tt_ts-travel-service_cpu_1 re2tt_ts-travel-service_socket_2,
+TT,False,18,1,0,15,2,re2tt_ts-train-service_loss_2,

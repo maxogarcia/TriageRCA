@@ -1,0 +1,61 @@
+metric,role,family,row,reference,in_a11,kind,n_pairs,n_zero,mean_diff,ci_lo,ci_hi,ci_contains_0
+grounding_expl,primary,vs_react,hybrid,react,True,scored (primary),47,5,0.0267,-0.0544,0.1086,True
+grounding_expl,primary,vs_react,hybrid,react,True,"A10 bounds, pessimistic (sensitivity)",60,5,-0.0096,-0.0822,0.0626,True
+grounding_expl,primary,vs_react,hybrid,react,True,"A10 bounds, optimistic (sensitivity)",60,5,0.0511,-0.0186,0.1218,True
+grounding_expl,primary,vs_react,hybrid_7b,react,True,scored (primary),52,2,-0.0023,-0.0767,0.0743,True
+grounding_expl,primary,vs_react,hybrid_7b,react,True,"A10 bounds, pessimistic (sensitivity)",60,2,-0.0096,-0.0773,0.0614,True
+grounding_expl,primary,vs_react,hybrid_7b,react,True,"A10 bounds, optimistic (sensitivity)",60,3,0.0144,-0.0556,0.0844,True
+grounding_expl,primary,vs_react,llm_only,react,True,scored (primary),49,1,0.0375,-0.0373,0.1118,True
+grounding_expl,primary,vs_react,llm_only,react,True,"A10 bounds, pessimistic (sensitivity)",60,2,0.0259,-0.0416,0.0952,True
+grounding_expl,primary,vs_react,llm_only,react,True,"A10 bounds, optimistic (sensitivity)",60,1,0.0659,-0.0045,0.1376,True
+grounding_expl,primary,vs_react,code_rule,react,True,scored (primary),52,3,-0.0299,-0.1173,0.055,True
+grounding_expl,primary,vs_react,code_rule,react,True,"A10 bounds, pessimistic (sensitivity)",60,4,-0.0173,-0.0977,0.0588,True
+grounding_expl,primary,vs_react,code_rule,react,True,"A10 bounds, optimistic (sensitivity)",60,3,0.0134,-0.0703,0.0915,True
+grounding_expl,primary,vs_react,no_critic,react,True,scored (primary),50,2,-0.0611,-0.1473,0.022,True
+grounding_expl,primary,vs_react,no_critic,react,True,"A10 bounds, pessimistic (sensitivity)",60,2,-0.0769,-0.1581,0.002,True
+grounding_expl,primary,vs_react,no_critic,react,True,"A10 bounds, optimistic (sensitivity)",60,2,-0.0352,-0.115,0.0399,True
+grounding_expl,primary,vs_react,retrieval_only,react,False,scored (primary),48,4,0.0584,-0.0215,0.1389,True
+grounding_expl,primary,vs_react,retrieval_only,react,False,"A10 bounds, pessimistic (sensitivity)",55,5,0.051,-0.0276,0.1288,True
+grounding_expl,primary,vs_react,retrieval_only,react,False,"A10 bounds, optimistic (sensitivity)",55,4,0.0751,-0.0023,0.1534,True
+grounding_expl,primary,vs_no_critic,hybrid,no_critic,True,scored (primary),50,11,0.0866,0.0098,0.1641,False
+grounding_expl,primary,vs_no_critic,hybrid,no_critic,True,"A10 bounds, pessimistic (sensitivity)",60,11,0.0495,-0.0301,0.1268,True
+grounding_expl,primary,vs_no_critic,hybrid,no_critic,True,"A10 bounds, optimistic (sensitivity)",60,14,0.1041,0.0317,0.1785,False
+grounding_expl,primary,vs_no_critic,hybrid_7b,no_critic,True,scored (primary),56,17,0.0372,-0.0334,0.1114,True
+grounding_expl,primary,vs_no_critic,hybrid_7b,no_critic,True,"A10 bounds, pessimistic (sensitivity)",60,17,0.0495,-0.0182,0.1209,True
+grounding_expl,primary,vs_no_critic,hybrid_7b,no_critic,True,"A10 bounds, optimistic (sensitivity)",60,17,0.0673,-0.0053,0.1418,True
+grounding_expl,primary,vs_no_critic,llm_only,no_critic,True,scored (primary),53,10,0.1067,0.0311,0.1812,False
+grounding_expl,primary,vs_no_critic,llm_only,no_critic,True,"A10 bounds, pessimistic (sensitivity)",60,10,0.085,0.0108,0.1584,False
+grounding_expl,primary,vs_no_critic,llm_only,no_critic,True,"A10 bounds, optimistic (sensitivity)",60,11,0.1188,0.0443,0.1931,False
+grounding_expl,primary,vs_no_critic,code_rule,no_critic,True,scored (primary),56,29,0.0404,-0.0082,0.0864,True
+grounding_expl,primary,vs_no_critic,code_rule,no_critic,True,"A10 bounds, pessimistic (sensitivity)",60,29,0.0419,-0.0052,0.0889,True
+grounding_expl,primary,vs_no_critic,code_rule,no_critic,True,"A10 bounds, optimistic (sensitivity)",60,29,0.0663,0.0145,0.1185,False
+supported_rate_expl,secondary,vs_react,hybrid,react,True,scored (primary),47,5,0.036,-0.0628,0.1352,True
+supported_rate_expl,secondary,vs_react,hybrid,react,True,"A10 bounds, pessimistic (sensitivity)",60,5,0.0013,-0.0823,0.0894,True
+supported_rate_expl,secondary,vs_react,hybrid,react,True,"A10 bounds, optimistic (sensitivity)",60,5,0.0621,-0.0248,0.1501,True
+supported_rate_expl,secondary,vs_react,hybrid_7b,react,True,scored (primary),52,3,-0.0226,-0.118,0.0686,True
+supported_rate_expl,secondary,vs_react,hybrid_7b,react,True,"A10 bounds, pessimistic (sensitivity)",60,3,-0.0314,-0.1164,0.0547,True
+supported_rate_expl,secondary,vs_react,hybrid_7b,react,True,"A10 bounds, optimistic (sensitivity)",60,4,-0.0075,-0.0925,0.0782,True
+supported_rate_expl,secondary,vs_react,llm_only,react,True,scored (primary),49,3,0.0386,-0.0519,0.1319,True
+supported_rate_expl,secondary,vs_react,llm_only,react,True,"A10 bounds, pessimistic (sensitivity)",60,5,0.0199,-0.0639,0.1042,True
+supported_rate_expl,secondary,vs_react,llm_only,react,True,"A10 bounds, optimistic (sensitivity)",60,3,0.0598,-0.024,0.1444,True
+supported_rate_expl,secondary,vs_react,code_rule,react,True,scored (primary),52,6,-0.0526,-0.1499,0.0412,True
+supported_rate_expl,secondary,vs_react,code_rule,react,True,"A10 bounds, pessimistic (sensitivity)",60,7,-0.0391,-0.1275,0.0462,True
+supported_rate_expl,secondary,vs_react,code_rule,react,True,"A10 bounds, optimistic (sensitivity)",60,6,-0.0085,-0.0996,0.08,True
+supported_rate_expl,secondary,vs_react,no_critic,react,True,scored (primary),50,4,-0.0939,-0.1953,0.006,True
+supported_rate_expl,secondary,vs_react,no_critic,react,True,"A10 bounds, pessimistic (sensitivity)",60,4,-0.108,-0.2014,-0.0166,False
+supported_rate_expl,secondary,vs_react,no_critic,react,True,"A10 bounds, optimistic (sensitivity)",60,5,-0.0663,-0.1589,0.0242,True
+supported_rate_expl,secondary,vs_react,retrieval_only,react,False,scored (primary),48,3,0.0809,-0.013,0.1775,True
+supported_rate_expl,secondary,vs_react,retrieval_only,react,False,"A10 bounds, pessimistic (sensitivity)",55,4,0.0653,-0.0233,0.1582,True
+supported_rate_expl,secondary,vs_react,retrieval_only,react,False,"A10 bounds, optimistic (sensitivity)",55,3,0.0894,-0.0003,0.1772,True
+supported_rate_expl,secondary,vs_no_critic,hybrid,no_critic,True,scored (primary),50,14,0.1365,0.0493,0.2259,False
+supported_rate_expl,secondary,vs_no_critic,hybrid,no_critic,True,"A10 bounds, pessimistic (sensitivity)",60,14,0.0916,0.0006,0.1805,False
+supported_rate_expl,secondary,vs_no_critic,hybrid,no_critic,True,"A10 bounds, optimistic (sensitivity)",60,18,0.1462,0.0642,0.2312,False
+supported_rate_expl,secondary,vs_no_critic,hybrid_7b,no_critic,True,scored (primary),56,19,0.0431,-0.0457,0.1303,True
+supported_rate_expl,secondary,vs_no_critic,hybrid_7b,no_critic,True,"A10 bounds, pessimistic (sensitivity)",60,19,0.0588,-0.0275,0.1455,True
+supported_rate_expl,secondary,vs_no_critic,hybrid_7b,no_critic,True,"A10 bounds, optimistic (sensitivity)",60,19,0.0766,-0.0128,0.1637,True
+supported_rate_expl,secondary,vs_no_critic,llm_only,no_critic,True,scored (primary),53,12,0.1362,0.0461,0.2251,False
+supported_rate_expl,secondary,vs_no_critic,llm_only,no_critic,True,"A10 bounds, pessimistic (sensitivity)",60,12,0.1101,0.0246,0.1946,False
+supported_rate_expl,secondary,vs_no_critic,llm_only,no_critic,True,"A10 bounds, optimistic (sensitivity)",60,13,0.1439,0.0571,0.2286,False
+supported_rate_expl,secondary,vs_no_critic,code_rule,no_critic,True,scored (primary),56,30,0.0527,-0.0036,0.1088,True
+supported_rate_expl,secondary,vs_no_critic,code_rule,no_critic,True,"A10 bounds, pessimistic (sensitivity)",60,30,0.0511,-0.0035,0.1055,True
+supported_rate_expl,secondary,vs_no_critic,code_rule,no_critic,True,"A10 bounds, optimistic (sensitivity)",60,30,0.0755,0.0167,0.1329,False
