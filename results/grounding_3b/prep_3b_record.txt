@@ -1,0 +1,10 @@
+grounding_3b_prep.py (A13.3), seed 258
+script sha256 93de05f63ff48138655a88fff795554754ccf01bf49f0edd2f4c181dd974438a
+eligible (row, case) units: 268; cases sampled: 20; claims: 40; fallback cells: 1
+row words found in evidence/claims (reported, not stopped): none
+page size: 428,349 bytes
+sha256 4b232f215cd1433090755c278c58f30576847740d45fc9e1352d51259fcb2f96  labeling_page_3b.html
+sha256 1d5465d4641d171030d4b0b14acb94b0f1f325f8d3b5a9f7a2113a2465fae199  blind_3b.csv
+sha256 ffcf22e711b42d9914ef28d3a978dcbd94b15d19560d174215e5912a0da5fdde  DO_NOT_OPEN_map_3b.csv
+sha256 a5ab2bb3efaa4b557c70ca122a998fc810668f53a02702b0a5ed3d20ef01e4c5  DO_NOT_OPEN_key_3b.csv
+sha256 8880e2df83c4c02536618044433cea6b21f868d1528175537eb51b2878f884d4  strata_counts_3b.csv

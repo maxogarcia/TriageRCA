@@ -1,0 +1,25 @@
+rate,judge,reference,definition,count,denominator,point,ci_lo,ci_hi,n_undefined
+false_support,judge_verified,aeon,human U -> judge S,1,14,0.071,0.000,0.250,0
+over_credit,judge_verified,aeon,human P -> judge S,3,5,0.600,0.000,1.000,132
+under_credit,judge_verified,aeon,human S -> judge not S,6,21,0.286,0.105,0.500,0
+false_support,judge_verified,daniel,human U -> judge S,2,15,0.133,0.000,0.312,0
+over_credit,judge_verified,daniel,human P -> judge S,3,8,0.375,0.000,0.750,0
+under_credit,judge_verified,daniel,human S -> judge not S,3,17,0.176,0.000,0.385,0
+false_support,judge_verified,max,human U -> judge S,2,15,0.133,0.000,0.312,0
+over_credit,judge_verified,max,human P -> judge S,4,8,0.500,0.167,0.833,3
+under_credit,judge_verified,max,human S -> judge not S,4,17,0.235,0.059,0.444,0
+false_support,judge_verified,majority,human U -> judge S,1,15,0.067,0.000,0.200,0
+over_credit,judge_verified,majority,human P -> judge S,3,6,0.500,0.000,1.000,38
+under_credit,judge_verified,majority,human S -> judge not S,3,17,0.176,0.000,0.385,0
+false_support,judge_raw,aeon,human U -> judge S,1,14,0.071,0.000,0.250,0
+over_credit,judge_raw,aeon,human P -> judge S,3,5,0.600,0.000,1.000,132
+under_credit,judge_raw,aeon,human S -> judge not S,4,21,0.190,0.045,0.360,0
+false_support,judge_raw,daniel,human U -> judge S,2,15,0.133,0.000,0.312,0
+over_credit,judge_raw,daniel,human P -> judge S,3,8,0.375,0.000,0.750,0
+under_credit,judge_raw,daniel,human S -> judge not S,1,17,0.059,0.000,0.176,0
+false_support,judge_raw,max,human U -> judge S,2,15,0.133,0.000,0.312,0
+over_credit,judge_raw,max,human P -> judge S,4,8,0.500,0.167,0.833,3
+under_credit,judge_raw,max,human S -> judge not S,2,17,0.118,0.000,0.263,0
+false_support,judge_raw,majority,human U -> judge S,1,15,0.067,0.000,0.200,0
+over_credit,judge_raw,majority,human P -> judge S,3,6,0.500,0.000,1.000,38
+under_credit,judge_raw,majority,human S -> judge not S,1,17,0.059,0.000,0.176,0

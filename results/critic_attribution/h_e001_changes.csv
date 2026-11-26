@@ -1,0 +1,105 @@
+row,category,case_id,system,truth,h_e001a,final_root,r1_root,r1_eq_h_e001a,rounds,round_path,accepted,unchecked_accept,rule_skip,h_final,final_eq_h_final,listed_in_summary
+hybrid,correction,re2ss_catalogue_loss_1,ss,catalogue,front-end,catalogue,front-end,True,3,r1 front-end (reject) -> r2 front-end (reject) -> r3 catalogue (reject),False,False,False,front-end,False,True
+hybrid,regression,re2ss_catalogue_mem_1,ss,catalogue,catalogue,front-end,carts,False,3,r1 carts (reject) -> r2 catalogue (need_more_evidence) -> r3 front-end (reject),False,False,False,catalogue,False,True
+hybrid,correction,re2ss_orders_disk_1,ss,orders,catalogue-db,orders,carts,False,3,r1 carts (reject) -> r2 catalogue-db (need_more_evidence) -> r3 orders (reject),False,False,False,catalogue-db,False,True
+hybrid,correction,re2ss_orders_loss_1,ss,orders,front-end,orders,shipping,False,3,r1 shipping (reject) -> r2 front-end (need_more_evidence) -> r3 orders (need_more_evidence),False,False,False,front-end,False,True
+hybrid,regression,re2ss_user_delay_2,ss,user,user,rabbitmq-exporter,front-end,False,3,r1 front-end (reject) -> r2 front-end (reject) -> r3 rabbitmq-exporter (reject),False,False,False,session-db,False,True
+hybrid,regression,re2ss_user_mem_1,ss,user,user,cartservice,front-end,False,3,r1 front-end (reject) -> r2 orders (reject) -> r3 cartservice (reject),False,False,False,user,False,True
+hybrid,regression,re2tt_ts-auth-service_cpu_2,tt,ts-auth-service,ts-auth-service,ts-ui-dashboard,ts-train-mongo,False,3,r1 ts-train-mongo (reject) -> r2 ts-auth-service (need_more_evidence) -> r3 ts-ui-dashboard (reject),False,False,False,ts-auth-service,False,True
+hybrid,regression,re2tt_ts-order-service_disk_3,tt,ts-order-service,ts-order-service,ts-travel-service,ts-train-service,False,3,r1 ts-train-service (reject) -> r2 ts-train-service (reject) -> r3 ts-travel-service (reject),False,False,False,ts-order-service,False,True
+hybrid,regression,re2tt_ts-train-service_disk_2,tt,ts-train-service,ts-train-service,ts-travel-service,ts-travel-service,False,3,r1 ts-travel-service (reject) -> r2 ts-travel-service (reject) -> r3 ts-travel-service (reject),False,False,False,ts-train-service,False,True
+hybrid,correction,re2tt_ts-train-service_loss_2,tt,ts-train-service,ts-ui-dashboard,ts-train-service,ts-inside-payment-service,False,3,r1 ts-inside-payment-service (reject) -> r2 ts-train-service (reject) -> r3 ts-train-service (reject),False,False,False,ts-ui-dashboard,False,True
+hybrid,correction,re2tt_ts-train-service_socket_2,tt,ts-train-service,ts-ui-dashboard,ts-train-service,ts-order-service,False,3,r1 ts-order-service (reject) -> r2 ts-train-service (reject) -> r3 ts-train-service (reject),False,False,False,ts-ui-dashboard,False,True
+hybrid,correction,re2tt_ts-travel-service_loss_3,tt,ts-travel-service,ts-admin-travel-service,ts-travel-service,ts-travel-service,False,1,r1 ts-travel-service (accept),True,False,False,ts-admin-travel-service,False,True
+llm_only,regression,re2ss_carts_loss_1,ss,carts,carts,front-end,front-end,False,1,r1 front-end (accept),True,False,False,carts,False,True
+llm_only,regression,re2ss_catalogue_disk_1,ss,catalogue,catalogue,carts,rabbitmq,False,3,r1 rabbitmq (reject) -> r2 carts (reject) -> r3 carts (reject),False,False,False,catalogue,False,True
+llm_only,correction,re2ss_catalogue_loss_1,ss,catalogue,front-end,catalogue,front-end,True,3,r1 front-end (reject) -> r2 front-end (reject) -> r3 catalogue (accept),True,False,False,front-end,False,True
+llm_only,correction,re2ss_payment_loss_3,ss,payment,orders,payment,orders,True,3,r1 orders (reject) -> r2 payment (need_more_evidence) -> r3 payment (reject),False,False,False,orders,False,True
+llm_only,regression,re2ss_user_cpu_2,ss,user,user,orders,front-end,False,2,r1 front-end (reject) -> r2 orders (accept),True,False,False,user,False,True
+llm_only,regression,re2ss_user_delay_2,ss,user,user,session-db,front-end,False,2,r1 front-end (reject) -> r2 session-db (accept),True,False,False,session-db,True,True
+llm_only,regression,re2ss_user_loss_2,ss,user,user,orders,orders,False,2,r1 orders (reject) -> r2 orders (accept),True,False,False,user,False,True
+llm_only,regression,re2ss_user_mem_1,ss,user,user,orders,front-end,False,2,r1 front-end (reject) -> r2 orders (accept),True,False,False,user,False,True
+llm_only,regression,re2tt_ts-auth-service_cpu_2,tt,ts-auth-service,ts-auth-service,ts-ui-dashboard,ts-train-mongo,False,3,r1 ts-train-mongo (reject) -> r2 ts-auth-service (need_more_evidence) -> r3 ts-ui-dashboard (reject),False,False,False,ts-auth-service,False,True
+llm_only,regression,re2tt_ts-order-service_disk_3,tt,ts-order-service,ts-order-service,ts-travel-service,ts-train-service,False,3,r1 ts-train-service (reject) -> r2 ts-train-service (reject) -> r3 ts-travel-service (reject),False,False,False,ts-order-service,False,True
+llm_only,regression,re2tt_ts-route-service_delay_2,tt,ts-route-service,ts-route-service,ts-payment-service,ts-order-service,False,3,r1 ts-order-service (reject) -> r2 ts-payment-service (reject) -> r3 ts-payment-service (reject),False,False,False,ts-route-service,False,True
+llm_only,regression,re2tt_ts-route-service_disk_2,tt,ts-route-service,ts-route-service,ts-order-service,ts-order-service,False,3,r1 ts-order-service (reject) -> r2 ts-route-service (reject) -> r3 ts-order-service (reject),False,False,False,ts-route-service,False,True
+llm_only,correction,re2tt_ts-train-service_cpu_2,tt,ts-train-service,ts-seat-service,ts-train-service,ts-train-service,False,2,r1 ts-train-service (reject) -> r2 ts-train-service (accept),True,False,False,ts-seat-service,False,True
+llm_only,regression,re2tt_ts-train-service_disk_2,tt,ts-train-service,ts-train-service,ts-travel-service,ts-travel-service,False,3,r1 ts-travel-service (reject) -> r2 ts-travel-service (reject) -> r3 ts-travel-service (reject),False,False,False,ts-train-service,False,True
+llm_only,correction,re2tt_ts-train-service_socket_2,tt,ts-train-service,ts-ui-dashboard,ts-train-service,ts-order-service,False,2,r1 ts-order-service (reject) -> r2 ts-train-service (accept),True,False,False,ts-ui-dashboard,False,True
+llm_only,regression,re2tt_ts-travel-service_cpu_1,tt,ts-travel-service,ts-travel-service,ts-consign-service,ts-payment-service,False,3,r1 ts-payment-service (reject) -> r2 ts-consign-service (reject) -> r3 ts-consign-service (reject),False,False,False,ts-travel-service,False,True
+llm_only,correction,re2tt_ts-travel-service_loss_3,tt,ts-travel-service,ts-admin-travel-service,ts-travel-service,ts-travel-service,False,1,r1 ts-travel-service (accept),True,False,False,ts-admin-travel-service,False,True
+llm_only,correction,re2tt_ts-travel-service_mem_2,tt,ts-travel-service,ts-seat-service,ts-travel-service,ts-payment-service,False,3,r1 ts-payment-service (reject) -> r2 ts-admin-travel-service (reject) -> r3 ts-travel-service (reject),False,False,False,ts-seat-service,False,True
+hybrid_7b,regression,re2ss_catalogue_disk_1,ss,catalogue,catalogue,rabbitmq,rabbitmq,False,1,r1 rabbitmq (accept),True,False,False,catalogue,False,False
+hybrid_7b,regression,re2ss_payment_delay_3,ss,payment,payment,payment_latency-90,orders,False,2,r1 orders (reject) -> r2 payment_latency-90 (accept),True,False,False,payment,False,False
+hybrid_7b,regression,re2ss_payment_mem_2,ss,payment,payment,orders,orders,False,3,r1 orders (reject) -> r2 orders (reject) -> r3 orders (reject),False,False,False,payment,False,False
+hybrid_7b,regression,re2ss_user_delay_2,ss,user,user,front-end,front-end,False,3,r1 front-end (reject) -> r2 session-db (reject) -> r3 front-end (reject),False,False,False,session-db,False,False
+hybrid_7b,regression,re2tt_ts-auth-service_mem_1,tt,ts-auth-service,ts-auth-service,ts-notification-service,ts-execute-service,False,3,r1 ts-execute-service (reject) -> r2 ts-auth-service (reject) -> r3 ts-notification-service (reject),False,False,False,ts-auth-service,False,False
+hybrid_7b,regression,re2tt_ts-route-service_delay_2,tt,ts-route-service,ts-route-service,ts-order-service,ts-order-service,False,1,r1 ts-order-service (accept),True,False,False,ts-route-service,False,False
+hybrid_7b,regression,re2tt_ts-train-service_disk_2,tt,ts-train-service,ts-train-service,ts-travel-service,ts-travel-service,False,3,r1 ts-travel-service (reject) -> r2 ts-travel-service (reject) -> r3 ts-travel-service (reject),False,False,False,ts-train-service,False,False
+hybrid_7b,correction,re2tt_ts-travel-service_loss_3,tt,ts-travel-service,ts-admin-travel-service,ts-travel-service,ts-travel-service,False,1,r1 ts-travel-service (accept),True,False,False,ts-admin-travel-service,False,False
+code_rule,regression,re2ss_catalogue_disk_1,ss,catalogue,catalogue,rabbitmq,rabbitmq,False,1,r1 rabbitmq (accept),True,False,True,catalogue,False,True
+code_rule,regression,re2ss_catalogue_mem_1,ss,catalogue,catalogue,catalogue-db,carts,False,2,r1 carts (reject) -> r2 catalogue-db (accept),True,False,True,catalogue,False,True
+code_rule,regression,re2ss_user_delay_2,ss,user,user,session-db,front-end,False,2,r1 front-end (reject) -> r2 session-db (accept),True,False,False,session-db,True,True
+code_rule,regression,re2tt_ts-auth-service_cpu_2,tt,ts-auth-service,ts-auth-service,ts-train-mongo,ts-train-mongo,False,1,r1 ts-train-mongo (accept),True,False,True,ts-auth-service,False,True
+code_rule,regression,re2tt_ts-auth-service_socket_1,tt,ts-auth-service,ts-auth-service,ts-order-service,ts-order-service,False,1,r1 ts-order-service (accept),True,False,True,ts-auth-service,False,True
+code_rule,regression,re2tt_ts-order-service_disk_3,tt,ts-order-service,ts-order-service,ts-train-service,ts-train-service,False,1,r1 ts-train-service (accept),True,False,True,ts-order-service,False,True
+code_rule,regression,re2tt_ts-route-service_delay_2,tt,ts-route-service,ts-route-service,ts-order-service,ts-order-service,False,1,r1 ts-order-service (accept),True,False,True,ts-route-service,False,True
+code_rule,regression,re2tt_ts-route-service_socket_3,tt,ts-route-service,ts-route-service,ts-order-service,ts-order-service,False,1,r1 ts-order-service (accept),True,False,True,ts-route-service,False,True
+code_rule,regression,re2tt_ts-train-service_disk_2,tt,ts-train-service,ts-train-service,ts-travel-service,ts-travel-service,False,1,r1 ts-travel-service (accept),True,False,True,ts-train-service,False,True
+code_rule,regression,re2tt_ts-train-service_mem_1,tt,ts-train-service,ts-train-service,ts-train-mongo,ts-train-mongo,False,1,r1 ts-train-mongo (accept),True,False,True,ts-train-service,False,True
+code_rule,regression,re2tt_ts-travel-service_cpu_1,tt,ts-travel-service,ts-travel-service,ts-payment-service,ts-payment-service,False,1,r1 ts-payment-service (accept),True,False,True,ts-travel-service,False,True
+code_rule,correction,re2tt_ts-travel-service_loss_3,tt,ts-travel-service,ts-admin-travel-service,ts-travel-service,ts-travel-service,False,1,r1 ts-travel-service (accept),True,False,False,ts-admin-travel-service,False,True
+code_rule,regression,re2tt_ts-travel-service_socket_2,tt,ts-travel-service,ts-travel-service,ts-payment-service,ts-payment-service,False,1,r1 ts-payment-service (accept),True,False,True,ts-travel-service,False,True
+no_critic,regression,re2ss_carts_delay_2,ss,carts,carts,front-end,front-end,False,1,r1 front-end (accept),True,False,False,carts,False,False
+no_critic,regression,re2ss_carts_loss_1,ss,carts,carts,front-end,front-end,False,1,r1 front-end (accept),True,False,False,carts,False,False
+no_critic,regression,re2ss_catalogue_cpu_3,ss,catalogue,catalogue,rabbitmq,rabbitmq,False,1,r1 rabbitmq (accept),True,False,False,catalogue,False,False
+no_critic,regression,re2ss_catalogue_delay_1,ss,catalogue,catalogue,carts,carts,False,1,r1 carts (accept),True,False,False,catalogue,False,False
+no_critic,regression,re2ss_catalogue_disk_1,ss,catalogue,catalogue,rabbitmq,rabbitmq,False,1,r1 rabbitmq (accept),True,False,False,catalogue,False,False
+no_critic,regression,re2ss_catalogue_mem_1,ss,catalogue,catalogue,carts,carts,False,1,r1 carts (accept),True,False,False,catalogue,False,False
+no_critic,regression,re2ss_payment_cpu_3,ss,payment,payment,rabbitmq,rabbitmq,False,1,r1 rabbitmq (accept),True,False,False,payment,False,False
+no_critic,regression,re2ss_payment_delay_3,ss,payment,payment,orders,orders,False,1,r1 orders (accept),True,False,False,payment,False,False
+no_critic,regression,re2ss_payment_disk_3,ss,payment,payment,rabbitmq,rabbitmq,False,1,r1 rabbitmq (accept),True,False,False,payment,False,False
+no_critic,regression,re2ss_payment_mem_2,ss,payment,payment,orders,orders,False,1,r1 orders (accept),True,False,False,payment,False,False
+no_critic,regression,re2ss_user_cpu_2,ss,user,user,front-end,front-end,False,1,r1 front-end (accept),True,False,False,user,False,False
+no_critic,regression,re2ss_user_delay_2,ss,user,user,front-end,front-end,False,1,r1 front-end (accept),True,False,False,session-db,False,False
+no_critic,regression,re2ss_user_disk_2,ss,user,user,carts,carts,False,1,r1 carts (accept),True,False,False,user,False,False
+no_critic,regression,re2ss_user_loss_2,ss,user,user,orders,orders,False,1,r1 orders (accept),True,False,False,user,False,False
+no_critic,regression,re2ss_user_mem_1,ss,user,user,front-end,front-end,False,1,r1 front-end (accept),True,False,False,user,False,False
+no_critic,regression,re2tt_ts-auth-service_cpu_2,tt,ts-auth-service,ts-auth-service,ts-train-mongo,ts-train-mongo,False,1,r1 ts-train-mongo (accept),True,False,False,ts-auth-service,False,False
+no_critic,regression,re2tt_ts-auth-service_delay_2,tt,ts-auth-service,ts-auth-service,ts-user-service,ts-user-service,False,1,r1 ts-user-service (accept),True,False,False,ts-auth-service,False,False
+no_critic,regression,re2tt_ts-auth-service_disk_2,tt,ts-auth-service,ts-auth-service,ts-payment-service,ts-payment-service,False,1,r1 ts-payment-service (accept),True,False,False,ts-auth-service,False,False
+no_critic,regression,re2tt_ts-auth-service_mem_1,tt,ts-auth-service,ts-auth-service,ts-execute-service,ts-execute-service,False,1,r1 ts-execute-service (accept),True,False,False,ts-auth-service,False,False
+no_critic,regression,re2tt_ts-auth-service_socket_1,tt,ts-auth-service,ts-auth-service,ts-order-service,ts-order-service,False,1,r1 ts-order-service (accept),True,False,False,ts-auth-service,False,False
+no_critic,regression,re2tt_ts-order-service_cpu_1,tt,ts-order-service,ts-order-service,ts-admin-basic-info-service,ts-admin-basic-info-service,False,1,r1 ts-admin-basic-info-service (accept),True,False,False,ts-order-service,False,False
+no_critic,regression,re2tt_ts-order-service_disk_3,tt,ts-order-service,ts-order-service,ts-train-service,ts-train-service,False,1,r1 ts-train-service (accept),True,False,False,ts-order-service,False,False
+no_critic,regression,re2tt_ts-order-service_loss_2,tt,ts-order-service,ts-order-service,ts-travel-service,ts-travel-service,False,1,r1 ts-travel-service (accept),True,False,False,ts-order-service,False,False
+no_critic,regression,re2tt_ts-order-service_mem_1,tt,ts-order-service,ts-order-service,ts-train-service,ts-train-service,False,1,r1 ts-train-service (accept),True,False,False,ts-order-service,False,False
+no_critic,regression,re2tt_ts-route-service_delay_2,tt,ts-route-service,ts-route-service,ts-order-service,ts-order-service,False,1,r1 ts-order-service (accept),True,False,False,ts-route-service,False,False
+no_critic,regression,re2tt_ts-route-service_disk_2,tt,ts-route-service,ts-route-service,ts-order-service,ts-order-service,False,1,r1 ts-order-service (accept),True,False,False,ts-route-service,False,False
+no_critic,regression,re2tt_ts-route-service_loss_1,tt,ts-route-service,ts-route-service,ts-consign-service,ts-consign-service,False,1,r1 ts-consign-service (accept),True,False,False,ts-route-service,False,False
+no_critic,regression,re2tt_ts-route-service_mem_2,tt,ts-route-service,ts-route-service,ts-auth-service,ts-auth-service,False,1,r1 ts-auth-service (accept),True,False,False,ts-route-service,False,False
+no_critic,regression,re2tt_ts-route-service_socket_3,tt,ts-route-service,ts-route-service,ts-order-service,ts-order-service,False,1,r1 ts-order-service (accept),True,False,False,ts-route-service,False,False
+no_critic,correction,re2tt_ts-train-service_cpu_2,tt,ts-train-service,ts-seat-service,ts-train-service,ts-train-service,False,1,r1 ts-train-service (accept),True,False,False,ts-seat-service,False,False
+no_critic,regression,re2tt_ts-train-service_delay_3,tt,ts-train-service,ts-train-service,ts-travel-service,ts-travel-service,False,1,r1 ts-travel-service (accept),True,False,False,ts-train-service,False,False
+no_critic,regression,re2tt_ts-train-service_disk_2,tt,ts-train-service,ts-train-service,ts-travel-service,ts-travel-service,False,1,r1 ts-travel-service (accept),True,False,False,ts-train-service,False,False
+no_critic,regression,re2tt_ts-train-service_mem_1,tt,ts-train-service,ts-train-service,ts-train-mongo,ts-train-mongo,False,1,r1 ts-train-mongo (accept),True,False,False,ts-train-service,False,False
+no_critic,regression,re2tt_ts-travel-service_cpu_1,tt,ts-travel-service,ts-travel-service,ts-payment-service,ts-payment-service,False,1,r1 ts-payment-service (accept),True,False,False,ts-travel-service,False,False
+no_critic,regression,re2tt_ts-travel-service_delay_2,tt,ts-travel-service,ts-travel-service,ts-order-service,ts-order-service,False,1,r1 ts-order-service (accept),True,False,False,ts-travel-service,False,False
+no_critic,correction,re2tt_ts-travel-service_loss_3,tt,ts-travel-service,ts-admin-travel-service,ts-travel-service,ts-travel-service,False,1,r1 ts-travel-service (accept),True,False,False,ts-admin-travel-service,False,False
+no_critic,regression,re2tt_ts-travel-service_socket_2,tt,ts-travel-service,ts-travel-service,ts-payment-service,ts-payment-service,False,1,r1 ts-payment-service (accept),True,False,False,ts-travel-service,False,False
+react,regression,re2ss_carts_mem_3,ss,carts,carts,carts-db,carts-db,False,1,r1 carts-db,,,,carts,False,True
+react,regression,re2ss_catalogue_delay_1,ss,catalogue,catalogue,carts,carts,False,1,r1 carts,,,,catalogue,False,True
+react,regression,re2ss_payment_delay_3,ss,payment,payment,carts,carts,False,1,r1 carts,,,,payment,False,True
+react,regression,re2ss_payment_disk_3,ss,payment,payment,carts,carts,False,1,r1 carts,,,,payment,False,True
+react,regression,re2ss_user_delay_2,ss,user,user,front-end,front-end,False,1,r1 front-end,,,,user,False,True
+react,regression,re2ss_user_disk_2,ss,user,user,orders,orders,False,1,r1 orders,,,,user,False,True
+react,regression,re2ss_user_loss_2,ss,user,user,carts,carts,False,1,r1 carts,,,,user,False,True
+react,regression,re2ss_user_mem_1,ss,user,user,carts,carts,False,1,r1 carts,,,,user,False,True
+react,regression,re2tt_ts-auth-service_cpu_2,tt,ts-auth-service,ts-auth-service,ts-travel-mongo,ts-travel-mongo,False,1,r1 ts-travel-mongo,,,,ts-auth-service,False,True
+react,regression,re2tt_ts-auth-service_socket_1,tt,ts-auth-service,ts-auth-service,ts-seat-service,ts-seat-service,False,1,r1 ts-seat-service,,,,ts-auth-service,False,True
+react,regression,re2tt_ts-order-service_mem_1,tt,ts-order-service,ts-order-service,ts-execute-service,ts-execute-service,False,1,r1 ts-execute-service,,,,ts-order-service,False,True
+react,regression,re2tt_ts-order-service_socket_2,tt,ts-order-service,ts-order-service,ts-travel-service,ts-travel-service,False,1,r1 ts-travel-service,,,,ts-order-service,False,True
+react,correction,re2tt_ts-route-service_cpu_1,tt,ts-route-service,ts-travel-service,ts-route-service,ts-route-service,False,1,r1 ts-route-service,,,,ts-travel-service,False,True
+react,regression,re2tt_ts-route-service_delay_2,tt,ts-route-service,ts-route-service,ts-travel-service,ts-travel-service,False,1,r1 ts-travel-service,,,,ts-route-service,False,True
+react,regression,re2tt_ts-route-service_loss_1,tt,ts-route-service,ts-route-service,ts-consign-service,ts-consign-service,False,1,r1 ts-consign-service,,,,ts-route-service,False,True
+react,correction,re2tt_ts-train-service_cpu_2,tt,ts-train-service,ts-seat-service,ts-train-service,ts-train-service,False,1,r1 ts-train-service,,,,ts-seat-service,False,True

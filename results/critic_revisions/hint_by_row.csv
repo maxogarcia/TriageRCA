@@ -1,0 +1,5 @@
+row,rounds_ge2,rounds_after_hint,followed,follow_rate,followed_correct,not_followed,not_followed_correct,hint_eq_truth,hint_eq_h_e001a,rounds_no_hint,no_hint_correct
+hybrid,80,43,35,0.814,29,8,3,31,41,37,18
+llm_only,77,0,0,,0,0,0,0,0,77,43
+hybrid_7b,62,39,31,0.7949,24,8,1,30,38,23,13
+code_rule,32,32,30,0.9375,23,2,0,24,31,0,0

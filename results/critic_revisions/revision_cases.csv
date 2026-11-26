@@ -1,0 +1,241 @@
+row,case_id,system,truth,rounds,correct,r1_correct,round_path,N_r1_items,n_ledger,r1_identity_ok,new_items_rounds2plus,new_unique_rounds2plus,per_round_split,root_changed_any,final_eq_h_e001a,reword_only_rounds
+hybrid,re2ss_carts_cpu_1,ss,carts,2,True,True,carts (need_more_evidence) -> carts (accept),6,12,True,6,6,"{""2"": 6}",False,True,0
+hybrid,re2ss_carts_delay_2,ss,carts,2,True,False,front-end (reject) -> carts (accept),6,6,True,0,0,"{""2"": 0}",True,True,0
+hybrid,re2ss_carts_disk_1,ss,carts,1,True,True,carts (accept),5,5,True,0,0,,False,True,0
+hybrid,re2ss_carts_loss_1,ss,carts,2,True,False,front-end (reject) -> carts (accept),6,6,True,0,0,"{""2"": 0}",True,True,0
+hybrid,re2ss_carts_mem_3,ss,carts,1,True,True,carts (accept),6,6,True,0,0,,False,True,0
+hybrid,re2ss_carts_socket_2,ss,carts,1,True,True,carts (accept),5,5,True,0,0,,False,True,0
+hybrid,re2ss_catalogue_cpu_3,ss,catalogue,3,True,False,rabbitmq (reject) -> catalogue (reject) -> catalogue (accept),3,7,True,4,4,,True,True,0
+hybrid,re2ss_catalogue_delay_1,ss,catalogue,2,True,False,carts (reject) -> catalogue (accept),4,12,True,8,8,"{""2"": 8}",True,True,0
+hybrid,re2ss_catalogue_disk_1,ss,catalogue,3,True,False,rabbitmq (reject) -> carts (reject) -> catalogue (reject),10,24,True,14,14,,True,True,0
+hybrid,re2ss_catalogue_loss_1,ss,catalogue,3,True,False,front-end (reject) -> front-end (reject) -> catalogue (reject),6,24,True,18,18,,True,False,0
+hybrid,re2ss_catalogue_mem_1,ss,catalogue,3,False,False,carts (reject) -> catalogue (need_more_evidence) -> front-end (reject),6,12,True,6,6,,True,False,0
+hybrid,re2ss_catalogue_socket_3,ss,catalogue,1,True,True,catalogue (accept),4,4,True,0,0,,False,True,0
+hybrid,re2ss_orders_cpu_2,ss,orders,1,True,True,orders (accept),5,5,True,0,0,,False,True,0
+hybrid,re2ss_orders_delay_1,ss,orders,3,False,False,payment (reject) -> shipping (need_more_evidence) -> shipping (reject),3,14,True,11,11,,True,True,0
+hybrid,re2ss_orders_disk_1,ss,orders,3,True,False,carts (reject) -> catalogue-db (need_more_evidence) -> orders (reject),6,12,True,6,6,,True,False,0
+hybrid,re2ss_orders_loss_1,ss,orders,3,True,False,shipping (reject) -> front-end (need_more_evidence) -> orders (need_more_evidence),5,14,True,9,9,,True,False,0
+hybrid,re2ss_orders_mem_3,ss,orders,2,True,True,orders (reject) -> orders (accept),6,10,True,4,4,"{""2"": 4}",False,True,0
+hybrid,re2ss_orders_socket_1,ss,orders,1,True,True,orders (accept),6,6,True,0,0,,False,True,0
+hybrid,re2ss_payment_cpu_3,ss,payment,3,True,False,rabbitmq (reject) -> payment (need_more_evidence) -> payment (accept),4,12,True,8,8,,True,True,0
+hybrid,re2ss_payment_delay_3,ss,payment,2,True,False,orders (reject) -> payment (accept),3,9,True,6,6,"{""2"": 6}",True,True,0
+hybrid,re2ss_payment_disk_3,ss,payment,2,True,False,rabbitmq (reject) -> payment (accept),6,9,True,3,2,"{""2"": 3}",True,True,0
+hybrid,re2ss_payment_loss_3,ss,payment,3,False,False,orders (reject) -> payment (reject) -> orders (accept),6,15,True,9,9,,True,True,0
+hybrid,re2ss_payment_mem_2,ss,payment,2,True,False,orders (reject) -> payment (accept),6,6,True,0,0,"{""2"": 0}",True,True,0
+hybrid,re2ss_payment_socket_3,ss,payment,1,True,True,payment (accept),6,6,True,0,0,,False,True,0
+hybrid,re2ss_user_cpu_2,ss,user,2,True,False,front-end (reject) -> user (accept),5,8,True,3,3,"{""2"": 3}",True,True,0
+hybrid,re2ss_user_delay_2,ss,user,3,False,False,front-end (reject) -> front-end (reject) -> rabbitmq-exporter (reject),5,20,True,15,15,,True,False,0
+hybrid,re2ss_user_disk_2,ss,user,3,True,False,carts (reject) -> user (need_more_evidence) -> user (accept),6,19,True,13,13,,True,True,0
+hybrid,re2ss_user_loss_2,ss,user,2,True,False,orders (reject) -> user (accept),3,8,True,5,5,"{""2"": 5}",True,True,0
+hybrid,re2ss_user_mem_1,ss,user,3,False,False,front-end (reject) -> orders (reject) -> cartservice (reject),1,25,True,24,24,,True,False,0
+hybrid,re2ss_user_socket_3,ss,user,1,True,True,user (accept),6,6,True,0,0,,False,True,0
+hybrid,re2tt_ts-auth-service_cpu_2,tt,ts-auth-service,3,False,False,ts-train-mongo (reject) -> ts-auth-service (need_more_evidence) -> ts-ui-dashboard (reject),6,6,True,0,0,,True,False,0
+hybrid,re2tt_ts-auth-service_delay_2,tt,ts-auth-service,2,True,False,ts-user-service (reject) -> ts-auth-service (accept),3,15,True,12,12,"{""2"": 12}",True,True,0
+hybrid,re2tt_ts-auth-service_disk_2,tt,ts-auth-service,2,True,False,ts-payment-service (reject) -> ts-auth-service (accept),10,20,True,10,10,"{""2"": 10}",True,True,0
+hybrid,re2tt_ts-auth-service_loss_2,tt,ts-auth-service,3,False,False,ts-order-service (reject) -> ts-order-service (need_more_evidence) -> ts-travel-plan-service (need_more_evidence),6,20,True,14,13,,True,True,0
+hybrid,re2tt_ts-auth-service_mem_1,tt,ts-auth-service,2,True,False,ts-execute-service (reject) -> ts-auth-service (accept),6,7,True,1,1,"{""2"": 1}",True,True,0
+hybrid,re2tt_ts-auth-service_socket_1,tt,ts-auth-service,2,True,False,ts-order-service (reject) -> ts-auth-service (accept),6,6,True,0,0,"{""2"": 0}",True,True,0
+hybrid,re2tt_ts-order-service_cpu_1,tt,ts-order-service,2,True,False,ts-admin-basic-info-service (reject) -> ts-order-service (accept),6,9,True,3,3,"{""2"": 3}",True,True,0
+hybrid,re2tt_ts-order-service_delay_1,tt,ts-order-service,2,True,True,ts-order-service (need_more_evidence) -> ts-order-service (accept),6,12,True,6,6,"{""2"": 6}",False,True,0
+hybrid,re2tt_ts-order-service_disk_3,tt,ts-order-service,3,False,False,ts-train-service (reject) -> ts-train-service (reject) -> ts-travel-service (reject),6,14,True,8,8,,True,False,0
+hybrid,re2tt_ts-order-service_loss_2,tt,ts-order-service,2,True,False,ts-travel-service (reject) -> ts-order-service (accept),6,13,True,7,6,"{""2"": 7}",True,True,0
+hybrid,re2tt_ts-order-service_mem_1,tt,ts-order-service,3,True,False,ts-train-service (reject) -> ts-order-service (reject) -> ts-order-service (reject),5,11,True,6,6,,True,True,0
+hybrid,re2tt_ts-order-service_socket_2,tt,ts-order-service,3,True,True,ts-order-service (need_more_evidence) -> ts-inside-payment-service (reject) -> ts-order-service (accept),3,8,True,5,5,,True,True,0
+hybrid,re2tt_ts-route-service_cpu_1,tt,ts-route-service,3,False,False,ts-admin-route-service (reject) -> ts-travel-service (reject) -> ts-travel-service (accept),6,20,True,14,14,,True,True,0
+hybrid,re2tt_ts-route-service_delay_2,tt,ts-route-service,3,True,False,ts-order-service (reject) -> ts-payment-service (reject) -> ts-route-service (accept),6,21,True,15,15,,True,True,0
+hybrid,re2tt_ts-route-service_disk_2,tt,ts-route-service,2,True,False,ts-order-service (reject) -> ts-route-service (accept),6,6,True,0,0,"{""2"": 0}",True,True,0
+hybrid,re2tt_ts-route-service_loss_1,tt,ts-route-service,3,True,False,ts-consign-service (reject) -> ts-route-service (need_more_evidence) -> ts-route-service (accept),6,20,True,14,14,,True,True,0
+hybrid,re2tt_ts-route-service_mem_2,tt,ts-route-service,2,True,False,ts-auth-service (reject) -> ts-route-service (accept),6,16,True,10,10,"{""2"": 10}",True,True,0
+hybrid,re2tt_ts-route-service_socket_3,tt,ts-route-service,3,True,False,ts-order-service (reject) -> ts-seat-service (reject) -> ts-route-service (need_more_evidence),6,11,True,5,5,,True,True,0
+hybrid,re2tt_ts-train-service_cpu_2,tt,ts-train-service,3,False,True,ts-train-service (reject) -> ts-seat-service (need_more_evidence) -> ts-travel2-service (need_more_evidence),6,9,True,3,3,,True,False,0
+hybrid,re2tt_ts-train-service_delay_3,tt,ts-train-service,2,True,False,ts-travel-service (reject) -> ts-train-service (accept),6,7,True,1,1,"{""2"": 1}",True,True,0
+hybrid,re2tt_ts-train-service_disk_2,tt,ts-train-service,3,False,False,ts-travel-service (reject) -> ts-travel-service (reject) -> ts-travel-service (reject),10,20,True,10,5,,False,False,0
+hybrid,re2tt_ts-train-service_loss_2,tt,ts-train-service,3,True,False,ts-inside-payment-service (reject) -> ts-train-service (reject) -> ts-train-service (reject),1,9,True,8,8,,True,False,0
+hybrid,re2tt_ts-train-service_mem_1,tt,ts-train-service,2,True,False,ts-train-mongo (reject) -> ts-train-service (accept),6,6,True,0,0,"{""2"": 0}",True,True,0
+hybrid,re2tt_ts-train-service_socket_2,tt,ts-train-service,3,True,False,ts-order-service (reject) -> ts-train-service (reject) -> ts-train-service (reject),6,9,True,3,3,,True,False,0
+hybrid,re2tt_ts-travel-service_cpu_1,tt,ts-travel-service,3,True,False,ts-payment-service (reject) -> ts-consign-service (reject) -> ts-travel-service (need_more_evidence),6,28,True,22,22,,True,True,0
+hybrid,re2tt_ts-travel-service_delay_2,tt,ts-travel-service,2,True,False,ts-order-service (reject) -> ts-travel-service (accept),6,7,True,1,1,"{""2"": 1}",True,True,0
+hybrid,re2tt_ts-travel-service_disk_3,tt,ts-travel-service,3,True,True,ts-travel-service (reject) -> ts-travel-service (reject) -> ts-travel-service (need_more_evidence),6,17,True,11,11,,False,True,0
+hybrid,re2tt_ts-travel-service_loss_3,tt,ts-travel-service,1,True,True,ts-travel-service (accept),6,6,True,0,0,,False,False,0
+hybrid,re2tt_ts-travel-service_mem_2,tt,ts-travel-service,3,False,False,ts-payment-service (reject) -> ts-admin-travel-service (reject) -> ts-seat-service (reject),6,19,True,13,13,,True,True,0
+hybrid,re2tt_ts-travel-service_socket_2,tt,ts-travel-service,3,True,False,ts-payment-service (reject) -> ts-order-service (reject) -> ts-travel-service (reject),10,24,True,14,14,,True,True,0
+llm_only,re2ss_carts_cpu_1,ss,carts,2,True,True,carts (need_more_evidence) -> carts (accept),6,12,True,6,6,"{""2"": 6}",False,True,0
+llm_only,re2ss_carts_delay_2,ss,carts,3,True,False,front-end (reject) -> front-end (reject) -> carts (need_more_evidence),6,17,True,11,11,,True,True,0
+llm_only,re2ss_carts_disk_1,ss,carts,1,True,True,carts (accept),5,5,True,0,0,,False,True,0
+llm_only,re2ss_carts_loss_1,ss,carts,1,False,False,front-end (accept),6,6,True,0,0,,False,False,0
+llm_only,re2ss_carts_mem_3,ss,carts,1,True,True,carts (accept),6,6,True,0,0,,False,True,0
+llm_only,re2ss_carts_socket_2,ss,carts,1,True,True,carts (accept),5,5,True,0,0,,False,True,0
+llm_only,re2ss_catalogue_cpu_3,ss,catalogue,2,True,False,rabbitmq (reject) -> catalogue (accept),3,11,True,8,8,"{""2"": 8}",True,True,0
+llm_only,re2ss_catalogue_delay_1,ss,catalogue,2,True,False,carts (reject) -> catalogue (accept),4,4,True,0,0,"{""2"": 0}",True,True,0
+llm_only,re2ss_catalogue_disk_1,ss,catalogue,3,False,False,rabbitmq (reject) -> carts (reject) -> carts (reject),10,18,True,8,8,,True,False,0
+llm_only,re2ss_catalogue_loss_1,ss,catalogue,3,True,False,front-end (reject) -> front-end (reject) -> catalogue (accept),6,24,True,18,18,,True,False,0
+llm_only,re2ss_catalogue_mem_1,ss,catalogue,2,True,False,carts (reject) -> catalogue (accept),6,6,True,0,0,"{""2"": 0}",True,True,0
+llm_only,re2ss_catalogue_socket_3,ss,catalogue,1,True,True,catalogue (accept),4,4,True,0,0,,False,True,0
+llm_only,re2ss_orders_cpu_2,ss,orders,1,True,True,orders (accept),5,5,True,0,0,,False,True,0
+llm_only,re2ss_orders_delay_1,ss,orders,3,False,False,payment (reject) -> user (reject) -> shipping (need_more_evidence),3,9,True,6,6,,True,True,0
+llm_only,re2ss_orders_disk_1,ss,orders,2,False,False,carts (need_more_evidence) -> rabbitmq-exporter (accept),6,6,True,0,0,"{""2"": 0}",True,False,0
+llm_only,re2ss_orders_loss_1,ss,orders,3,False,False,shipping (reject) -> orders (need_more_evidence) -> rabbitmq (need_more_evidence),5,15,True,10,10,,True,False,0
+llm_only,re2ss_orders_mem_3,ss,orders,2,True,True,orders (reject) -> orders (accept),6,10,True,4,4,"{""2"": 4}",False,True,0
+llm_only,re2ss_orders_socket_1,ss,orders,1,True,True,orders (accept),6,6,True,0,0,,False,True,0
+llm_only,re2ss_payment_cpu_3,ss,payment,2,True,False,rabbitmq (reject) -> payment (accept),4,7,True,3,3,"{""2"": 3}",True,True,0
+llm_only,re2ss_payment_delay_3,ss,payment,2,True,False,orders (reject) -> payment (accept),3,8,True,5,4,"{""2"": 5}",True,True,0
+llm_only,re2ss_payment_disk_3,ss,payment,3,True,False,rabbitmq (reject) -> payment (need_more_evidence) -> payment (need_more_evidence),6,9,True,3,2,,True,True,0
+llm_only,re2ss_payment_loss_3,ss,payment,3,True,False,orders (reject) -> payment (need_more_evidence) -> payment (reject),6,16,True,10,10,,True,False,0
+llm_only,re2ss_payment_mem_2,ss,payment,3,True,False,orders (reject) -> orders (need_more_evidence) -> payment (accept),6,13,True,7,7,,True,True,0
+llm_only,re2ss_payment_socket_3,ss,payment,1,True,True,payment (accept),6,6,True,0,0,,False,True,0
+llm_only,re2ss_user_cpu_2,ss,user,2,False,False,front-end (reject) -> orders (accept),5,5,True,0,0,"{""2"": 0}",True,False,0
+llm_only,re2ss_user_delay_2,ss,user,2,False,False,front-end (reject) -> session-db (accept),5,5,True,0,0,"{""2"": 0}",True,False,0
+llm_only,re2ss_user_disk_2,ss,user,3,True,False,carts (reject) -> user (need_more_evidence) -> user (reject),6,19,True,13,11,,True,True,0
+llm_only,re2ss_user_loss_2,ss,user,2,False,False,orders (reject) -> orders (accept),3,3,True,0,0,"{""2"": 0}",False,False,1
+llm_only,re2ss_user_mem_1,ss,user,2,False,False,front-end (reject) -> orders (accept),1,11,True,10,10,"{""2"": 10}",True,False,0
+llm_only,re2ss_user_socket_3,ss,user,1,True,True,user (accept),6,6,True,0,0,,False,True,0
+llm_only,re2tt_ts-auth-service_cpu_2,tt,ts-auth-service,3,False,False,ts-train-mongo (reject) -> ts-auth-service (need_more_evidence) -> ts-ui-dashboard (reject),6,6,True,0,0,,True,False,0
+llm_only,re2tt_ts-auth-service_delay_2,tt,ts-auth-service,2,True,False,ts-user-service (reject) -> ts-auth-service (accept),3,10,True,7,7,"{""2"": 7}",True,True,0
+llm_only,re2tt_ts-auth-service_disk_2,tt,ts-auth-service,3,True,False,ts-payment-service (reject) -> ts-auth-service (reject) -> ts-auth-service (reject),10,15,True,5,5,,True,True,0
+llm_only,re2tt_ts-auth-service_loss_2,tt,ts-auth-service,3,False,False,ts-order-service (reject) -> ts-order-service (need_more_evidence) -> ts-travel-plan-service (need_more_evidence),6,20,True,14,13,,True,True,0
+llm_only,re2tt_ts-auth-service_mem_1,tt,ts-auth-service,3,True,False,ts-execute-service (reject) -> ts-auth-service (reject) -> ts-auth-service (accept),6,17,True,11,11,,True,True,0
+llm_only,re2tt_ts-auth-service_socket_1,tt,ts-auth-service,2,True,False,ts-order-service (reject) -> ts-auth-service (accept),6,6,True,0,0,"{""2"": 0}",True,True,0
+llm_only,re2tt_ts-order-service_cpu_1,tt,ts-order-service,2,True,False,ts-admin-basic-info-service (reject) -> ts-order-service (accept),6,6,True,0,0,"{""2"": 0}",True,True,0
+llm_only,re2tt_ts-order-service_delay_1,tt,ts-order-service,2,True,True,ts-order-service (need_more_evidence) -> ts-order-service (accept),6,12,True,6,6,"{""2"": 6}",False,True,0
+llm_only,re2tt_ts-order-service_disk_3,tt,ts-order-service,3,False,False,ts-train-service (reject) -> ts-train-service (reject) -> ts-travel-service (reject),6,14,True,8,8,,True,False,0
+llm_only,re2tt_ts-order-service_loss_2,tt,ts-order-service,2,True,False,ts-travel-service (reject) -> ts-order-service (accept),6,6,True,0,0,"{""2"": 0}",True,True,0
+llm_only,re2tt_ts-order-service_mem_1,tt,ts-order-service,2,True,False,ts-train-service (reject) -> ts-order-service (accept),5,7,True,2,2,"{""2"": 2}",True,True,0
+llm_only,re2tt_ts-order-service_socket_2,tt,ts-order-service,3,True,True,ts-order-service (need_more_evidence) -> ts-inside-payment-service (reject) -> ts-order-service (accept),3,14,True,11,11,,True,True,0
+llm_only,re2tt_ts-route-service_cpu_1,tt,ts-route-service,3,False,False,ts-admin-route-service (reject) -> ts-travel-service (reject) -> ts-travel-service (accept),6,20,True,14,14,,True,True,0
+llm_only,re2tt_ts-route-service_delay_2,tt,ts-route-service,3,False,False,ts-order-service (reject) -> ts-payment-service (reject) -> ts-payment-service (reject),6,25,True,19,19,,True,False,0
+llm_only,re2tt_ts-route-service_disk_2,tt,ts-route-service,3,False,False,ts-order-service (reject) -> ts-route-service (reject) -> ts-order-service (reject),6,15,True,9,9,,True,False,0
+llm_only,re2tt_ts-route-service_loss_1,tt,ts-route-service,2,True,False,ts-consign-service (reject) -> ts-route-service (accept),6,20,True,14,14,"{""2"": 14}",True,True,0
+llm_only,re2tt_ts-route-service_mem_2,tt,ts-route-service,3,True,False,ts-auth-service (reject) -> ts-train-service (reject) -> ts-route-service (accept),6,6,True,0,0,,True,True,0
+llm_only,re2tt_ts-route-service_socket_3,tt,ts-route-service,3,True,False,ts-order-service (reject) -> ts-seat-service (reject) -> ts-route-service (reject),6,9,True,3,3,,True,True,0
+llm_only,re2tt_ts-train-service_cpu_2,tt,ts-train-service,2,True,True,ts-train-service (reject) -> ts-train-service (accept),6,6,True,0,0,"{""2"": 0}",False,False,1
+llm_only,re2tt_ts-train-service_delay_3,tt,ts-train-service,3,True,False,ts-travel-service (reject) -> ts-travel-service (reject) -> ts-train-service (accept),6,9,True,3,3,,True,True,0
+llm_only,re2tt_ts-train-service_disk_2,tt,ts-train-service,3,False,False,ts-travel-service (reject) -> ts-travel-service (reject) -> ts-travel-service (reject),10,20,True,10,5,,False,False,0
+llm_only,re2tt_ts-train-service_loss_2,tt,ts-train-service,3,False,False,ts-inside-payment-service (reject) -> ts-train-service (need_more_evidence) -> ts-inside-payment-service (need_more_evidence),1,13,True,12,12,,True,False,0
+llm_only,re2tt_ts-train-service_mem_1,tt,ts-train-service,2,True,False,ts-train-mongo (reject) -> ts-train-service (accept),6,6,True,0,0,"{""2"": 0}",True,True,0
+llm_only,re2tt_ts-train-service_socket_2,tt,ts-train-service,2,True,False,ts-order-service (reject) -> ts-train-service (accept),6,9,True,3,3,"{""2"": 3}",True,False,0
+llm_only,re2tt_ts-travel-service_cpu_1,tt,ts-travel-service,3,False,False,ts-payment-service (reject) -> ts-consign-service (reject) -> ts-consign-service (reject),6,14,True,8,8,,True,False,0
+llm_only,re2tt_ts-travel-service_delay_2,tt,ts-travel-service,2,True,False,ts-order-service (reject) -> ts-travel-service (accept),6,7,True,1,1,"{""2"": 1}",True,True,0
+llm_only,re2tt_ts-travel-service_disk_3,tt,ts-travel-service,3,True,True,ts-travel-service (reject) -> ts-travel-service (reject) -> ts-travel-service (need_more_evidence),6,17,True,11,11,,False,True,0
+llm_only,re2tt_ts-travel-service_loss_3,tt,ts-travel-service,1,True,True,ts-travel-service (accept),6,6,True,0,0,,False,False,0
+llm_only,re2tt_ts-travel-service_mem_2,tt,ts-travel-service,3,True,False,ts-payment-service (reject) -> ts-admin-travel-service (reject) -> ts-travel-service (reject),6,6,True,0,0,,True,False,0
+llm_only,re2tt_ts-travel-service_socket_2,tt,ts-travel-service,3,True,False,ts-payment-service (reject) -> ts-order-service (reject) -> ts-travel-service (accept),10,18,True,8,8,,True,True,0
+hybrid_7b,re2ss_carts_cpu_1,ss,carts,1,True,True,carts (accept),6,6,True,0,0,,False,True,0
+hybrid_7b,re2ss_carts_delay_2,ss,carts,2,True,False,front-end (reject) -> carts (accept),6,11,True,5,4,"{""2"": 5}",True,True,0
+hybrid_7b,re2ss_carts_disk_1,ss,carts,1,True,True,carts (accept),5,5,True,0,0,,False,True,0
+hybrid_7b,re2ss_carts_loss_1,ss,carts,2,True,False,front-end (reject) -> carts (accept),6,6,True,0,0,"{""2"": 0}",True,True,0
+hybrid_7b,re2ss_carts_mem_3,ss,carts,3,True,True,carts (need_more_evidence) -> carts (reject) -> carts (accept),6,9,True,3,1,,False,True,0
+hybrid_7b,re2ss_carts_socket_2,ss,carts,1,True,True,carts (accept),5,5,True,0,0,,False,True,0
+hybrid_7b,re2ss_catalogue_cpu_3,ss,catalogue,2,True,False,rabbitmq (reject) -> catalogue (accept),3,13,True,10,9,"{""2"": 10}",True,True,0
+hybrid_7b,re2ss_catalogue_delay_1,ss,catalogue,2,True,False,carts (reject) -> catalogue (accept),4,10,True,6,6,"{""2"": 6}",True,True,0
+hybrid_7b,re2ss_catalogue_disk_1,ss,catalogue,1,False,False,rabbitmq (accept),10,10,True,0,0,,False,False,0
+hybrid_7b,re2ss_catalogue_loss_1,ss,catalogue,1,False,False,front-end (accept),6,6,True,0,0,,False,True,0
+hybrid_7b,re2ss_catalogue_mem_1,ss,catalogue,2,True,False,carts (reject) -> catalogue (accept),6,12,True,6,6,"{""2"": 6}",True,True,0
+hybrid_7b,re2ss_catalogue_socket_3,ss,catalogue,1,True,True,catalogue (accept),4,4,True,0,0,,False,True,0
+hybrid_7b,re2ss_orders_cpu_2,ss,orders,1,True,True,orders (accept),5,5,True,0,0,,False,True,0
+hybrid_7b,re2ss_orders_delay_1,ss,orders,2,False,False,payment (reject) -> shipping (accept),3,5,True,2,2,"{""2"": 2}",True,True,0
+hybrid_7b,re2ss_orders_disk_1,ss,orders,2,False,False,carts (reject) -> catalogue-db (accept),6,16,True,10,10,"{""2"": 10}",True,True,0
+hybrid_7b,re2ss_orders_loss_1,ss,orders,2,False,False,shipping (reject) -> front-end (accept),5,13,True,8,8,"{""2"": 8}",True,True,0
+hybrid_7b,re2ss_orders_mem_3,ss,orders,2,True,True,orders (reject) -> orders (accept),6,20,True,14,14,"{""2"": 14}",False,True,0
+hybrid_7b,re2ss_orders_socket_1,ss,orders,1,True,True,orders (accept),6,6,True,0,0,,False,True,0
+hybrid_7b,re2ss_payment_cpu_3,ss,payment,2,True,False,rabbitmq (reject) -> payment (accept),4,4,True,0,0,"{""2"": 0}",True,True,0
+hybrid_7b,re2ss_payment_delay_3,ss,payment,2,False,False,orders (reject) -> payment_latency-90 (accept),3,8,True,5,5,"{""2"": 5}",True,False,0
+hybrid_7b,re2ss_payment_disk_3,ss,payment,3,True,False,rabbitmq (reject) -> carts (reject) -> payment (reject),6,14,True,8,7,,True,True,0
+hybrid_7b,re2ss_payment_loss_3,ss,payment,1,False,False,orders (accept),6,6,True,0,0,,False,True,0
+hybrid_7b,re2ss_payment_mem_2,ss,payment,3,False,False,orders (reject) -> orders (reject) -> orders (reject),6,6,True,0,0,,False,False,2
+hybrid_7b,re2ss_payment_socket_3,ss,payment,1,True,True,payment (accept),6,6,True,0,0,,False,True,0
+hybrid_7b,re2ss_user_cpu_2,ss,user,2,True,False,front-end (reject) -> user (accept),5,5,True,0,0,"{""2"": 0}",True,True,0
+hybrid_7b,re2ss_user_delay_2,ss,user,3,False,False,front-end (reject) -> session-db (reject) -> front-end (reject),5,17,True,12,11,,True,False,0
+hybrid_7b,re2ss_user_disk_2,ss,user,2,True,False,carts (reject) -> user (accept),6,6,True,0,0,"{""2"": 0}",True,True,0
+hybrid_7b,re2ss_user_loss_2,ss,user,3,True,False,orders (reject) -> front-end (reject) -> user (accept),3,8,True,5,5,,True,True,0
+hybrid_7b,re2ss_user_mem_1,ss,user,2,True,False,front-end (reject) -> user (accept),1,6,True,5,5,"{""2"": 5}",True,True,0
+hybrid_7b,re2ss_user_socket_3,ss,user,1,True,True,user (accept),6,6,True,0,0,,False,True,0
+hybrid_7b,re2tt_ts-auth-service_cpu_2,tt,ts-auth-service,3,True,False,ts-train-mongo (reject) -> ts-auth-service (reject) -> ts-auth-service (accept),6,25,True,19,19,,True,True,0
+hybrid_7b,re2tt_ts-auth-service_delay_2,tt,ts-auth-service,2,True,False,ts-user-service (reject) -> ts-auth-service (accept),3,9,True,6,5,"{""2"": 6}",True,True,0
+hybrid_7b,re2tt_ts-auth-service_disk_2,tt,ts-auth-service,2,True,False,ts-payment-service (reject) -> ts-auth-service (accept),10,20,True,10,9,"{""2"": 10}",True,True,0
+hybrid_7b,re2tt_ts-auth-service_loss_2,tt,ts-auth-service,3,False,False,ts-order-service (reject) -> ts-travel-plan-service (need_more_evidence) -> ts-travel-plan-service (accept),6,8,True,2,2,,True,True,0
+hybrid_7b,re2tt_ts-auth-service_mem_1,tt,ts-auth-service,3,False,False,ts-execute-service (reject) -> ts-auth-service (reject) -> ts-notification-service (reject),6,14,True,8,8,,True,False,0
+hybrid_7b,re2tt_ts-auth-service_socket_1,tt,ts-auth-service,3,True,False,ts-order-service (reject) -> ts-payment-service (reject) -> ts-auth-service (reject),6,16,True,10,9,,True,True,0
+hybrid_7b,re2tt_ts-order-service_cpu_1,tt,ts-order-service,2,True,False,ts-admin-basic-info-service (reject) -> ts-order-service (accept),6,12,True,6,6,"{""2"": 6}",True,True,0
+hybrid_7b,re2tt_ts-order-service_delay_1,tt,ts-order-service,3,True,True,ts-order-service (reject) -> ts-order-service (reject) -> ts-order-service (accept),6,13,True,7,6,,False,True,0
+hybrid_7b,re2tt_ts-order-service_disk_3,tt,ts-order-service,2,True,False,ts-train-service (reject) -> ts-order-service (accept),6,6,True,0,0,"{""2"": 0}",True,True,0
+hybrid_7b,re2tt_ts-order-service_loss_2,tt,ts-order-service,2,True,False,ts-travel-service (reject) -> ts-order-service (accept),6,6,True,0,0,"{""2"": 0}",True,True,0
+hybrid_7b,re2tt_ts-order-service_mem_1,tt,ts-order-service,2,True,False,ts-train-service (reject) -> ts-order-service (accept),5,5,True,0,0,"{""2"": 0}",True,True,0
+hybrid_7b,re2tt_ts-order-service_socket_2,tt,ts-order-service,1,True,True,ts-order-service (accept),3,3,True,0,0,,False,True,0
+hybrid_7b,re2tt_ts-route-service_cpu_1,tt,ts-route-service,3,False,False,ts-admin-route-service (reject) -> ts-route-service (reject) -> ts-travel-service (accept),6,14,True,8,8,,True,True,0
+hybrid_7b,re2tt_ts-route-service_delay_2,tt,ts-route-service,1,False,False,ts-order-service (accept),6,6,True,0,0,,False,False,0
+hybrid_7b,re2tt_ts-route-service_disk_2,tt,ts-route-service,2,True,False,ts-order-service (reject) -> ts-route-service (accept),6,7,True,1,1,"{""2"": 1}",True,True,0
+hybrid_7b,re2tt_ts-route-service_loss_1,tt,ts-route-service,2,True,False,ts-consign-service (reject) -> ts-route-service (accept),6,12,True,6,6,"{""2"": 6}",True,True,0
+hybrid_7b,re2tt_ts-route-service_mem_2,tt,ts-route-service,2,True,False,ts-auth-service (reject) -> ts-route-service (accept),6,6,True,0,0,"{""2"": 0}",True,True,0
+hybrid_7b,re2tt_ts-route-service_socket_3,tt,ts-route-service,3,True,False,ts-order-service (reject) -> ts-route-service (reject) -> ts-route-service (accept),6,10,True,4,4,,True,True,0
+hybrid_7b,re2tt_ts-train-service_cpu_2,tt,ts-train-service,2,False,True,ts-train-service (reject) -> ts-seat-service (accept),6,6,True,0,0,"{""2"": 0}",True,True,0
+hybrid_7b,re2tt_ts-train-service_delay_3,tt,ts-train-service,2,True,False,ts-travel-service (reject) -> ts-train-service (accept),6,9,True,3,1,"{""2"": 3}",True,True,0
+hybrid_7b,re2tt_ts-train-service_disk_2,tt,ts-train-service,3,False,False,ts-travel-service (reject) -> ts-travel-service (reject) -> ts-travel-service (reject),10,24,True,14,14,,False,False,0
+hybrid_7b,re2tt_ts-train-service_loss_2,tt,ts-train-service,3,False,False,ts-inside-payment-service (reject) -> ts-train-service (reject) -> ts-travel-service (reject),1,14,True,13,13,,True,False,0
+hybrid_7b,re2tt_ts-train-service_mem_1,tt,ts-train-service,2,True,False,ts-train-mongo (reject) -> ts-train-service (accept),6,6,True,0,0,"{""2"": 0}",True,True,0
+hybrid_7b,re2tt_ts-train-service_socket_2,tt,ts-train-service,3,False,False,ts-order-service (reject) -> ts-order-service (reject) -> ts-admin-travel-service (reject),6,12,True,6,3,,True,False,0
+hybrid_7b,re2tt_ts-travel-service_cpu_1,tt,ts-travel-service,3,True,False,ts-payment-service (reject) -> ts-payment-service (reject) -> ts-travel-service (accept),6,19,True,13,13,,True,True,0
+hybrid_7b,re2tt_ts-travel-service_delay_2,tt,ts-travel-service,2,True,False,ts-order-service (reject) -> ts-travel-service (accept),6,18,True,12,11,"{""2"": 12}",True,True,0
+hybrid_7b,re2tt_ts-travel-service_disk_3,tt,ts-travel-service,1,True,True,ts-travel-service (accept),6,6,True,0,0,,False,True,0
+hybrid_7b,re2tt_ts-travel-service_loss_3,tt,ts-travel-service,1,True,True,ts-travel-service (accept),6,6,True,0,0,,False,False,0
+hybrid_7b,re2tt_ts-travel-service_mem_2,tt,ts-travel-service,3,False,False,ts-payment-service (reject) -> ts-seat-service (reject) -> ts-payment-service (reject),6,14,True,8,8,,True,False,0
+hybrid_7b,re2tt_ts-travel-service_socket_2,tt,ts-travel-service,2,True,False,ts-payment-service (reject) -> ts-travel-service (accept),10,20,True,10,10,"{""2"": 10}",True,True,0
+code_rule,re2ss_carts_cpu_1,ss,carts,1,True,True,carts (accept),6,6,True,0,0,,False,True,0
+code_rule,re2ss_carts_delay_2,ss,carts,2,True,False,front-end (reject) -> carts (accept),6,15,True,9,8,"{""2"": 9}",True,True,0
+code_rule,re2ss_carts_disk_1,ss,carts,1,True,True,carts (accept),5,5,True,0,0,,False,True,0
+code_rule,re2ss_carts_loss_1,ss,carts,2,True,False,front-end (reject) -> carts (accept),6,6,True,0,0,"{""2"": 0}",True,True,0
+code_rule,re2ss_carts_mem_3,ss,carts,1,True,True,carts (accept),6,6,True,0,0,,False,True,0
+code_rule,re2ss_carts_socket_2,ss,carts,1,True,True,carts (accept),5,5,True,0,0,,False,True,0
+code_rule,re2ss_catalogue_cpu_3,ss,catalogue,2,True,False,rabbitmq (reject) -> catalogue (accept),3,9,True,6,6,"{""2"": 6}",True,True,0
+code_rule,re2ss_catalogue_delay_1,ss,catalogue,2,True,False,carts (reject) -> catalogue (accept),4,14,True,10,9,"{""2"": 10}",True,True,0
+code_rule,re2ss_catalogue_disk_1,ss,catalogue,1,False,False,rabbitmq (accept),10,10,True,0,0,,False,False,0
+code_rule,re2ss_catalogue_loss_1,ss,catalogue,1,False,False,front-end (accept),6,6,True,0,0,,False,True,0
+code_rule,re2ss_catalogue_mem_1,ss,catalogue,2,False,False,carts (reject) -> catalogue-db (accept),6,8,True,2,2,"{""2"": 2}",True,False,0
+code_rule,re2ss_catalogue_socket_3,ss,catalogue,1,True,True,catalogue (accept),4,4,True,0,0,,False,True,0
+code_rule,re2ss_orders_cpu_2,ss,orders,1,True,True,orders (accept),5,5,True,0,0,,False,True,0
+code_rule,re2ss_orders_delay_1,ss,orders,2,False,False,payment (reject) -> shipping (accept),3,3,True,0,0,"{""2"": 0}",True,True,0
+code_rule,re2ss_orders_disk_1,ss,orders,2,False,False,carts (reject) -> catalogue-db (accept),6,16,True,10,9,"{""2"": 10}",True,True,0
+code_rule,re2ss_orders_loss_1,ss,orders,2,False,False,shipping (reject) -> front-end (accept),5,15,True,10,10,"{""2"": 10}",True,True,0
+code_rule,re2ss_orders_mem_3,ss,orders,1,True,True,orders (accept),6,6,True,0,0,,False,True,0
+code_rule,re2ss_orders_socket_1,ss,orders,1,True,True,orders (accept),6,6,True,0,0,,False,True,0
+code_rule,re2ss_payment_cpu_3,ss,payment,2,True,False,rabbitmq (reject) -> payment (accept),4,10,True,6,6,"{""2"": 6}",True,True,0
+code_rule,re2ss_payment_delay_3,ss,payment,2,True,False,orders (reject) -> payment (accept),3,12,True,9,9,"{""2"": 9}",True,True,0
+code_rule,re2ss_payment_disk_3,ss,payment,2,True,False,rabbitmq (reject) -> payment (accept),6,15,True,9,9,"{""2"": 9}",True,True,0
+code_rule,re2ss_payment_loss_3,ss,payment,1,False,False,orders (accept),6,6,True,0,0,,False,True,0
+code_rule,re2ss_payment_mem_2,ss,payment,2,True,False,orders (reject) -> payment (accept),6,12,True,6,6,"{""2"": 6}",True,True,0
+code_rule,re2ss_payment_socket_3,ss,payment,1,True,True,payment (accept),6,6,True,0,0,,False,True,0
+code_rule,re2ss_user_cpu_2,ss,user,2,True,False,front-end (reject) -> user (accept),5,5,True,0,0,"{""2"": 0}",True,True,0
+code_rule,re2ss_user_delay_2,ss,user,2,False,False,front-end (reject) -> session-db (accept),5,6,True,1,1,"{""2"": 1}",True,False,0
+code_rule,re2ss_user_disk_2,ss,user,2,True,False,carts (reject) -> user (accept),6,6,True,0,0,"{""2"": 0}",True,True,0
+code_rule,re2ss_user_loss_2,ss,user,2,True,False,orders (reject) -> user (accept),3,7,True,4,4,"{""2"": 4}",True,True,0
+code_rule,re2ss_user_mem_1,ss,user,2,True,False,front-end (reject) -> user (accept),1,1,True,0,0,"{""2"": 0}",True,True,0
+code_rule,re2ss_user_socket_3,ss,user,1,True,True,user (accept),6,6,True,0,0,,False,True,0
+code_rule,re2tt_ts-auth-service_cpu_2,tt,ts-auth-service,1,False,False,ts-train-mongo (accept),6,6,True,0,0,,False,False,0
+code_rule,re2tt_ts-auth-service_delay_2,tt,ts-auth-service,2,True,False,ts-user-service (reject) -> ts-auth-service (accept),3,11,True,8,8,"{""2"": 8}",True,True,0
+code_rule,re2tt_ts-auth-service_disk_2,tt,ts-auth-service,2,True,False,ts-payment-service (reject) -> ts-auth-service (accept),10,16,True,6,6,"{""2"": 6}",True,True,0
+code_rule,re2tt_ts-auth-service_loss_2,tt,ts-auth-service,1,False,False,ts-order-service (accept),6,6,True,0,0,,False,False,0
+code_rule,re2tt_ts-auth-service_mem_1,tt,ts-auth-service,2,True,False,ts-execute-service (reject) -> ts-auth-service (accept),6,12,True,6,6,"{""2"": 6}",True,True,0
+code_rule,re2tt_ts-auth-service_socket_1,tt,ts-auth-service,1,False,False,ts-order-service (accept),6,6,True,0,0,,False,False,0
+code_rule,re2tt_ts-order-service_cpu_1,tt,ts-order-service,2,True,False,ts-admin-basic-info-service (reject) -> ts-order-service (accept),6,12,True,6,6,"{""2"": 6}",True,True,0
+code_rule,re2tt_ts-order-service_delay_1,tt,ts-order-service,1,True,True,ts-order-service (accept),6,6,True,0,0,,False,True,0
+code_rule,re2tt_ts-order-service_disk_3,tt,ts-order-service,1,False,False,ts-train-service (accept),6,6,True,0,0,,False,False,0
+code_rule,re2tt_ts-order-service_loss_2,tt,ts-order-service,2,True,False,ts-travel-service (reject) -> ts-order-service (accept),6,6,True,0,0,"{""2"": 0}",True,True,0
+code_rule,re2tt_ts-order-service_mem_1,tt,ts-order-service,2,True,False,ts-train-service (reject) -> ts-order-service (accept),5,15,True,10,10,"{""2"": 10}",True,True,0
+code_rule,re2tt_ts-order-service_socket_2,tt,ts-order-service,1,True,True,ts-order-service (accept),3,3,True,0,0,,False,True,0
+code_rule,re2tt_ts-route-service_cpu_1,tt,ts-route-service,1,False,False,ts-admin-route-service (accept),6,6,True,0,0,,False,False,0
+code_rule,re2tt_ts-route-service_delay_2,tt,ts-route-service,1,False,False,ts-order-service (accept),6,6,True,0,0,,False,False,0
+code_rule,re2tt_ts-route-service_disk_2,tt,ts-route-service,2,True,False,ts-order-service (reject) -> ts-route-service (accept),6,6,True,0,0,"{""2"": 0}",True,True,0
+code_rule,re2tt_ts-route-service_loss_1,tt,ts-route-service,2,True,False,ts-consign-service (reject) -> ts-route-service (accept),6,16,True,10,10,"{""2"": 10}",True,True,0
+code_rule,re2tt_ts-route-service_mem_2,tt,ts-route-service,2,True,False,ts-auth-service (reject) -> ts-route-service (accept),6,16,True,10,10,"{""2"": 10}",True,True,0
+code_rule,re2tt_ts-route-service_socket_3,tt,ts-route-service,1,False,False,ts-order-service (accept),6,6,True,0,0,,False,False,0
+code_rule,re2tt_ts-train-service_cpu_2,tt,ts-train-service,2,False,True,ts-train-service (reject) -> ts-seat-service (accept),6,11,True,5,5,"{""2"": 5}",True,True,0
+code_rule,re2tt_ts-train-service_delay_3,tt,ts-train-service,2,True,False,ts-travel-service (reject) -> ts-train-service (accept),6,16,True,10,10,"{""2"": 10}",True,True,0
+code_rule,re2tt_ts-train-service_disk_2,tt,ts-train-service,1,False,False,ts-travel-service (accept),10,10,True,0,0,,False,False,0
+code_rule,re2tt_ts-train-service_loss_2,tt,ts-train-service,3,False,False,ts-inside-payment-service (reject) -> ts-inside-payment-service (reject) -> ts-ui-dashboard (accept),1,7,True,6,6,,True,True,0
+code_rule,re2tt_ts-train-service_mem_1,tt,ts-train-service,1,False,False,ts-train-mongo (accept),6,6,True,0,0,,False,False,0
+code_rule,re2tt_ts-train-service_socket_2,tt,ts-train-service,1,False,False,ts-order-service (accept),6,6,True,0,0,,False,False,0
+code_rule,re2tt_ts-travel-service_cpu_1,tt,ts-travel-service,1,False,False,ts-payment-service (accept),6,6,True,0,0,,False,False,0
+code_rule,re2tt_ts-travel-service_delay_2,tt,ts-travel-service,2,True,False,ts-order-service (reject) -> ts-travel-service (accept),6,6,True,0,0,"{""2"": 0}",True,True,0
+code_rule,re2tt_ts-travel-service_disk_3,tt,ts-travel-service,1,True,True,ts-travel-service (accept),6,6,True,0,0,,False,True,0
+code_rule,re2tt_ts-travel-service_loss_3,tt,ts-travel-service,1,True,True,ts-travel-service (accept),6,6,True,0,0,,False,False,0
+code_rule,re2tt_ts-travel-service_mem_2,tt,ts-travel-service,2,False,False,ts-payment-service (reject) -> ts-seat-service (accept),6,6,True,0,0,"{""2"": 0}",True,True,0
+code_rule,re2tt_ts-travel-service_socket_2,tt,ts-travel-service,1,False,False,ts-payment-service (accept),10,10,True,0,0,,False,False,0

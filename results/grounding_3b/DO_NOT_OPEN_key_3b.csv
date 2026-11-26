@@ -1,0 +1,41 @@
+claim_code,judge_label,judge_verified_label,judge_match,judge_quote_ok,judge_evidence
+C01a,Supported,Supported,yes,1,E001
+C01b,Partially Supported,Partially Supported,partly,1,E003
+C02a,Partially Supported,Partially Supported,partly,1,E001
+C02b,Supported,Supported,yes,1,E001
+C03a,Unsupported,Unsupported,absent,,
+C03b,Partially Supported,Partially Supported,partly,1,E001
+C04a,Partially Supported,Partially Supported,partly,1,E008
+C04b,Supported,Supported,yes,1,E005
+C05a,Unsupported,Unsupported,no,1,E005
+C05b,Supported,Unsupported,yes,0,E009
+C06a,Unsupported,Unsupported,no,1,E001
+C06b,Supported,Supported,yes,1,E015 E016
+C07a,Supported,Supported,yes,1,E006
+C07b,Partially Supported,Unsupported,partly,0,E006
+C08a,Partially Supported,Partially Supported,partly,1,E006
+C08b,Supported,Unsupported,yes,0,E001
+C09a,Supported,Supported,yes,1,E001
+C09b,Supported,Supported,yes,1,E001
+C10a,Supported,Supported,yes,1,E006
+C10b,Partially Supported,Partially Supported,partly,1,E001
+C11a,Partially Supported,Partially Supported,partly,1,E001
+C11b,Partially Supported,Partially Supported,partly,1,E001
+C12a,Unsupported,Unsupported,absent,,
+C12b,Supported,Supported,yes,1,E004
+C13a,Partially Supported,Partially Supported,partly,1,E020
+C13b,Supported,Supported,yes,1,E001
+C14a,Supported,Supported,yes,1,E009
+C14b,Supported,Supported,yes,1,E011
+C15a,Supported,Supported,yes,1,E007
+C15b,Partially Supported,Partially Supported,partly,1,E013
+C16a,Partially Supported,Partially Supported,partly,1,E001
+C16b,Partially Supported,Partially Supported,partly,1,E006
+C17a,Supported,Supported,yes,1,E003
+C17b,Supported,Supported,yes,1,E001
+C18a,Supported,Supported,yes,1,E001
+C18b,Supported,Supported,yes,1,E001
+C19a,Supported,Supported,yes,1,E009
+C19b,Supported,Supported,yes,1,E002
+C20a,Partially Supported,Partially Supported,partly,1,E001
+C20b,Partially Supported,Partially Supported,partly,1,E012

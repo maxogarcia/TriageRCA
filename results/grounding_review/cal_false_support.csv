@@ -1,0 +1,5 @@
+reference,case_id,claim_id,claim_type,explanation_claim,claim,human_label,judge_verified,judge_raw,judge_match,judge_quote_ok,judge_evidence
+aeon,re2ob_emailservice_socket_1,5,observational,True,paymentservice_latency-90 increased by 20.0%,Unsupported,Supported,Supported,yes,1,E001
+daniel,re2ob_emailservice_socket_1,5,observational,True,paymentservice_latency-90 increased by 20.0%,Unsupported,Supported,Supported,yes,1,E001
+max,re2ob_emailservice_socket_1,5,observational,True,paymentservice_latency-90 increased by 20.0%,Unsupported,Supported,Supported,yes,1,E001
+majority,re2ob_emailservice_socket_1,5,observational,True,paymentservice_latency-90 increased by 20.0%,Unsupported,Supported,Supported,yes,1,E001
