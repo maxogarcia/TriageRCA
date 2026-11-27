@@ -1,0 +1,61 @@
+case_id,system,truth,group,ratio_s1_s2,e001_top_tie,screen,screen_shift,second,second_shift,n_listed,H_E001a_correct,hybrid_correct,no_critic_correct,llm_only_correct,react_correct,hybrid_final,hybrid_vs_screen,r1_root,r1_e001_rank,r1_category,r1_correct,hybrid_false_rejects,correct_pushed_back_final_wrong
+re2ss_carts_cpu_1,SS,carts,single,15.4891,False,carts,285.0,orders,18.4,12,True,True,True,True,True,carts,,carts,1,screen (= H_E001a),True,1,False
+re2ss_carts_delay_2,SS,carts,single,2.824,False,carts,1100.8,front-end,389.8,12,True,True,False,True,True,carts,,front-end,2,gateway,False,0,False
+re2ss_carts_disk_1,SS,carts,single,24.0217,False,carts,110.5,front-end,4.6,12,True,True,True,True,True,carts,,carts,1,screen (= H_E001a),True,0,False
+re2ss_carts_loss_1,SS,carts,multi,1.5039,False,carts,502.0,orders,333.8,12,True,True,False,False,True,carts,,front-end,3,gateway,False,0,False
+re2ss_carts_mem_3,SS,carts,single,23.5,False,carts,103.4,payment,4.4,12,True,True,True,True,False,carts,,carts,1,screen (= H_E001a),True,0,False
+re2ss_carts_socket_2,SS,carts,single,23.3779,False,carts,402.1,orders,17.2,12,True,True,True,True,True,carts,,carts,1,screen (= H_E001a),True,0,False
+re2ss_catalogue_cpu_3,SS,catalogue,single,604.3793,False,catalogue,3505.4,carts,5.8,12,True,True,False,True,True,catalogue,,rabbitmq,7,E001 rank 4-12,False,1,False
+re2ss_catalogue_delay_1,SS,catalogue,single,1467.9677,False,catalogue,4550.7,catalogue-db,3.1,12,True,True,False,True,False,catalogue,,carts,8,E001 rank 4-12,False,0,False
+re2ss_catalogue_disk_1,SS,catalogue,single,441.625,False,catalogue,1059.9,queue-master,2.4,12,True,True,False,False,True,catalogue,,rabbitmq,,not in E001 top 12,False,1,False
+re2ss_catalogue_loss_1,SS,catalogue,single,144.492,False,front-end,1000000.0,catalogue,6920.8,12,False,True,False,True,False,catalogue,correction,front-end,1,screen (= H_E001a),False,1,False
+re2ss_catalogue_mem_1,SS,catalogue,single,259.4574,False,catalogue,3347.0,front-end,12.9,12,True,False,False,True,True,front-end,regression,carts,6,E001 rank 4-12,False,1,True
+re2ss_catalogue_socket_3,SS,catalogue,single,510.7391,False,catalogue,5873.5,shipping,11.5,12,True,True,True,True,True,catalogue,,catalogue,1,screen (= H_E001a),True,0,False
+re2ss_orders_cpu_2,SS,orders,single,110.5,False,orders,287.3,payment,2.6,12,True,True,True,True,True,orders,,orders,1,screen (= H_E001a),True,0,False
+re2ss_orders_delay_1,SS,orders,multi,1.0206,False,shipping,853.2,payment,836.0,12,False,False,False,False,False,shipping,,payment,2,E001 rank 2-3,False,0,False
+re2ss_orders_disk_1,SS,orders,multi,1.0,True,catalogue-db,1000000.0,front-end,1000000.0,12,False,True,False,False,False,orders,correction,carts,6,E001 rank 4-12,False,1,False
+re2ss_orders_loss_1,SS,orders,multi,1.0,True,front-end,1000000.0,orders,1000000.0,12,False,True,False,False,False,orders,correction,shipping,3,E001 rank 2-3,False,1,False
+re2ss_orders_mem_3,SS,orders,single,34.5417,False,orders,165.8,carts,4.8,12,True,True,True,True,True,orders,,orders,1,screen (= H_E001a),True,1,False
+re2ss_orders_socket_1,SS,orders,single,3.5397,False,orders,44.6,user,12.6,12,True,True,True,True,True,orders,,orders,1,screen (= H_E001a),True,0,False
+re2ss_payment_cpu_3,SS,payment,single,462.4242,False,payment,3052.0,shipping,6.6,12,True,True,False,True,True,payment,,rabbitmq,11,E001 rank 4-12,False,1,False
+re2ss_payment_delay_3,SS,payment,single,11.843,False,payment,875.2,orders,73.9,12,True,True,False,True,False,payment,,orders,2,E001 rank 2-3,False,0,False
+re2ss_payment_disk_3,SS,payment,single,250000.0,False,payment,1000000.0,carts,4.0,12,True,True,False,True,False,payment,,rabbitmq,10,E001 rank 4-12,False,0,False
+re2ss_payment_loss_3,SS,payment,single,1520.2189,False,orders,1000000.0,payment,657.8,12,False,False,False,True,False,orders,,orders,1,screen (= H_E001a),False,1,True
+re2ss_payment_mem_2,SS,payment,single,69.8941,False,payment,4948.5,orders,70.8,12,True,True,False,True,True,payment,,orders,2,E001 rank 2-3,False,0,False
+re2ss_payment_socket_3,SS,payment,single,73.4853,False,payment,3997.6,orders,54.4,12,True,True,True,True,True,payment,,payment,1,screen (= H_E001a),True,0,False
+re2ss_user_cpu_2,SS,user,single,35.0198,False,user,353.7,orders,10.1,12,True,True,False,False,True,user,,front-end,4,gateway,False,0,False
+re2ss_user_delay_2,SS,user,single,7.6723,False,user,2835.7,orders,369.6,12,True,False,False,False,False,rabbitmq-exporter,regression,front-end,3,gateway,False,0,False
+re2ss_user_disk_2,SS,user,single,121951.2195,False,user,1000000.0,orders,8.2,12,True,True,False,True,False,user,,carts,9,E001 rank 4-12,False,1,False
+re2ss_user_loss_2,SS,user,single,3.2664,False,user,2105.2,orders,644.5,12,True,True,False,False,False,user,,orders,2,E001 rank 2-3,False,0,False
+re2ss_user_mem_1,SS,user,single,30.5674,False,user,1179.9,orders,38.6,12,True,False,False,False,False,cartservice,regression,front-end,3,gateway,False,0,False
+re2ss_user_socket_3,SS,user,single,7.7094,False,user,546.6,orders,70.9,12,True,True,True,True,True,user,,user,1,screen (= H_E001a),True,0,False
+re2tt_ts-auth-service_cpu_2,TT,ts-auth-service,single,2.8878,False,ts-auth-service,28.3,ts-ui-dashboard,9.8,12,True,False,False,False,False,ts-ui-dashboard,regression,ts-train-mongo,,not in E001 top 12,False,1,True
+re2tt_ts-auth-service_delay_2,TT,ts-auth-service,single,2.5,False,ts-auth-service,13.0,ts-ui-dashboard,5.2,12,True,True,False,True,True,ts-auth-service,,ts-user-service,5,E001 rank 4-12,False,0,False
+re2tt_ts-auth-service_disk_2,TT,ts-auth-service,single,52429.9917,False,ts-auth-service,629159.9,ts-ui-dashboard,12.0,12,True,True,False,True,True,ts-auth-service,,ts-payment-service,3,E001 rank 2-3,False,0,False
+re2tt_ts-auth-service_loss_2,TT,ts-auth-service,multi,1.1489,False,ts-travel-plan-service,5.4,ts-admin-route-service,4.7,12,False,False,False,False,False,ts-travel-plan-service,,ts-order-service,,not in E001 top 12,False,0,False
+re2tt_ts-auth-service_mem_1,TT,ts-auth-service,single,14.8153,False,ts-auth-service,1163.0,ts-notification-service,78.5,12,True,True,False,True,True,ts-auth-service,,ts-execute-service,3,E001 rank 2-3,False,0,False
+re2tt_ts-auth-service_socket_1,TT,ts-auth-service,single,2.288,False,ts-auth-service,43.7,ts-ui-dashboard,19.1,12,True,True,False,True,False,ts-auth-service,,ts-order-service,,not in E001 top 12,False,0,False
+re2tt_ts-order-service_cpu_1,TT,ts-order-service,single,16.6154,False,ts-order-service,64.8,ts-contacts-service,3.9,12,True,True,False,True,True,ts-order-service,,ts-admin-basic-info-service,6,E001 rank 4-12,False,0,False
+re2tt_ts-order-service_delay_1,TT,ts-order-service,single,2.014,False,ts-order-service,779.0,ts-security-service,386.8,12,True,True,True,True,True,ts-order-service,,ts-order-service,1,screen (= H_E001a),True,1,False
+re2tt_ts-order-service_disk_3,TT,ts-order-service,single,23044.3081,False,ts-order-service,852639.4,ts-inside-payment-service,37.0,12,True,False,False,False,True,ts-travel-service,regression,ts-train-service,,not in E001 top 12,False,0,False
+re2tt_ts-order-service_loss_2,TT,ts-order-service,single,8.8108,False,ts-order-service,130.4,ts-inside-payment-service,14.8,12,True,True,False,True,True,ts-order-service,,ts-travel-service,7,E001 rank 4-12,False,0,False
+re2tt_ts-order-service_mem_1,TT,ts-order-service,single,22.7218,False,ts-order-service,1608.7,ts-route-service,70.8,12,True,True,False,True,False,ts-order-service,,ts-train-service,5,E001 rank 4-12,False,2,False
+re2tt_ts-order-service_socket_2,TT,ts-order-service,single,2.5698,False,ts-order-service,399.6,ts-inside-payment-service,155.5,12,True,True,True,True,False,ts-order-service,,ts-order-service,1,screen (= H_E001a),True,1,False
+re2tt_ts-route-service_cpu_1,TT,ts-route-service,multi,1.0,True,ts-travel-service,1000000.0,ts-ui-dashboard,1000000.0,12,False,False,False,False,True,ts-travel-service,,ts-admin-route-service,,not in E001 top 12,False,0,False
+re2tt_ts-route-service_delay_2,TT,ts-route-service,single,3.8905,False,ts-route-service,1627.4,ts-travel-service,418.3,12,True,True,False,False,False,ts-route-service,,ts-order-service,,not in E001 top 12,False,0,False
+re2tt_ts-route-service_disk_2,TT,ts-route-service,single,84361.3909,False,ts-route-service,927975.3,ts-admin-travel-service,11.0,12,True,True,False,False,True,ts-route-service,,ts-order-service,5,E001 rank 4-12,False,0,False
+re2tt_ts-route-service_loss_1,TT,ts-route-service,single,3.8764,False,ts-route-service,235.3,ts-admin-travel-service,60.7,12,True,True,False,True,False,ts-route-service,,ts-consign-service,5,E001 rank 4-12,False,1,False
+re2tt_ts-route-service_mem_2,TT,ts-route-service,single,22.5602,False,ts-route-service,2287.6,ts-station-service,101.4,12,True,True,False,True,True,ts-route-service,,ts-auth-service,9,E001 rank 4-12,False,0,False
+re2tt_ts-route-service_socket_3,TT,ts-route-service,single,4.3898,False,ts-route-service,318.7,ts-admin-travel-service,72.6,12,True,True,False,True,True,ts-route-service,,ts-order-service,,not in E001 top 12,False,1,False
+re2tt_ts-train-service_cpu_2,TT,ts-train-service,multi,1.0,True,ts-seat-service,1000000.0,ts-travel2-service,1000000.0,12,False,False,True,True,True,ts-travel2-service,,ts-train-service,4,E001 rank 4-12,True,1,True
+re2tt_ts-train-service_delay_3,TT,ts-train-service,single,2.5036,False,ts-train-service,1751.5,ts-admin-travel-service,699.6,12,True,True,False,True,True,ts-train-service,,ts-travel-service,4,E001 rank 4-12,False,0,False
+re2tt_ts-train-service_disk_2,TT,ts-train-service,single,18700.3386,False,ts-train-service,822814.9,ts-admin-travel-service,44.0,12,True,False,False,False,True,ts-travel-service,regression,ts-travel-service,,not in E001 top 12,False,0,False
+re2tt_ts-train-service_loss_2,TT,ts-train-service,single,2908.6678,False,ts-ui-dashboard,1000000.0,ts-train-service,343.8,12,False,True,False,False,False,ts-train-service,correction,ts-inside-payment-service,5,E001 rank 4-12,False,2,False
+re2tt_ts-train-service_mem_1,TT,ts-train-service,single,21.6178,False,ts-train-service,2505.5,ts-route-service,115.9,12,True,True,False,True,True,ts-train-service,,ts-train-mongo,,not in E001 top 12,False,0,False
+re2tt_ts-train-service_socket_2,TT,ts-train-service,single,6016.8472,False,ts-ui-dashboard,1000000.0,ts-train-service,166.2,12,False,True,False,True,False,ts-train-service,correction,ts-order-service,,not in E001 top 12,False,2,False
+re2tt_ts-travel-service_cpu_1,TT,ts-travel-service,single,4.7375,False,ts-travel-service,37.9,ts-preserve-service,8.0,12,True,True,False,False,True,ts-travel-service,,ts-payment-service,,not in E001 top 12,False,1,False
+re2tt_ts-travel-service_delay_2,TT,ts-travel-service,multi,1.3466,False,ts-travel-service,573.4,ts-seat-service,425.8,12,True,True,False,True,True,ts-travel-service,,ts-order-service,7,E001 rank 4-12,False,0,False
+re2tt_ts-travel-service_disk_3,TT,ts-travel-service,single,109802.1067,False,ts-travel-service,823515.8,ts-travel2-service,7.5,12,True,True,True,True,True,ts-travel-service,,ts-travel-service,1,screen (= H_E001a),True,3,False
+re2tt_ts-travel-service_loss_3,TT,ts-travel-service,multi,1.0,True,ts-admin-travel-service,1000000.0,ts-travel-service,1000000.0,12,False,True,True,True,False,ts-travel-service,correction,ts-travel-service,2,E001 rank 2-3,True,0,False
+re2tt_ts-travel-service_mem_2,TT,ts-travel-service,multi,1.0,True,ts-seat-service,1000000.0,ts-travel2-service,1000000.0,12,False,False,False,True,False,ts-seat-service,,ts-payment-service,8,E001 rank 4-12,False,0,False
+re2tt_ts-travel-service_socket_2,TT,ts-travel-service,single,3.1938,False,ts-travel-service,113.7,ts-preserve-service,35.6,12,True,True,False,True,True,ts-travel-service,,ts-payment-service,,not in E001 top 12,False,1,False

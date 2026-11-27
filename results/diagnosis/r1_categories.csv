@@ -1,0 +1,31 @@
+split,category,n,r1_correct,hybrid_final_correct,screen_correct,cases
+all,screen (= H_E001a),15,13,14,13,re2ss_carts_cpu_1 re2ss_carts_disk_1 re2ss_carts_mem_3 re2ss_carts_socket_2 re2ss_catalogue_loss_1 re2ss_catalogue_socket_3 re2ss_orders_cpu_2 re2ss_orders_mem_3 re2ss_orders_socket_1 re2ss_payment_loss_3 re2ss_payment_socket_3 re2ss_user_socket_3 re2tt_ts-order-service_delay_1 re2tt_ts-order-service_socket_2 re2tt_ts-travel-service_disk_3
+all,gateway,5,0,3,5,re2ss_carts_delay_2 re2ss_carts_loss_1 re2ss_user_cpu_2 re2ss_user_delay_2 re2ss_user_mem_1
+all,E001 rank 2-3,8,1,7,5,re2ss_orders_delay_1 re2ss_orders_loss_1 re2ss_payment_delay_3 re2ss_payment_mem_2 re2ss_user_loss_2 re2tt_ts-auth-service_disk_2 re2tt_ts-auth-service_mem_1 re2tt_ts-travel-service_loss_3
+all,E001 rank 4-12,19,1,16,15,re2ss_catalogue_cpu_3 re2ss_catalogue_delay_1 re2ss_catalogue_mem_1 re2ss_orders_disk_1 re2ss_payment_cpu_3 re2ss_payment_disk_3 re2ss_user_disk_2 re2tt_ts-auth-service_delay_2 re2tt_ts-order-service_cpu_1 re2tt_ts-order-service_loss_2 re2tt_ts-order-service_mem_1 re2tt_ts-route-service_disk_2 re2tt_ts-route-service_loss_1 re2tt_ts-route-service_mem_2 re2tt_ts-train-service_cpu_2 re2tt_ts-train-service_delay_3 re2tt_ts-train-service_loss_2 re2tt_ts-travel-service_delay_2 re2tt_ts-travel-service_mem_2
+all,not in E001 top 12,13,0,8,10,re2ss_catalogue_disk_1 re2tt_ts-auth-service_cpu_2 re2tt_ts-auth-service_loss_2 re2tt_ts-auth-service_socket_1 re2tt_ts-order-service_disk_3 re2tt_ts-route-service_cpu_1 re2tt_ts-route-service_delay_2 re2tt_ts-route-service_socket_3 re2tt_ts-train-service_disk_2 re2tt_ts-train-service_mem_1 re2tt_ts-train-service_socket_2 re2tt_ts-travel-service_cpu_1 re2tt_ts-travel-service_socket_2
+all,no answer,0,0,0,0,
+SS,screen (= H_E001a),12,10,11,10,re2ss_carts_cpu_1 re2ss_carts_disk_1 re2ss_carts_mem_3 re2ss_carts_socket_2 re2ss_catalogue_loss_1 re2ss_catalogue_socket_3 re2ss_orders_cpu_2 re2ss_orders_mem_3 re2ss_orders_socket_1 re2ss_payment_loss_3 re2ss_payment_socket_3 re2ss_user_socket_3
+SS,gateway,5,0,3,5,re2ss_carts_delay_2 re2ss_carts_loss_1 re2ss_user_cpu_2 re2ss_user_delay_2 re2ss_user_mem_1
+SS,E001 rank 2-3,5,0,4,3,re2ss_orders_delay_1 re2ss_orders_loss_1 re2ss_payment_delay_3 re2ss_payment_mem_2 re2ss_user_loss_2
+SS,E001 rank 4-12,7,0,6,6,re2ss_catalogue_cpu_3 re2ss_catalogue_delay_1 re2ss_catalogue_mem_1 re2ss_orders_disk_1 re2ss_payment_cpu_3 re2ss_payment_disk_3 re2ss_user_disk_2
+SS,not in E001 top 12,1,0,1,1,re2ss_catalogue_disk_1
+SS,no answer,0,0,0,0,
+TT,screen (= H_E001a),3,3,3,3,re2tt_ts-order-service_delay_1 re2tt_ts-order-service_socket_2 re2tt_ts-travel-service_disk_3
+TT,gateway,0,0,0,0,
+TT,E001 rank 2-3,3,1,3,2,re2tt_ts-auth-service_disk_2 re2tt_ts-auth-service_mem_1 re2tt_ts-travel-service_loss_3
+TT,E001 rank 4-12,12,1,10,9,re2tt_ts-auth-service_delay_2 re2tt_ts-order-service_cpu_1 re2tt_ts-order-service_loss_2 re2tt_ts-order-service_mem_1 re2tt_ts-route-service_disk_2 re2tt_ts-route-service_loss_1 re2tt_ts-route-service_mem_2 re2tt_ts-train-service_cpu_2 re2tt_ts-train-service_delay_3 re2tt_ts-train-service_loss_2 re2tt_ts-travel-service_delay_2 re2tt_ts-travel-service_mem_2
+TT,not in E001 top 12,12,0,7,9,re2tt_ts-auth-service_cpu_2 re2tt_ts-auth-service_loss_2 re2tt_ts-auth-service_socket_1 re2tt_ts-order-service_disk_3 re2tt_ts-route-service_cpu_1 re2tt_ts-route-service_delay_2 re2tt_ts-route-service_socket_3 re2tt_ts-train-service_disk_2 re2tt_ts-train-service_mem_1 re2tt_ts-train-service_socket_2 re2tt_ts-travel-service_cpu_1 re2tt_ts-travel-service_socket_2
+TT,no answer,0,0,0,0,
+single,screen (= H_E001a),15,13,14,13,re2ss_carts_cpu_1 re2ss_carts_disk_1 re2ss_carts_mem_3 re2ss_carts_socket_2 re2ss_catalogue_loss_1 re2ss_catalogue_socket_3 re2ss_orders_cpu_2 re2ss_orders_mem_3 re2ss_orders_socket_1 re2ss_payment_loss_3 re2ss_payment_socket_3 re2ss_user_socket_3 re2tt_ts-order-service_delay_1 re2tt_ts-order-service_socket_2 re2tt_ts-travel-service_disk_3
+single,gateway,4,0,2,4,re2ss_carts_delay_2 re2ss_user_cpu_2 re2ss_user_delay_2 re2ss_user_mem_1
+single,E001 rank 2-3,5,0,5,5,re2ss_payment_delay_3 re2ss_payment_mem_2 re2ss_user_loss_2 re2tt_ts-auth-service_disk_2 re2tt_ts-auth-service_mem_1
+single,E001 rank 4-12,15,0,14,14,re2ss_catalogue_cpu_3 re2ss_catalogue_delay_1 re2ss_catalogue_mem_1 re2ss_payment_cpu_3 re2ss_payment_disk_3 re2ss_user_disk_2 re2tt_ts-auth-service_delay_2 re2tt_ts-order-service_cpu_1 re2tt_ts-order-service_loss_2 re2tt_ts-order-service_mem_1 re2tt_ts-route-service_disk_2 re2tt_ts-route-service_loss_1 re2tt_ts-route-service_mem_2 re2tt_ts-train-service_delay_3 re2tt_ts-train-service_loss_2
+single,not in E001 top 12,11,0,8,10,re2ss_catalogue_disk_1 re2tt_ts-auth-service_cpu_2 re2tt_ts-auth-service_socket_1 re2tt_ts-order-service_disk_3 re2tt_ts-route-service_delay_2 re2tt_ts-route-service_socket_3 re2tt_ts-train-service_disk_2 re2tt_ts-train-service_mem_1 re2tt_ts-train-service_socket_2 re2tt_ts-travel-service_cpu_1 re2tt_ts-travel-service_socket_2
+single,no answer,0,0,0,0,
+multi,screen (= H_E001a),0,0,0,0,
+multi,gateway,1,0,1,1,re2ss_carts_loss_1
+multi,E001 rank 2-3,3,1,2,0,re2ss_orders_delay_1 re2ss_orders_loss_1 re2tt_ts-travel-service_loss_3
+multi,E001 rank 4-12,4,1,2,1,re2ss_orders_disk_1 re2tt_ts-train-service_cpu_2 re2tt_ts-travel-service_delay_2 re2tt_ts-travel-service_mem_2
+multi,not in E001 top 12,2,0,0,0,re2tt_ts-auth-service_loss_2 re2tt_ts-route-service_cpu_1
+multi,no answer,0,0,0,0,

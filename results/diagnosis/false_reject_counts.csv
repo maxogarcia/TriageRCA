@@ -1,0 +1,10 @@
+kind,value,recovered,ended_wrong,total
+primary,need_more_evidence + no hint,10,2,12
+primary,reject + hint,5,2,7
+primary,reject + no hint,9,0,9
+tags,contradicted,15,3,18
+tags,fault_type,1,0,1
+tags,indicator,23,3,26
+tags,missing_evidence_listed,22,4,26
+tags,onset,20,4,24
+tags,unsupported,20,3,23
