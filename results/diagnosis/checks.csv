@@ -1,0 +1,12 @@
+check,expected,got,status
+ac1/hybrid,48,48,ok
+ac1/no_critic,15,15,ok
+ac1/H_E001a,48,48,ok
+r1_eq_screen,15,15,ok
+hybrid_decisions,140,140,ok
+false_rejects,28,28,ok
+pushed_back_final_wrong,4,4,ok
+corrections,6,6,ok
+regressions,6,6,ok
+e001_top_ties,6,6,ok
+fr_ended_wrong_cases == pushed_back_final_wrong cases,"['re2ss_catalogue_mem_1', 're2ss_payment_loss_3', 're2tt_ts-auth-service_cpu_2', 're2tt_ts-train-service_cpu_2']","['re2ss_catalogue_mem_1', 're2ss_payment_loss_3', 're2tt_ts-auth-service_cpu_2', 're2tt_ts-train-service_cpu_2']",ok

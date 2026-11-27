@@ -1,0 +1,61 @@
+case_id,system,group,r1_category,r1_root,screen,truth,n_queries,n_services_queried,screen_queried,root_queried,first_query_is_root,first_metric_is_root,first_query_service,services_queried
+re2ss_carts_cpu_1,SS,single,screen (= H_E001a),carts,carts,carts,5,5,False,False,False,False,front-end,front-end payment orders rabbitmq rabbitmq-exporter
+re2ss_carts_delay_2,SS,single,gateway,front-end,carts,carts,5,4,True,True,True,True,front-end,front-end carts rabbitmq shipping
+re2ss_carts_disk_1,SS,single,screen (= H_E001a),carts,carts,carts,4,4,True,True,False,False,front-end,front-end carts orders payment
+re2ss_carts_loss_1,SS,multi,gateway,front-end,carts,carts,5,5,True,True,False,False,carts,carts orders payment carts-db front-end
+re2ss_carts_mem_3,SS,single,screen (= H_E001a),carts,carts,carts,5,4,True,True,False,False,front-end,front-end carts orders orders-db
+re2ss_carts_socket_2,SS,single,screen (= H_E001a),carts,carts,carts,4,4,True,True,False,False,front-end,front-end orders payment carts
+re2ss_catalogue_cpu_3,SS,single,E001 rank 4-12,rabbitmq,catalogue,catalogue,2,2,False,False,False,False,front-end,front-end payment
+re2ss_catalogue_delay_1,SS,single,E001 rank 4-12,carts,catalogue,catalogue,3,2,True,True,False,False,catalogue,catalogue carts
+re2ss_catalogue_disk_1,SS,single,not in E001 top 12,rabbitmq,catalogue,catalogue,4,2,False,False,False,False,carts,carts front-end
+re2ss_catalogue_loss_1,SS,single,screen (= H_E001a),front-end,front-end,catalogue,5,4,True,True,True,True,front-end,front-end carts carts-db user-db
+re2ss_catalogue_mem_1,SS,single,E001 rank 4-12,carts,catalogue,catalogue,5,5,True,True,False,False,front-end,front-end orders carts catalogue payment
+re2ss_catalogue_socket_3,SS,single,screen (= H_E001a),catalogue,catalogue,catalogue,3,3,True,True,False,False,front-end,front-end rabbitmq-exporter catalogue
+re2ss_orders_cpu_2,SS,single,screen (= H_E001a),orders,orders,orders,4,3,True,True,False,False,front-end,front-end carts orders
+re2ss_orders_delay_1,SS,multi,E001 rank 2-3,payment,shipping,orders,2,2,False,False,False,False,front-end,front-end carts
+re2ss_orders_disk_1,SS,multi,E001 rank 4-12,carts,catalogue-db,orders,5,4,False,True,False,False,front-end,front-end carts orders rabbitmq
+re2ss_orders_loss_1,SS,multi,E001 rank 2-3,shipping,front-end,orders,4,3,True,False,False,False,front-end,front-end carts orders
+re2ss_orders_mem_3,SS,single,screen (= H_E001a),orders,orders,orders,5,4,True,True,False,False,front-end,front-end carts orders payment
+re2ss_orders_socket_1,SS,single,screen (= H_E001a),orders,orders,orders,5,3,True,True,False,False,front-end,front-end carts orders
+re2ss_payment_cpu_3,SS,single,E001 rank 4-12,rabbitmq,payment,payment,3,3,False,False,False,False,front-end,front-end carts orders
+re2ss_payment_delay_3,SS,single,E001 rank 2-3,orders,payment,payment,2,1,False,False,False,False,carts,carts
+re2ss_payment_disk_3,SS,single,E001 rank 4-12,rabbitmq,payment,payment,5,5,True,True,False,False,front-end,front-end carts orders payment rabbitmq
+re2ss_payment_loss_3,SS,single,screen (= H_E001a),orders,orders,payment,5,4,True,True,False,False,front-end,front-end shipping orders rabbitmq
+re2ss_payment_mem_2,SS,single,E001 rank 2-3,orders,payment,payment,5,5,False,True,False,False,front-end,front-end carts orders carts-db catalogue-db
+re2ss_payment_socket_3,SS,single,screen (= H_E001a),payment,payment,payment,5,5,True,True,False,False,front-end,front-end orders-db payment queue-master carts
+re2ss_user_cpu_2,SS,single,gateway,front-end,user,user,4,2,False,True,True,True,front-end,front-end orders
+re2ss_user_delay_2,SS,single,gateway,front-end,user,user,4,4,False,True,True,True,front-end,front-end rabbitmq-exporter carts-db session-db
+re2ss_user_disk_2,SS,single,E001 rank 4-12,carts,user,user,5,3,False,True,False,False,front-end,front-end carts orders
+re2ss_user_loss_2,SS,single,E001 rank 2-3,orders,user,user,2,2,False,False,False,False,front-end,front-end user-db
+re2ss_user_mem_1,SS,single,gateway,front-end,user,user,0,0,False,False,False,False,,
+re2ss_user_socket_3,SS,single,screen (= H_E001a),user,user,user,5,5,False,False,False,False,front-end,front-end istio-init carts carts-db orders
+re2tt_ts-auth-service_cpu_2,TT,single,not in E001 top 12,ts-train-mongo,ts-auth-service,ts-auth-service,5,2,False,True,True,True,ts-train-mongo,ts-train-mongo ts-train-service
+re2tt_ts-auth-service_delay_2,TT,single,E001 rank 4-12,ts-user-service,ts-auth-service,ts-auth-service,2,2,False,False,False,False,ts-admin-basic-info-service,ts-admin-basic-info-service ts-order-service
+re2tt_ts-auth-service_disk_2,TT,single,E001 rank 2-3,ts-payment-service,ts-auth-service,ts-auth-service,4,2,False,True,False,False,ts-admin-order-service,ts-admin-order-service ts-payment-service
+re2tt_ts-auth-service_loss_2,TT,multi,not in E001 top 12,ts-order-service,ts-travel-plan-service,ts-auth-service,5,2,False,True,True,False,ts-order-service,ts-order-service ts-travel-service
+re2tt_ts-auth-service_mem_1,TT,single,E001 rank 2-3,ts-execute-service,ts-auth-service,ts-auth-service,5,5,False,False,False,False,ts-admin-basic-info-service,ts-admin-basic-info-service ts-payment-service ts-admin-order-service ts-order-service ts-payment-mongo
+re2tt_ts-auth-service_socket_1,TT,single,not in E001 top 12,ts-order-service,ts-auth-service,ts-auth-service,5,2,False,True,True,True,ts-order-service,ts-order-service ts-payment-service
+re2tt_ts-order-service_cpu_1,TT,single,E001 rank 4-12,ts-admin-basic-info-service,ts-order-service,ts-order-service,5,4,False,True,False,False,istio-init,istio-init ts-admin-basic-info-service ts-admin-order-service ts-payment-service
+re2tt_ts-order-service_delay_1,TT,single,screen (= H_E001a),ts-order-service,ts-order-service,ts-order-service,5,5,True,True,False,False,ts-admin-basic-info-service,ts-admin-basic-info-service ts-config-service ts-auth-service ts-order-service ts-travel-service
+re2tt_ts-order-service_disk_3,TT,single,not in E001 top 12,ts-train-service,ts-order-service,ts-order-service,5,2,False,True,True,True,ts-train-service,ts-train-service ts-travel-service
+re2tt_ts-order-service_loss_2,TT,single,E001 rank 4-12,ts-travel-service,ts-order-service,ts-order-service,5,2,True,True,True,True,ts-travel-service,ts-travel-service ts-order-service
+re2tt_ts-order-service_mem_1,TT,single,E001 rank 4-12,ts-train-service,ts-order-service,ts-order-service,4,3,False,True,True,True,ts-train-service,ts-train-service ts-route-service istio-init
+re2tt_ts-order-service_socket_2,TT,single,screen (= H_E001a),ts-order-service,ts-order-service,ts-order-service,2,2,True,True,True,True,ts-order-service,ts-order-service ts-payment-service
+re2tt_ts-route-service_cpu_1,TT,multi,not in E001 top 12,ts-admin-route-service,ts-travel-service,ts-route-service,5,3,False,True,False,False,ts-admin-basic-info-service,ts-admin-basic-info-service ts-admin-order-service ts-admin-route-service
+re2tt_ts-route-service_delay_2,TT,single,not in E001 top 12,ts-order-service,ts-route-service,ts-route-service,5,2,False,True,True,True,ts-order-service,ts-order-service ts-payment-service
+re2tt_ts-route-service_disk_2,TT,single,E001 rank 4-12,ts-order-service,ts-route-service,ts-route-service,5,4,False,True,False,False,ts-admin-basic-info-service,ts-admin-basic-info-service ts-admin-order-service ts-order-service ts-order-mongo
+re2tt_ts-route-service_loss_1,TT,single,E001 rank 4-12,ts-consign-service,ts-route-service,ts-route-service,5,3,False,False,False,False,ts-admin-basic-info-service,ts-admin-basic-info-service ts-admin-order-service ts-admin-route-service
+re2tt_ts-route-service_mem_2,TT,single,E001 rank 4-12,ts-auth-service,ts-route-service,ts-route-service,5,5,False,True,False,False,istio-init,istio-init ts-admin-order-service ts-auth-service ts-payment-service ts-train-service
+re2tt_ts-route-service_socket_3,TT,single,not in E001 top 12,ts-order-service,ts-route-service,ts-route-service,5,4,False,True,False,False,ts-admin-basic-info-service,ts-admin-basic-info-service ts-assurance-service ts-order-service ts-payment-service
+re2tt_ts-train-service_cpu_2,TT,multi,E001 rank 4-12,ts-train-service,ts-seat-service,ts-train-service,5,3,False,False,False,False,ts-admin-order-service,ts-admin-order-service ts-order-service ts-payment-service
+re2tt_ts-train-service_delay_3,TT,single,E001 rank 4-12,ts-travel-service,ts-train-service,ts-train-service,5,2,False,True,True,True,ts-travel-service,ts-travel-service ts-order-service
+re2tt_ts-train-service_disk_2,TT,single,not in E001 top 12,ts-travel-service,ts-train-service,ts-train-service,4,3,False,True,True,True,ts-travel-service,ts-travel-service ts-payment-service ts-route-service
+re2tt_ts-train-service_loss_2,TT,single,E001 rank 4-12,ts-inside-payment-service,ts-ui-dashboard,ts-train-service,0,0,False,False,False,False,,
+re2tt_ts-train-service_mem_1,TT,single,not in E001 top 12,ts-train-mongo,ts-train-service,ts-train-service,5,1,False,True,True,True,ts-train-mongo,ts-train-mongo
+re2tt_ts-train-service_socket_2,TT,single,not in E001 top 12,ts-order-service,ts-ui-dashboard,ts-train-service,5,2,False,True,True,True,ts-order-service,ts-order-service ts-payment-service
+re2tt_ts-travel-service_cpu_1,TT,single,not in E001 top 12,ts-payment-service,ts-travel-service,ts-travel-service,5,4,False,True,False,False,istio-init,istio-init ts-admin-basic-info-service ts-admin-order-service ts-payment-service
+re2tt_ts-travel-service_delay_2,TT,multi,E001 rank 4-12,ts-order-service,ts-travel-service,ts-travel-service,5,3,False,True,True,True,ts-order-service,ts-order-service ts-payment-service ts-admin-order-service
+re2tt_ts-travel-service_disk_3,TT,single,screen (= H_E001a),ts-travel-service,ts-travel-service,ts-travel-service,5,2,False,False,False,False,ts-train-service,ts-train-service ts-order-service
+re2tt_ts-travel-service_loss_3,TT,multi,E001 rank 2-3,ts-travel-service,ts-admin-travel-service,ts-travel-service,5,2,False,True,False,False,ts-train-service,ts-train-service ts-travel-service
+re2tt_ts-travel-service_mem_2,TT,multi,E001 rank 4-12,ts-payment-service,ts-seat-service,ts-travel-service,5,2,False,True,False,False,ts-admin-order-service,ts-admin-order-service ts-payment-service
+re2tt_ts-travel-service_socket_2,TT,single,not in E001 top 12,ts-payment-service,ts-travel-service,ts-travel-service,4,2,False,True,False,False,ts-order-service,ts-order-service ts-payment-service
